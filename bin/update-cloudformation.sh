@@ -1,0 +1,1 @@
+aws cloudformation update-stack --stack-name test-stack --template-body file://master.yaml --parameters ParameterKey=KeyName,ParameterValue=MyKeyPair
