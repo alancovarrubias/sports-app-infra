@@ -3,26 +3,10 @@
   remote_user: ec2-user
   become: true
   tasks:
-    - name: Upgrade all packages
-      ansible.builtin.yum:
-        name: "*"
+    - name: checking updates
+      yum:
+        security: yes
         state: latest
-
-    - name: Install the latest version of Docker
-      ansible.builtin.yum:
-        name: docker
-        state: latest
-
-    - name: Add the user 'ec2-user' with a specific uid and a primary group of 'docker'
-      ansible.builtin.user:
-        name: ec2-user
-        group: docker
-
-    - name: Install the latest version of Docker Compose
-      shell: sudo curl -L https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
-
-    - name: Changing perm of "/usr/local/bin/docker-compose", adding "+x"
-      file: dest=/usr/local/bin/docker-compose mode=a+x
 
     - name: Install git
       ansible.builtin.yum:
@@ -34,9 +18,28 @@
         repo: https://github.com/alancovarrubias/sports-app
         dest: /home/ec2-user/sports-app
 
-    - name: deploy Docker Compose stack
-      community.docker.docker_compose:
-        project_src: /home/ec2-user/sports-app
-        files:
-          - docker-compose.yml
-          - docker-compose.prod.yml
+    - name: install pre-requisites
+      pip:
+        name:
+          - docker
+          - docker-compose
+
+    - name: Install the latest version of Docker
+      ansible.builtin.yum:
+        name: docker
+        state: latest
+
+    - name: Ensure docker daemon is running
+      service:
+        name: docker
+        state: started
+
+    - name: Add the user 'ec2-user' with a specific uid and a primary group of 'docker'
+      ansible.builtin.user:
+        name: ec2-user
+        group: docker
+
+    - name: Create and start services
+      docker_compose:
+        project_src: sports-app
+      register: output
