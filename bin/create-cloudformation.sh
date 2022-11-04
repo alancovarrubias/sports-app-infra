@@ -1,0 +1,1 @@
+aws cloudformation create-stack --stack-name test-stack --template-body file://master.yaml --parameters ParameterKey=KeyName,ParameterValue=MyKeyPair ParameterKey=InstanceType,ParameterValue=t2.micro

@@ -39,7 +39,8 @@
         name: ec2-user
         group: docker
 
-    - name: Create and start services
-      docker_compose:
-        project_src: sports-app
-      register: output
+    # - name: Create and start services
+    #   docker_compose:
+    #     project_src: sports-app
+    #   register: output
+    #   tags: build
