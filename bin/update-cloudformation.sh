@@ -1,1 +1,1 @@
-aws cloudformation update-stack --stack-name test-stack --template-body file://master.yaml --parameters ParameterKey=KeyName,ParameterValue=MyKeyPair ParameterKey=InstanceType,ParameterValue=t2.micro
+aws cloudformation update-stack --stack-name $STACK_NAME --template-body $TEMPLATE_BODY --parameters ParameterKey=KeyName,ParameterValue=MyKeyPair ParameterKey=InstanceType,ParameterValue=t2.micro

@@ -1,1 +1,1 @@
-aws cloudformation delete-stack --stack-name test-stack
+aws cloudformation delete-stack --stack-name $STACK_NAME
