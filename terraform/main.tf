@@ -9,7 +9,7 @@ provider "digitalocean" {
 }
 
 resource "digitalocean_ssh_key" "default" {
-  name       = "Terraform Example"
+  name       = "SSH Key"
   public_key = file("/Users/alancovarrubias/.ssh/id_rsa.pub")
 }
 
@@ -17,7 +17,7 @@ resource "digitalocean_droplet" "sports-app-web" {
   image    = "ubuntu-22-04-x64"
   name     = "sports-app-web"
   region   = "sfo2"
-  size     = "s-1vcpu-2gb"
+  size     = "s-1vcpu-1gb"
   ssh_keys = [digitalocean_ssh_key.default.fingerprint]
 }
 
@@ -30,13 +30,6 @@ resource "digitalocean_record" "www" {
   domain = digitalocean_domain.default.id
   type   = "A"
   name   = "www"
-  value  = digitalocean_droplet.sports-app-web.ipv4_address
-}
-
-resource "digitalocean_record" "login" {
-  domain = digitalocean_domain.default.id
-  type   = "A"
-  name   = "login"
   value  = digitalocean_droplet.sports-app-web.ipv4_address
 }
 
