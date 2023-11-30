@@ -1,0 +1,8 @@
+---
+- name: List all Docker images
+  command: docker image ls -q
+  register: image_ids
+
+- name: Remove Docker images
+  command: docker rmi "{{ item }}"
+  with_items: "{{ image_ids.stdout_lines }}"

@@ -1,0 +1,35 @@
+---
+- name: Store ECR password in register
+  hosts: localhost
+  tasks:
+    - name: get ECR password
+      shell: aws ecr get-login-password --region us-west-1
+      register: ecr_password
+- name: Start docker containers
+  hosts: all
+  become: true
+  become_user: "{{user_name}}"
+  vars_files:
+    - project-vars
+  tasks:
+    - name: Copy docker compose
+      copy:
+        src: ./docker-compose.yml
+        dest: /home/{{user_name}}/docker-compose.yml
+        mode: 0600
+
+    - name: Copy nginx folder
+      copy:
+        src: ./nginx
+        dest: /home/{{user_name}}/
+        mode: 0600
+
+    - name: Docker repository login
+      docker_login:
+        registry_url: https://678549062078.dkr.ecr.us-west-1.amazonaws.com
+        username: AWS
+        password: "{{hostvars.localhost.ecr_password.stdout}}"
+
+    - name: Start Docker Compose containers
+      community.general.docker_compose:
+        project_src: /home/{{user_name}}
