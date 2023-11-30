@@ -12,11 +12,7 @@
       vars:
         ansible_connection: local
 
-- name: Install Docker
-  hosts: all
-  tasks:
-    - name: Import Install docker
-      import_playbook: install_docker.yml
+- import_playbook: install_docker.yml
 
 - name: Create new linux user
   hosts: all
