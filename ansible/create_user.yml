@@ -1,0 +1,27 @@
+---
+- name: Create a new user and disable root access
+  hosts: all
+  become: true
+  vars_files:
+    - project-vars
+  tasks:
+    - name: Create a new user
+      user:
+        name: "{{user_name}}"
+        groups:
+          - sudo
+          - docker
+        shell: /bin/bash
+        state: present
+
+    - name: Copy SSH key for the new user
+      authorized_key:
+        user: "{{user_name}}"
+        key: "{{ lookup('file', '/Users/alancovarrubias/.ssh/id_rsa.pub') }}"
+        state: present
+
+    - name: Allow the new user to run sudo without a password prompt
+      lineinfile:
+        path: /etc/sudoers
+        line: "{{user_name}} ALL=(ALL) NOPASSWD:ALL"
+        validate: "visudo -cf %s"
