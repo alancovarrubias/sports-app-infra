@@ -1,5 +1,6 @@
 ---
-- import_playbook: wait_for_ssh.yml
-- import_playbook: install_docker.yml
-- import_playbook: create_user.yml
-- import_playbook: disable_root.yml
+- name: Setup server
+  hosts: all
+  gather_facts: false
+  roles:
+    - setup_server
