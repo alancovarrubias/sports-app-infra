@@ -5,9 +5,13 @@
     - name: get ECR password
       shell: aws ecr get-login-password --region us-west-1
       register: ecr_password
+  tags:
+    - deploy
 
 - name: Deploy app
   hosts: all
   gather_facts: false
   roles:
     - deploy_app
+  tags:
+    - always
