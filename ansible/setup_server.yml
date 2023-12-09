@@ -1,4 +1,14 @@
 ---
+- name: Create SSH Config File
+  hosts: localhost
+  tasks:
+    - name: Generate SSH Config File
+      template:
+        src: ssh_config.j2
+        dest: "{{ ansible_env.HOME }}/.ssh/config"
+      vars:
+        target_host_ip: "{{ target_host_ip }}"
+
 - name: Setup server
   hosts: all
   gather_facts: false
