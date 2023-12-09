@@ -1,0 +1,19 @@
+---
+# tasks file for prometheus
+- name: Install Prometheus
+  apt:
+    name: prometheus
+    state: present
+
+- name: Create Prometheus configuration file
+  template:
+    src: prometheus.yml.j2
+    dest: /etc/prometheus/prometheus.yml
+  notify: Reload Prometheus
+
+- name: Set up Prometheus as a systemd service
+  systemd:
+    name: prometheus
+    enabled: yes
+    state: started
+  notify: Reload Prometheus

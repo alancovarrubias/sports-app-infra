@@ -2,7 +2,7 @@
 # tasks file for deploy_app
 - name: Copy docker compose
   copy:
-    src: ./docker-compose.yml
+    src: docker-compose.yml
     dest: /home/{{user_name}}/docker-compose.yml
     mode: 0600
   tags:
@@ -10,7 +10,7 @@
 
 - name: Copy nginx folder
   copy:
-    src: ./nginx
+    src: nginx
     dest: /home/{{user_name}}/
     mode: 0600
   tags:
