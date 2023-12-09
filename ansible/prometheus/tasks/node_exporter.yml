@@ -1,0 +1,36 @@
+- name: Create Node Exporter User
+  user:
+    name: "{{ node_exporter_user }}"
+    system: true
+
+- name: Download Node Exporter
+  get_url:
+    url: "{{ node_exporter_download_url }}"
+    dest: "/tmp/node_exporter.tar.gz"
+
+- name: Extract Node Exporter
+  ansible.builtin.unarchive:
+    src: "/tmp/node_exporter.tar.gz"
+    dest: "/opt"
+    remote_src: true
+
+- name: Move Node Exporter Binary
+  command: "mv /opt/node_exporter-{{ node_exporter_version }}.linux-amd64/node_exporter /usr/local/bin/"
+
+- name: Set Node Exporter Permissions
+  file:
+    path: "/usr/local/bin/node_exporter"
+    mode: "0755"
+
+- name: Create Node Exporter Service
+  ansible.builtin.template:
+    src: "node_exporter.service.j2"
+    dest: "/etc/systemd/system/node_exporter.service"
+  notify: Reload Node Exporter
+
+- name: Start Node Exporter Service
+  systemd:
+    name: "node_exporter"
+    enabled: true
+    state: started
+    daemon_reload: yes
