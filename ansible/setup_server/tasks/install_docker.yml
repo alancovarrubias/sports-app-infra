@@ -1,4 +1,9 @@
 ---
+- name: Check if aptitude is installed
+  ansible.builtin.stat:
+    path: /usr/bin/aptitude
+  register: aptitude_check
+
 - name: Install aptitude
   apt:
     name: aptitude
@@ -16,6 +21,7 @@
   until: result is not failed
   retries: 5
   delay: 5
+  when: aptitude_check.stat.isreg == false
 
 - name: Install required system packages
   apt:

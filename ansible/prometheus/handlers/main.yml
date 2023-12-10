@@ -9,3 +9,8 @@
   systemd:
     name: "node_exporter"
     state: restarted
+
+- name: Restart Grafana
+  community.general.docker_compose:
+    project_src: "{{user_home}}"
+    state: restarted
