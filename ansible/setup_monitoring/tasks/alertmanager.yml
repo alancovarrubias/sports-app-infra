@@ -1,0 +1,39 @@
+---
+- name: Create Alertmanager installation directory
+  ansible.builtin.file:
+    path: "{{ alertmanager_install_dir }}"
+    state: directory
+
+- name: Download Alertmanager
+  ansible.builtin.get_url:
+    url: https://github.com/prometheus/alertmanager/releases/download/v{{ alertmanager_version }}/alertmanager-{{ alertmanager_version }}.linux-386.tar.gz
+    dest: /tmp/alertmanager-{{ alertmanager_version }}.tar.gz
+
+- name: Extract Alertmanager
+  ansible.builtin.unarchive:
+    src: "/tmp/alertmanager-{{ alertmanager_version }}.tar.gz"
+    dest: "{{ alertmanager_install_dir }}"
+    remote_src: true
+
+- name: Create symbolic link
+  ansible.builtin.file:
+    src: "{{ alertmanager_install_dir }}/alertmanager-{{ alertmanager_version }}.linux-386/alertmanager"
+    dest: "/usr/local/bin/alertmanager"
+    state: link
+
+- name: Copy alertmanager config
+  ansible.builtin.template:
+    src: alertmanager.yml.j2
+    dest: "{{ user_home }}/alertmanager.yml"
+
+- name: Create alertmanager service file
+  ansible.builtin.template:
+    src: alertmanager.service.j2
+    dest: /etc/systemd/system/alertmanager.service
+
+- name: Start and enable Alertmanager service
+  ansible.builtin.systemd:
+    name: alertmanager
+    state: started
+    enabled: yes
+    daemon_reload: yes

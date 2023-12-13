@@ -1,0 +1,21 @@
+---
+# handlers file for setup_monitoring
+- name: Reload Prometheus
+  systemd:
+    name: prometheus
+    state: restarted
+
+- name: Reload Node Exporter
+  systemd:
+    name: "node_exporter"
+    state: restarted
+
+- name: Restart Grafana
+  community.general.docker_compose:
+    project_src: "{{user_home}}"
+    state: restarted
+
+- name: Reload alertmanager
+  ansible.builtin.systemd:
+    name: alertmanager
+    state: reloaded

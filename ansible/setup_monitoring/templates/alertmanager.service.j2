@@ -1,0 +1,7 @@
+# node_exporter.service.j2
+[Unit]
+Description=Alertmanager
+
+[Service]
+User=root
+ExecStart=/usr/local/bin/alertmanager --config.file={{ user_home }}/alertmanager.yml

@@ -9,9 +9,16 @@
       vars:
         target_host_ip: "{{ target_host_ip }}"
 
+    - name: Adding the path in the zshrc files
+      lineinfile:
+        dest: "{{ ansible_env.HOME }}/.zshrc"
+        regexp: ^export DROPLET_IP=
+        line: export DROPLET_IP={{ target_host_ip }}
+        state: present
+
 - name: Setup server
   hosts: all
   gather_facts: false
   roles:
     - setup_server
-    - prometheus
+    - setup_monitoring

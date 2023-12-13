@@ -1,0 +1,11 @@
+---
+# vars file for setup_monitoring
+user_name: alan
+user_home: /home/{{user_name}}
+node_exporter_version: 1.7.0
+node_exporter_user: node_exporter
+node_exporter_download_url: https://github.com/prometheus/node_exporter/releases/download/v{{node_exporter_version}}/node_exporter-{{node_exporter_version}}.linux-amd64.tar.gz
+prometheus_config_path: /etc/prometheus/prometheus.yml
+alertmanager_version: 0.26.0
+alertmanager_install_dir: /opt/alertmanager
+webhook_url: https://webhook.site/0e838a9e-4505-4ca5-bf72-99a6f48e4c14
