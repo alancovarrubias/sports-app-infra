@@ -1,0 +1,37 @@
+---
+# tasks file for jenkins
+- name: Copy docker compose
+  copy:
+    src: docker-compose.yml
+    dest: /home/{{user_name}}/docker-compose.yml
+    mode: 0600
+
+- name: Copy Dockerfile
+  copy:
+    src: Dockerfile
+    dest: /home/{{ user_name }}/Dockerfile
+    mode: 0600
+
+- name: Build Docker image
+  community.general.docker_image:
+    name: my-jenkins:latest
+    build:
+      path: "/home/{{ user_name }}"
+    source: build
+    state: present
+
+- name: Start Docker Compose containers
+  community.general.docker_compose:
+    project_src: /home/{{user_name}}
+
+- name: Run Docker exec command
+  ansible.builtin.command:
+    cmd: "docker exec -it alan_jenkins_1 cat /var/jenkins_home/secrets/initialAdminPassword"
+  register: result
+  until: result is not failed
+  retries: 5
+  delay: 10
+
+- name: Display initialAdminPassword
+  debug:
+    var: result.stdout
