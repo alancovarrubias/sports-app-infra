@@ -1,10 +1,26 @@
 jenkins:
-  systemMessage: "Welcome to our Jenkins CI/CD Server"
+  systemMessage: Welcome to our Jenkins CI/CD Server
   numExecutors: 2
   mode: NORMAL
   securityRealm:
     local:
       allowsSignup: false
       users:
-        - id: "admin"
-          password: "youradminpassword"
+        - id: "{{ jenkins_user }}"
+          password: "{{ jenkins_password }}"
+jobs:
+  - script: >
+      job('Job_DSL_Seed') {
+        scm {
+          git {
+            remote {
+              url 'ssh://git.example.com/project/jenkins-jobs.git'
+            }
+          }
+        }
+        steps {
+          jobDsl {
+            targets 'jobs/**/*.groovy'
+          }
+        }
+      }

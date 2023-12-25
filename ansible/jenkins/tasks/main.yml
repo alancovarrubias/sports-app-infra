@@ -3,50 +3,84 @@
 - name: Copy docker compose
   copy:
     src: docker-compose.yml
-    dest: /home/{{user_name}}/docker-compose.yml
+    dest: "{{ user_home }}/docker-compose.yml"
+    owner: "{{ user_name }}"
+    group: "{{ user_name }}"
     mode: 0600
+  tags:
+    - jenkins
 
 - name: Copy Dockerfile
   copy:
     src: Dockerfile
-    dest: /home/{{ user_name }}/Dockerfile
+    dest: "{{ user_home }}/Dockerfile"
+    owner: "{{ user_name }}"
+    group: "{{ user_name }}"
     mode: 0600
+  tags:
+    - jenkins
 
 - name: Copy plugins.txt
   copy:
     src: plugins.txt
-    dest: /home/{{ user_name }}/plugins.txt
+    dest: "{{ user_home }}/plugins.txt"
+    owner: "{{ user_name }}"
+    group: "{{ user_name }}"
+    mode: 0600
+  register: plugins_info
+  tags:
+    - jenkins
 
 - name: Create a casc_configs directory
   file:
-    path: /home/{{ user_name }}/casc_configs
+    path: "{{ user_home }}/casc_configs"
     state: directory
-    mode: "0755"
+    owner: "{{ user_name }}"
+    group: "{{ user_name }}"
+    mode: 0755
+  tags:
+    - jenkins
 
 - name: Copy jenkins.yaml
   copy:
     src: jenkins.yaml
-    dest: /home/{{ user_name }}/casc_configs/jenkins.yaml
+    dest: "{{ user_home }}/casc_configs/jenkins.yaml"
+  tags:
+    - jenkins
 
 - name: Build Docker image
   community.general.docker_image:
     name: custom-jenkins
     tag: latest
-    source: build
     build:
-      path: "/home/{{ user_name }}"
+      path: "{{ user_home }}"
+    source: build
+    force_source: "{{ plugins_info.changed }}"
+  tags:
+    - jenkins
 
 - name: Start Docker Compose containers
   community.general.docker_compose:
-    project_src: /home/{{ user_name }}
-# - name: Run Docker exec command
-#   ansible.builtin.command:
-#     cmd: "docker exec -it alan_jenkins_1 cat /var/jenkins_home/secrets/initialAdminPassword"
-#   register: result
-#   until: result is not failed
-#   retries: 5
-#   delay: 10
-#
-# - name: Display initialAdminPassword
-#   debug:
-#     var: result.stdout
+    project_src: "{{ user_home }}"
+    restarted: true
+  tags:
+    - jenkins
+
+- name: Output plugins
+  shell: |
+    JENKINS_HOST={{ jenkins_user }}:{{ jenkins_password }}@{{ target_host_ip }}:{{ jenkins_port }}
+    curl -sSL "http://$JENKINS_HOST/pluginManager/api/xml?depth=1&xpath=/*/*/shortName|/*/*/version&wrapper=plugins" |
+      perl -pe 's/.*?<shortName>([\w-]+).*?<version>([^<]+)()(<\/\w+>)+/\1 \2\n/g' |
+      sed 's/ /:/'
+  delegate_to: localhost
+  register: plugin_versions
+  tags:
+    - output
+
+- name: Write output to a file
+  copy:
+    content: "{{ plugin_versions.stdout }}"
+    dest: "~/file.txt"
+  delegate_to: localhost
+  tags:
+    - output
