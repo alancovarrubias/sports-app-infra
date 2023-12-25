@@ -17,6 +17,17 @@
     src: plugins.txt
     dest: /home/{{ user_name }}/plugins.txt
 
+- name: Copy jenkins.yaml
+  copy:
+    src: jenkins.yaml
+    dest: /home/{{ user_name }}/casc_configs/jenkins.yaml
+
+- name: Create a casc_configs directory
+  file:
+    path: /home/{{ user_name }}/casc_configs
+    state: directory
+    mode: "0755" # Adjust permissions as needed
+
 - name: Build Docker image
   community.general.docker_image:
     name: custom-jenkins
