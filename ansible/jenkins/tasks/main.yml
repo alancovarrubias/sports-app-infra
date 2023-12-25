@@ -17,16 +17,16 @@
     src: plugins.txt
     dest: /home/{{ user_name }}/plugins.txt
 
-- name: Copy jenkins.yaml
-  copy:
-    src: jenkins.yaml
-    dest: /home/{{ user_name }}/casc_configs/jenkins.yaml
-
 - name: Create a casc_configs directory
   file:
     path: /home/{{ user_name }}/casc_configs
     state: directory
-    mode: "0755" # Adjust permissions as needed
+    mode: "0755"
+
+- name: Copy jenkins.yaml
+  copy:
+    src: jenkins.yaml
+    dest: /home/{{ user_name }}/casc_configs/jenkins.yaml
 
 - name: Build Docker image
   community.general.docker_image:
@@ -39,15 +39,14 @@
 - name: Start Docker Compose containers
   community.general.docker_compose:
     project_src: /home/{{ user_name }}
-
-- name: Run Docker exec command
-  ansible.builtin.command:
-    cmd: "docker exec -it alan_jenkins_1 cat /var/jenkins_home/secrets/initialAdminPassword"
-  register: result
-  until: result is not failed
-  retries: 5
-  delay: 10
-
-- name: Display initialAdminPassword
-  debug:
-    var: result.stdout
+# - name: Run Docker exec command
+#   ansible.builtin.command:
+#     cmd: "docker exec -it alan_jenkins_1 cat /var/jenkins_home/secrets/initialAdminPassword"
+#   register: result
+#   until: result is not failed
+#   retries: 5
+#   delay: 10
+#
+# - name: Display initialAdminPassword
+#   debug:
+#     var: result.stdout

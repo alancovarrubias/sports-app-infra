@@ -1,9 +1,10 @@
 jenkins:
+  systemMessage: "Welcome to our Jenkins CI/CD Server"
+  numExecutors: 2
+  mode: NORMAL
   securityRealm:
     local:
       allowsSignup: false
       users:
         - id: "admin"
-          password: "your_password_here"
-          fullName: "Administrator"
-          email: "admin@example.com"
+          password: "youradminpassword"
