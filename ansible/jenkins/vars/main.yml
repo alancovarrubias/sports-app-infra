@@ -1,3 +1,5 @@
 ---
 # vars file for jenkins
 user_name: alan
+jenkins_user: admin
+jenkins_url: http://{{ target_host_ip }}:8080

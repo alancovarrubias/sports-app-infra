@@ -12,17 +12,22 @@
     dest: /home/{{ user_name }}/Dockerfile
     mode: 0600
 
+- name: Copy plugins.txt
+  copy:
+    src: plugins.txt
+    dest: /home/{{ user_name }}/plugins.txt
+
 - name: Build Docker image
   community.general.docker_image:
-    name: my-jenkins:latest
+    name: custom-jenkins
+    tag: latest
+    source: build
     build:
       path: "/home/{{ user_name }}"
-    source: build
-    state: present
 
 - name: Start Docker Compose containers
   community.general.docker_compose:
-    project_src: /home/{{user_name}}
+    project_src: /home/{{ user_name }}
 
 - name: Run Docker exec command
   ansible.builtin.command:

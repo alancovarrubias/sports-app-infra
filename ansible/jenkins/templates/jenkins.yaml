@@ -1,0 +1,9 @@
+jenkins:
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: "admin"
+          password: "your_password_here"
+          fullName: "Administrator"
+          email: "admin@example.com"

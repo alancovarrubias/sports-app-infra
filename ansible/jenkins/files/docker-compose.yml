@@ -1,7 +1,7 @@
 version: "3.4"
 services:
   jenkins:
-    image: my-jenkins:latest
+    image: custom-jenkins:latest
     ports:
       - 8080:8080
       - 50000:50000
