@@ -10,13 +10,19 @@ jenkins:
           password: "{{ jenkins_password }}"
 jobs:
   - script: >
-      job('Job_DSL_Seed') {
-        scm {
-          git {
-            remote {
-              url 'https://github.com/alancovarrubias/sports-app.git'
+      pipelineJob('Sports_App_Job') {
+        definition {
+            cpsScm {
+                scm {
+                    git {
+                        remote {
+                            url 'https://github.com/alancovarrubias/sports-app.git'
+                        }
+                        branches('*/main')
+                        scriptPath 'Jenkinsfile'
+                    }
+                }
             }
-          }
         }
       }
 
