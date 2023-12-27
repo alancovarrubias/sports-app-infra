@@ -14,13 +14,19 @@ jobs:
         scm {
           git {
             remote {
-              url 'ssh://git.example.com/project/jenkins-jobs.git'
+              url 'https://github.com/alancovarrubias/sports-app.git'
             }
           }
         }
-        steps {
-          jobDsl {
-            targets 'jobs/**/*.groovy'
-          }
-        }
       }
+
+credentials:
+  system:
+    domainCredentials:
+      - credentials:
+          - usernamePassword:
+              scope: GLOBAL
+              id: "github-token"
+              username: "alancovarrubias"
+              password: "password"
+              description: "GitHub Token"
