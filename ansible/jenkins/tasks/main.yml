@@ -66,6 +66,14 @@
   tags:
     - jenkins
 
+- name: Update docker.sock permissions
+  community.docker.docker_container_exec:
+    container: alan_jenkins_1
+    user: root
+    command: chmod 666 /var/run/docker.sock
+  tags:
+    - jenkins
+
 - name: Output plugins
   shell: |
     JENKINS_HOST={{ jenkins_user }}:{{ jenkins_password }}@{{ target_host_ip }}:{{ jenkins_port }}
