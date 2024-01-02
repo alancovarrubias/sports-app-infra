@@ -6,7 +6,10 @@ USER root
 
 # Install prerequisites
 RUN apt-get update && \
-    apt-get install -y curl
+    apt-get install -y curl && \
+    apt-get install -y python3-pip && \
+    rm /usr/lib/python3.11/EXTERNALLY-MANAGED && \
+    pip3 install --no-cache-dir awscli
 
 # Download and install Docker
 RUN curl -fsSL https://get.docker.com -o get-docker.sh && \

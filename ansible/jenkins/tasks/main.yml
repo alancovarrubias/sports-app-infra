@@ -17,6 +17,7 @@
     owner: "{{ user_name }}"
     group: "{{ user_name }}"
     mode: 0600
+  register: Dockerfile_info
   tags:
     - jenkins
 
@@ -55,7 +56,7 @@
     build:
       path: "{{ user_home }}"
     source: build
-    force_source: "{{ plugins_info.changed }}"
+    force_source: "{{ plugins_info.changed or Dockerfile_info.changed }}"
   tags:
     - jenkins
 
