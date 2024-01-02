@@ -30,9 +30,9 @@ credentials:
   system:
     domainCredentials:
       - credentials:
-          - usernamePassword:
+          - aws:
               scope: GLOBAL
-              id: "github-token"
-              username: "alancovarrubias"
-              password: "password"
-              description: "GitHub Token"
+              id: "aws-access-key-id"
+              accessKey: "${AWS_ACCESS_KEY}"
+              secretKey: "${AWS_SECRET_ACCESS_KEY}"
+              description: "AWS Credentials"
