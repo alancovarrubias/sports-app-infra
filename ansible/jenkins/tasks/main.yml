@@ -42,8 +42,8 @@
     - jenkins
 
 - name: Copy jenkins.yaml
-  copy:
-    src: jenkins.yaml
+  template:
+    src: jenkins.j2
     dest: "{{ user_home }}/casc_configs/jenkins.yaml"
   tags:
     - jenkins
@@ -96,7 +96,7 @@
 - name: Write output to a file
   copy:
     content: "{{ plugin_versions.stdout }}"
-    dest: "~/file.txt"
+    dest: "~/Projects/mike/sports-app-infra/ansible/jenkins/files/plugins.txt"
   delegate_to: localhost
   tags:
     - output
