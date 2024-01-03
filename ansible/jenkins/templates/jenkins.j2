@@ -12,27 +12,19 @@ jobs:
   - script: >
       pipelineJob('Sports_App_Job') {
         definition {
-            cpsScm {
-                scm {
-                    git {
-                        remote {
-                            url 'https://github.com/alancovarrubias/sports-app.git'
-                        }
-                        branches('*/main')
-                        scriptPath 'Jenkinsfile'
-                    }
+          cpsScm {
+            scm {
+              git {
+                remote {
+                    url 'https://github.com/alancovarrubias/sports-app.git'
                 }
+                branches('*/main')
+                scriptPath 'Jenkinsfile'
+              }
             }
+          }
+        }
+        triggers {
+          githubPush()
         }
       }
-
-credentials:
-  system:
-    domainCredentials:
-      - credentials:
-          - aws:
-              scope: GLOBAL
-              id: "aws-access-key-id"
-              accessKey: "${AWS_ACCESS_KEY}"
-              secretKey: "${AWS_SECRET_ACCESS_KEY}"
-              description: "AWS Credentials"

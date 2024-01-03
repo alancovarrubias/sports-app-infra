@@ -32,6 +32,26 @@
   tags:
     - jenkins
 
+- name: Copy AWS config
+  copy:
+    src: config
+    dest: "{{ user_home }}/config"
+    owner: "{{ user_name }}"
+    group: "{{ user_name }}"
+    mode: 0600
+  tags:
+    - jenkins
+
+- name: Copy AWS credentials
+  copy:
+    src: credentials
+    dest: "{{ user_home }}/credentials"
+    owner: "{{ user_name }}"
+    group: "{{ user_name }}"
+    mode: 0600
+  tags:
+    - jenkins
+
 - name: Create a casc_configs directory
   file:
     path: "{{ user_home }}/casc_configs"
@@ -49,7 +69,7 @@
   tags:
     - jenkins
 
-- name: Build Docker image
+- name: Build Docker Image
   community.general.docker_image:
     name: custom-jenkins
     tag: latest

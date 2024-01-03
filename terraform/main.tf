@@ -16,7 +16,7 @@ resource "null_resource" "configure_server" {
   }
   provisioner "local-exec" {
     working_dir = "../ansible"
-    command     = "ansible-playbook --inventory ${module.digitalocean.ip_address}, -e target_host_ip=${module.digitalocean.ip_address} --private-key ${var.private_ssh_key} --user root setup_server.yml"
+    command     = "ansible-playbook --vault-password-file ~/.vault_pass.txt --inventory ${module.digitalocean.ip_address}, -e target_host_ip=${module.digitalocean.ip_address} --private-key ${var.private_ssh_key} --user root setup_server.yml"
   }
 }
 
