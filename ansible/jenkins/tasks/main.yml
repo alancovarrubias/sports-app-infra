@@ -95,14 +95,6 @@
   tags:
     - jenkins
 
-- name: Install docker compose
-  community.docker.docker_container_exec:
-    container: alan_jenkins_1
-    user: root
-    command: apt-get install -y docker-compose
-  tags:
-    - jenkins
-
 - name: Output plugins
   shell: |
     JENKINS_HOST={{ jenkins_user }}:{{ jenkins_password }}@{{ target_host_ip }}:{{ jenkins_port }}
@@ -111,13 +103,5 @@
       sed 's/ /:/'
   delegate_to: localhost
   register: plugin_versions
-  tags:
-    - output
-
-- name: Write output to a file
-  copy:
-    content: "{{ plugin_versions.stdout }}"
-    dest: "~/Projects/mike/sports-app-infra/ansible/jenkins/files/plugins.txt"
-  delegate_to: localhost
   tags:
     - output

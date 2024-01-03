@@ -8,6 +8,7 @@ USER root
 RUN apt-get update && \
     apt-get install -y curl && \
     apt-get install -y python3-pip && \
+    apt-get install -y docker-compose && \
     rm /usr/lib/python3.11/EXTERNALLY-MANAGED && \
     pip3 install --no-cache-dir awscli
 
