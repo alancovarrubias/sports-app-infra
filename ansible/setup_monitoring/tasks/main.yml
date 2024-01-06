@@ -11,6 +11,20 @@
   tags:
     - test
 
+- name: Check if Prometheus data source already exists
+  uri:
+    url: "http://{{ target_host_ip }}:3000/api/datasources/name/Prometheus"
+    method: GET
+    headers:
+      Content-Type: "application/json"
+    user: "{{ grafana_admin_user }}"
+    password: "{{ grafana_admin_password }}"
+    force_basic_auth: true
+  register: prometheus_data_source_result
+  ignore_errors: true
+  tags:
+    - test
+
 - name: Install Grafana data source - Prometheus
   uri:
     url: "http://{{ target_host_ip }}:3000/api/datasources"
@@ -20,5 +34,6 @@
     user: admin
     password: admin
     force_basic_auth: true
+  when: "prometheus_data_source_result.status == 404"
   tags:
     - test
