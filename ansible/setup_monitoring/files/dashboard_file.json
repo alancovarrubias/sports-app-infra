@@ -1,0 +1,24 @@
+{
+    "dashboard": {
+      "id": null,
+      "title": "Example Dashboard",
+      "panels": [
+        {
+          "title": "Panel 1",
+          "type": "singlestat",
+          "datasource": "Prometheus",
+          "targets": [
+            {
+              "expr": "node_memory_MemFree_bytes",
+              "format": "bytes"
+            }
+          ]
+        }
+      ],
+      "rows": [],
+      "schemaVersion": 21,
+      "version": 1
+    },
+    "overwrite": false
+  }
+  

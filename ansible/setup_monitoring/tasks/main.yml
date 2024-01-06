@@ -37,3 +37,22 @@
   when: "prometheus_data_source_result.status == 404"
   tags:
     - test
+
+- name: Import Grafana dashboard
+  uri:
+    url: "http://{{ target_host_ip }}:3000/api/dashboards/db"
+    method: POST
+    body_format: json
+    body: "{{ lookup('file', 'dashboard_file.json') }}"
+    user: admin
+    password: admin
+    force_basic_auth: true
+  register: import_result
+  tags:
+    - test
+
+- name: Debug import result
+  debug:
+    var: import_result.json
+  tags:
+    - test
