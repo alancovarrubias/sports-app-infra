@@ -21,4 +21,5 @@
   gather_facts: false
   roles:
     - setup_server
+    - setup_monitoring
     - jenkins

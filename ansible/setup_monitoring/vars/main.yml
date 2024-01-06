@@ -9,3 +9,6 @@ prometheus_config_path: /etc/prometheus/prometheus.yml
 alertmanager_version: 0.26.0
 alertmanager_install_dir: /opt/alertmanager
 webhook_url: https://webhook.site/0e838a9e-4505-4ca5-bf72-99a6f48e4c14
+grafana_admin_user: admin
+grafana_admin_password: admin
+prometheus_endpoint: "http://{{ target_host_ip }}:9090"

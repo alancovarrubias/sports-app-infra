@@ -1,12 +1,12 @@
 ---
 # handlers file for setup_monitoring
 - name: Reload Prometheus
-  systemd:
+  ansible.builtin.systemd:
     name: prometheus
     state: restarted
 
 - name: Reload Node Exporter
-  systemd:
+  ansible.builtin.systemd:
     name: "node_exporter"
     state: restarted
 
