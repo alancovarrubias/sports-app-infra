@@ -1,7 +1,7 @@
 {
     "dashboard": {
       "id": null,
-      "title": "Example Dashboard",
+      "title": "{{ dashboard_name }}",
       "panels": [
         {
           "title": "Panel 1",

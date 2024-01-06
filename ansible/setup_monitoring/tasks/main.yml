@@ -11,12 +11,10 @@
   tags:
     - test
 
-- name: Check if Prometheus data source already exists
+- name: Check if {{ datasource_name }} data source already exists
   uri:
-    url: "http://{{ target_host_ip }}:3000/api/datasources/name/Prometheus"
+    url: "{{ grafana_endpoint }}/api/datasources/name/{{ datasource_name }}"
     method: GET
-    headers:
-      Content-Type: "application/json"
     user: "{{ grafana_admin_user }}"
     password: "{{ grafana_admin_password }}"
     force_basic_auth: true
@@ -27,23 +25,23 @@
 
 - name: Install Grafana data source - Prometheus
   uri:
-    url: "http://{{ target_host_ip }}:3000/api/datasources"
+    url: "{{ grafana_endpoint }}/api/datasources"
     method: POST
     body_format: json
-    body: '{"name":"Prometheus","type":"prometheus","url":"{{ prometheus_endpoint }}","access":"proxy"}'
-    user: admin
-    password: admin
+    body: "{{ lookup('template', 'datasource_file.json') }}"
+    user: "{{ grafana_admin_user }}"
+    password: "{{ grafana_admin_password }}"
     force_basic_auth: true
   when: "prometheus_data_source_result.status == 404"
   tags:
     - test
 
-- name: Check if Grafana dashboard exists
+- name: Get Grafana dashboards
   uri:
-    url: "http://{{ target_host_ip }}:3000/api/search"
+    url: "{{ grafana_endpoint }}/api/search"
     method: GET
-    user: admin
-    password: admin
+    user: "{{ grafana_admin_user }}"
+    password: "{{ grafana_admin_password }}"
     force_basic_auth: true
   register: grafana_dashboards_result
   tags:
@@ -57,13 +55,13 @@
 
 - name: Import Grafana dashboard
   uri:
-    url: "http://{{ target_host_ip }}:3000/api/dashboards/db"
+    url: "{{ grafana_endpoint }}/api/dashboards/db"
     method: POST
     body_format: json
-    body: "{{ lookup('file', 'dashboard_file.json') }}"
-    user: admin
-    password: admin
+    body: "{{ lookup('template', 'dashboard_file.json') }}"
+    user: "{{ grafana_admin_user }}"
+    password: "{{ grafana_admin_password }}"
     force_basic_auth: true
-  when: "'Example Dashboard' not in dashboard_names"
+  when: "dashboard_name not in dashboard_names"
   tags:
     - test
