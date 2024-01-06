@@ -38,6 +38,23 @@
   tags:
     - test
 
+- name: Check if Grafana dashboard exists
+  uri:
+    url: "http://{{ target_host_ip }}:3000/api/search"
+    method: GET
+    user: admin
+    password: admin
+    force_basic_auth: true
+  register: grafana_dashboards_result
+  tags:
+    - test
+
+- name: Set dashboard names
+  set_fact:
+    dashboard_names: "{{ grafana_dashboards_result.json | map(attribute='title') }}"
+  tags:
+    - test
+
 - name: Import Grafana dashboard
   uri:
     url: "http://{{ target_host_ip }}:3000/api/dashboards/db"
@@ -47,12 +64,6 @@
     user: admin
     password: admin
     force_basic_auth: true
-  register: import_result
-  tags:
-    - test
-
-- name: Debug import result
-  debug:
-    var: import_result.json
+  when: "'Example Dashboard' not in dashboard_names"
   tags:
     - test
