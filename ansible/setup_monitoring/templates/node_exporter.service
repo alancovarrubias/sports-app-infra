@@ -1,7 +1,7 @@
-# node_exporter.service.j2
+# node_exporter.service
 [Unit]
 Description=Node Exporter
 
 [Service]
-User={{ node_exporter_user }}
+User=root
 ExecStart=/usr/local/bin/node_exporter

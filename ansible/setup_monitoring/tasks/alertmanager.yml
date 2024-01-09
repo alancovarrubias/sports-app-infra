@@ -23,12 +23,12 @@
 
 - name: Copy alertmanager config
   ansible.builtin.template:
-    src: alertmanager.yml.j2
+    src: alertmanager.yml
     dest: "{{ user_home }}/alertmanager.yml"
 
 - name: Create alertmanager service file
   ansible.builtin.template:
-    src: alertmanager.service.j2
+    src: alertmanager.service
     dest: /etc/systemd/system/alertmanager.service
 
 - name: Start and enable Alertmanager service

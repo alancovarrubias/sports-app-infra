@@ -1,4 +1,4 @@
-# ssh_config.j2
+# ssh_config
 Host droplet
   HostName {{ target_host_ip }}
   User alan

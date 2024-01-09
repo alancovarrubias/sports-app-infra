@@ -1,18 +1,38 @@
 {
     "dashboard": {
       "id": null,
-      "title": "{{ dashboard_name }}",
+      "title": "Memory Dashboard",
       "panels": [
         {
-          "title": "Panel 1",
-          "type": "singlestat",
+          "title": "Time Series Panel",
+          "type": "timeseries",
           "datasource": "Prometheus",
           "targets": [
             {
-              "expr": "node_memory_MemFree_bytes",
-              "format": "bytes"
+              "expr": "node_memory_MemFree_bytes{job='node_exporter'} / {{ bytes_in_gb }}",
+              "format": "time_series",
+              "legendFormat": "MemFree"
+            },
+            {
+              "expr": "node_memory_MemTotal_bytes{job='node_exporter'} / {{ bytes_in_gb }}",
+              "format": "time_series",
+              "legendFormat": "MemTotal"
+            },
+            {
+              "expr": "node_memory_MemAvailable_bytes{job='node_exporter'} / {{ bytes_in_gb }}",
+              "format": "time_series",
+              "legendFormat": "MemAvailable"
             }
-          ]
+          ],
+          "legend": {
+            "show": true,
+            "values": false,
+            "min": false,
+            "max": false,
+            "current": false,
+            "total": false,
+            "avg": false
+          }
         }
       ],
       "rows": [],

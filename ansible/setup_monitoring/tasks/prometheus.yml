@@ -5,7 +5,7 @@
 
 - name: Create Prometheus configuration file
   template:
-    src: prometheus.yml.j2
+    src: prometheus.yml
     dest: "{{ prometheus_config_path }}"
   notify: Reload Prometheus
 

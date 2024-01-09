@@ -1,0 +1,82 @@
+- name: Wait for Grafana to start
+  wait_for:
+    port: 3000
+  tags:
+    - dashboards
+
+- name: Check if {{ datasource_name }} data source already exists
+  uri:
+    url: "{{ grafana_endpoint }}/api/datasources/name/{{ datasource_name }}"
+    method: GET
+    user: "{{ grafana_admin_user }}"
+    password: "{{ grafana_admin_password }}"
+    force_basic_auth: true
+  register: prometheus_data_source_result
+  ignore_errors: true
+  tags:
+    - dashboards
+
+- name: Install Grafana data source - Prometheus
+  uri:
+    url: "{{ grafana_endpoint }}/api/datasources"
+    method: POST
+    body_format: json
+    body: "{{ lookup('template', 'datasource_file.json') }}"
+    user: "{{ grafana_admin_user }}"
+    password: "{{ grafana_admin_password }}"
+    force_basic_auth: true
+  when: "prometheus_data_source_result.status == 404"
+  tags:
+    - dashboards
+
+- name: Get Grafana dashboards
+  uri:
+    url: "{{ grafana_endpoint }}/api/search"
+    method: GET
+    user: "{{ grafana_admin_user }}"
+    password: "{{ grafana_admin_password }}"
+    force_basic_auth: true
+  register: grafana_dashboards_result
+  tags:
+    - dashboards
+
+- name: Set dashboard uids
+  set_fact:
+    dashboard_uids: "{{ grafana_dashboards_result.json | map(attribute='uid') }}"
+  tags:
+    - dashboards
+
+- name: Get Grafana dashboard info
+  uri:
+    url: "{{ grafana_endpoint }}/api/dashboards/uid/{{ dashboard_uids[0] }}"
+    method: GET
+    user: "{{ grafana_admin_user }}"
+    password: "{{ grafana_admin_password }}"
+    force_basic_auth: true
+  when: dashboard_uids | length != 0
+  register: grafana_dashboard_result
+  tags:
+    - dashboards
+
+- name: Delete Grafana Dashboard
+  uri:
+    url: "{{ grafana_endpoint }}/api/dashboards/uid/{{ dashboard_uids[0] }}"
+    method: DELETE
+    user: "{{ grafana_admin_user }}"
+    password: "{{ grafana_admin_password }}"
+    force_basic_auth: true
+  when: dashboard_uids | length != 0
+  tags:
+    - dashboards
+
+- name: Import Grafana dashboard
+  uri:
+    url: "{{ grafana_endpoint }}/api/dashboards/db"
+    method: POST
+    body_format: json
+    body: "{{ lookup('template', 'dashboard_file.json') }}"
+    user: "{{ grafana_admin_user }}"
+    password: "{{ grafana_admin_password }}"
+    force_basic_auth: true
+  tags:
+    - dashboards

@@ -3,7 +3,6 @@
 user_name: alan
 user_home: /home/{{user_name}}
 node_exporter_version: 1.7.0
-node_exporter_user: node_exporter
 node_exporter_download_url: https://github.com/prometheus/node_exporter/releases/download/v{{node_exporter_version}}/node_exporter-{{node_exporter_version}}.linux-amd64.tar.gz
 prometheus_config_path: /etc/prometheus/prometheus.yml
 prometheus_endpoint: http://{{ target_host_ip }}:9090
@@ -13,5 +12,5 @@ webhook_url: https://webhook.site/0e838a9e-4505-4ca5-bf72-99a6f48e4c14
 grafana_admin_user: admin
 grafana_admin_password: admin
 grafana_endpoint: http://{{ target_host_ip }}:3000
-dashboard_name: Example Dashboard
 datasource_name: Prometheus
+bytes_in_gb: 1000000000

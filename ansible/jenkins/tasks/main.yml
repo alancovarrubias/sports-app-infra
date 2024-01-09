@@ -64,7 +64,7 @@
 
 - name: Copy jenkins.yaml
   template:
-    src: jenkins.j2
+    src: jenkins.yaml
     dest: "{{ user_home }}/casc_configs/jenkins.yaml"
   tags:
     - jenkins
