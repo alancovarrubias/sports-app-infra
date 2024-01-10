@@ -19,8 +19,8 @@
 
 - name: Create Node Exporter Service
   ansible.builtin.template:
-    src: "node_exporter.service
-    dest: "/etc/systemd/system/node_exporter.service"
+    src: node_exporter.service
+    dest: /etc/systemd/system/node_exporter.service
   notify: Reload Node Exporter
 
 - name: Start Node Exporter Service

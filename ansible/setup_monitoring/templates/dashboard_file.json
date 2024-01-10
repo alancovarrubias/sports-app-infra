@@ -9,17 +9,17 @@
           "datasource": "Prometheus",
           "targets": [
             {
-              "expr": "node_memory_MemFree_bytes{job='node_exporter'} / {{ bytes_in_gb }}",
+              "expr": "node_memory_MemFree_bytes / {{ bytes_in_gb }}",
               "format": "time_series",
               "legendFormat": "MemFree"
             },
             {
-              "expr": "node_memory_MemTotal_bytes{job='node_exporter'} / {{ bytes_in_gb }}",
+              "expr": "node_memory_MemTotal_bytes / {{ bytes_in_gb }}",
               "format": "time_series",
               "legendFormat": "MemTotal"
             },
             {
-              "expr": "node_memory_MemAvailable_bytes{job='node_exporter'} / {{ bytes_in_gb }}",
+              "expr": "node_memory_MemAvailable_bytes / {{ bytes_in_gb }}",
               "format": "time_series",
               "legendFormat": "MemAvailable"
             }

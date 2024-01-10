@@ -1,9 +1,11 @@
 ---
 # tasks file for setup_monitoring
-- include_tasks: prometheus.yml
 - include_tasks: node_exporter.yml
-- include_tasks: grafana.yml
 - include_tasks: alertmanager.yml
+  tags:
+    - alerts
+- include_tasks: grafana.yml
+- include_tasks: prometheus.yml
 - include_tasks: dashboards.yml
   tags:
     - dashboards
