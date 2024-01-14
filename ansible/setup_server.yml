@@ -22,4 +22,3 @@
   roles:
     - setup_server
     - setup_monitoring
-    - jenkins

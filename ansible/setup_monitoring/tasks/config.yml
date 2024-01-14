@@ -1,0 +1,21 @@
+---
+# tasks file for setup_monitoring
+- name: Create Prometheus configuration file
+  ansible.builtin.template:
+    src: prometheus.yml
+    dest: "{{ user_home }}/prometheus.yml"
+
+- name: Copy rules config
+  ansible.builtin.template:
+    src: rules.yml
+    dest: "{{ user_home }}/rules.yml"
+
+- name: Copy docker compose
+  ansible.builtin.template:
+    src: docker-compose.yml
+    dest: "{{ user_home }}/docker-compose.yml"
+
+- name: Start Docker Compose containers
+  community.general.docker_compose:
+    project_src: "{{ user_home }}"
+    restarted: true

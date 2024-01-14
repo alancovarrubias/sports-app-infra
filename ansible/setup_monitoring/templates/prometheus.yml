@@ -10,11 +10,6 @@ alerting:
             - localhost:9093
 
 scrape_configs:
-  - job_name: prometheus
-    static_configs:
-      - targets: ["localhost:9090"]
-  - job_name: node_exporter
+  - job_name: docker-host
     static_configs:
       - targets: ["localhost:9100"]
-
-  # Add additional scrape configurations as needed

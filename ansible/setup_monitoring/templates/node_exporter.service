@@ -1,7 +1,0 @@
-# node_exporter.service
-[Unit]
-Description=Node Exporter
-
-[Service]
-User=root
-ExecStart=/usr/local/bin/node_exporter

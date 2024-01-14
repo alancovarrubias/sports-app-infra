@@ -1,7 +1,0 @@
-# alertmanager.service
-[Unit]
-Description=Alertmanager
-
-[Service]
-User=root
-ExecStart=/usr/local/bin/alertmanager --config.file={{ user_home }}/alertmanager.yml
