@@ -52,6 +52,16 @@
   tags:
     - jenkins
 
+- name: Copy entrypoint.sh
+  copy:
+    src: entrypoint.sh
+    dest: "{{ user_home }}/entrypoint.sh"
+    owner: "{{ user_name }}"
+    group: "{{ user_name }}"
+    mode: 0600
+  tags:
+    - jenkins
+
 - name: Create a casc_configs directory
   file:
     path: "{{ user_home }}/casc_configs"
@@ -63,7 +73,7 @@
     - jenkins
 
 - name: Copy jenkins.yaml
-  template:
+  ansible.builtin.template:
     src: jenkins.yaml
     dest: "{{ user_home }}/casc_configs/jenkins.yaml"
   tags:
@@ -84,14 +94,6 @@
   community.general.docker_compose:
     project_src: "{{ user_home }}"
     restarted: true
-  tags:
-    - jenkins
-
-- name: Update docker.sock permissions
-  community.docker.docker_container_exec:
-    container: alan_jenkins_1
-    user: root
-    command: chmod 666 /var/run/docker.sock
   tags:
     - jenkins
 

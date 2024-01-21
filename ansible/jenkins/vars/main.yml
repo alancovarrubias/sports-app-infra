@@ -2,6 +2,7 @@
 # vars file for jenkins
 user_name: alan
 user_home: /home/{{ user_name }}
+jenkins_home: /home/{{ user_name }}/jenkins
 jenkins_port: 8080
 jenkins_user: admin
 jenkins_password: youradminpassword
