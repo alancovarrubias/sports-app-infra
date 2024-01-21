@@ -10,10 +10,10 @@
   tags:
     - jenkins
 
-- name: Copy .env
+- name: Copy terraform.env
   copy:
-    src: .env
-    dest: "{{ user_home }}/.env"
+    src: terraform.env
+    dest: "{{ user_home }}/terraform.env"
     owner: "{{ user_name }}"
     group: "{{ user_name }}"
     mode: 0600
@@ -79,6 +79,20 @@
   tags:
     - jenkins
 
+- name: Run ssh-keygen if key doesn't exist
+  command: "ssh-keygen -t rsa -b 2048 -N '' -f {{ user_home }}/.ssh/id_rsa"
+  args:
+    creates: "{{ user_home }}/.ssh/id_rsa"
+  tags:
+    - jenkins
+
+- name: Change docker.sock permissions
+  file:
+    path: /var/run/docker.sock
+    mode: 666
+  tags:
+    - jenkins
+
 - name: Build Docker Image
   community.general.docker_image:
     name: custom-jenkins
@@ -94,14 +108,6 @@
   community.general.docker_compose:
     project_src: "{{ user_home }}"
     restarted: true
-  tags:
-    - jenkins
-
-- name: Update docker.sock permissions
-  community.docker.docker_container_exec:
-    container: alan_jenkins_1
-    user: root
-    command: chmod 666 /var/run/docker.sock
   tags:
     - jenkins
 

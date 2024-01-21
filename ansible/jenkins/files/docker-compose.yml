@@ -6,11 +6,12 @@ services:
       - 8080:8080
       - 50000:50000
     env_file:
-      - .env
+      - terraform.env
     volumes:
       - jenkins_home:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
       - /home/alan/casc_configs:/var/jenkins_home/casc_configs
+      - /home/alan/.ssh:/var/jenkins_home/.ssh
 
 volumes:
   jenkins_home:
