@@ -37,15 +37,3 @@ COPY --chown=jenkins:jenkins credentials /var/jenkins_home/.aws/credentials
 COPY --chown=jenkins:jenkins plugins.txt /usr/share/jenkins/ref/plugins.txt
 ENV CASC_JENKINS_CONFIG=/var/jenkins_home/casc_configs
 RUN jenkins-plugin-cli -f /usr/share/jenkins/ref/plugins.txt
-
-# Copy the entrypoint script
-COPY --chown=jenkins:jenkins entrypoint.sh /usr/local/bin/entrypoint.sh
-
-# Set the entrypoint script as executable
-RUN chmod +x /usr/local/bin/entrypoint.sh
-
-# Set the entrypoint for the container
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-
-# CMD from the parent image
-CMD ["/usr/local/bin/jenkins.sh"]
