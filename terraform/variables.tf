@@ -1,3 +1,4 @@
 variable "do_token" {}
-variable "domain_name" {}
 variable "public_ssh_key" {}
+variable "private_ssh_key" {}
+

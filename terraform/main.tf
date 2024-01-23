@@ -1,34 +1,56 @@
-terraform {
-  required_version = ">= 0.12"
-  backend "s3" {
-    bucket = "sports-app-buck"
-    key    = "jenkins/state.tfstate"
-    region = "us-west-1"
-  }
+resource "digitalocean_ssh_key" "default" {
+  name       = "SSH Key"
+  public_key = file(var.public_ssh_key)
 }
 
-variable "do_token" {}
-variable "public_ssh_key" {}
-variable "private_ssh_key" {}
-variable "domain_name" {}
-
-module "digitalocean" {
-  source         = "./digitalocean"
-  do_token       = var.do_token
-  domain_name    = var.domain_name
-  public_ssh_key = var.public_ssh_key
+resource "digitalocean_droplet" "ansible_server" {
+  image    = "ubuntu-22-04-x64"
+  name     = "ansible-server"
+  region   = "sfo2"
+  size     = "s-2vcpu-2gb"
+  ssh_keys = [digitalocean_ssh_key.default.fingerprint]
 }
 
-resource "null_resource" "configure_server" {
+resource "digitalocean_droplet" "jenkins_server" {
+  image    = "ubuntu-22-04-x64"
+  name     = "jenkins-server"
+  region   = "sfo2"
+  size     = "s-2vcpu-2gb"
+  ssh_keys = [digitalocean_ssh_key.default.fingerprint]
+}
+
+variable "ansible_command_template" {
+  default = "ansible-playbook --vault-password-file ~/.vault_pass.txt --inventory %s, -e target_host_ip=%s --private-key %s --user root %s"
+}
+
+resource "null_resource" "configure_jenkins_server" {
   triggers = {
-    trigger = module.digitalocean.ip_address
+    trigger = digitalocean_droplet.jenkins_server.ipv4_address
   }
   provisioner "local-exec" {
     working_dir = "../ansible"
-    command     = "ansible-playbook --vault-password-file ~/.vault_pass.txt --inventory ${module.digitalocean.ip_address}, -e target_host_ip=${module.digitalocean.ip_address} --private-key ${var.private_ssh_key} --user root setup_server.yml"
+    command = format(
+      var.ansible_command_template,
+      digitalocean_droplet.jenkins_server.ipv4_address,
+      digitalocean_droplet.jenkins_server.ipv4_address,
+      var.private_ssh_key,
+      "setup_jenkins.yml"
+    )
   }
 }
 
-output "server_ip" {
-  value = module.digitalocean.ip_address
+resource "null_resource" "configure_ansible_server" {
+  triggers = {
+    trigger = digitalocean_droplet.ansible_server.ipv4_address
+  }
+  provisioner "local-exec" {
+    working_dir = "../ansible"
+    command = format(
+      var.ansible_command_template,
+      digitalocean_droplet.ansible_server.ipv4_address,
+      digitalocean_droplet.ansible_server.ipv4_address,
+      var.private_ssh_key,
+      "setup_ansible.yml"
+    )
+  }
 }
