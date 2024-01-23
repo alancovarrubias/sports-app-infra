@@ -1,4 +1,5 @@
 ---
+# tasks file for setup_docker
 - name: Check if aptitude is installed
   ansible.builtin.stat:
     path: /usr/bin/aptitude
@@ -53,3 +54,9 @@
       - docker-compose
     state: latest
     update_cache: true
+
+- name: Add user to group
+  user:
+    name: "{{ user_name }}"
+    groups: docker
+    append: yes

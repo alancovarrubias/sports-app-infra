@@ -1,5 +1,5 @@
 # ssh_config
 Host droplet
-  HostName {{ target_host_ip }}
-  User alan
-  Port 22
+HostName {{ target_host_ip }}
+User alan
+Port 22

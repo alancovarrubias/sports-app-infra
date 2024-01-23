@@ -1,0 +1,24 @@
+---
+# tasks file for setup_ansible
+- name: Update apt package cache (for Ubuntu)
+  apt:
+    update_cache: yes
+
+- name: Install Ansible dependencies
+  apt:
+    name:
+      - ansible
+      - python3-pip
+    state: present
+  register: result
+  until: result is not failed
+  retries: 5
+  delay: 5
+
+- name: Install pip3 packages
+  pip:
+    name:
+      - boto3
+      - botocore
+    executable: pip3
+    state: present
