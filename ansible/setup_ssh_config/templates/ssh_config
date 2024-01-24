@@ -1,5 +1,5 @@
 # ssh_config
 Host {{ server_name }}
 HostName {{ target_host_ip }}
-User alan
+User {{ user_name }}
 Port 22

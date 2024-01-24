@@ -8,25 +8,9 @@
 
 - name: Create SSH Config File
   hosts: localhost
-  tasks:
-    - name: Generate SSH Config File
-      template:
-        src: ssh_config
-        dest: "{{ ansible_env.HOME }}/.ssh/ansible_server"
+  roles:
+    - role: setup_ssh_config
       vars:
-        target_host_ip: "{{ target_host_ip }}"
         server_name: "ansible_server"
-
-    - name: Adding the path in the zshrc files
-      lineinfile:
-        dest: "{{ ansible_env.HOME }}/.ssh/config"
-        regexp: ^Include \./ansible_server
-        line: Include ./ansible_server
-        state: present
-
-    - name: Adding the path in the zshrc files
-      lineinfile:
-        dest: "{{ ansible_env.HOME }}/.zshrc"
-        regexp: ^export ANSIBLE_IP=
-        line: export ANSIBLE_IP={{ target_host_ip }}
-        state: present
+        env_var: "ANSIBLE_IP"
+        user_name: "alan"

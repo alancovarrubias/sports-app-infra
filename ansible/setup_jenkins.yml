@@ -5,29 +5,13 @@
   roles:
     - setup_server
     - setup_docker
-    - jenkins
+    - setup_jenkins
 
 - name: Create SSH Config File
   hosts: localhost
-  tasks:
-    - name: Generate SSH Config File
-      template:
-        src: ssh_config
-        dest: "{{ ansible_env.HOME }}/.ssh/jenkins_server"
+  roles:
+    - role: setup_ssh_config
       vars:
-        target_host_ip: "{{ target_host_ip }}"
         server_name: "jenkins_server"
-
-    - name: Adding the path in the zshrc files
-      lineinfile:
-        dest: "{{ ansible_env.HOME }}/.ssh/config"
-        regexp: ^Include \./jenkins_server
-        line: Include ./jenkins_server
-        state: present
-
-    - name: Adding the path in the zshrc files
-      lineinfile:
-        dest: "{{ ansible_env.HOME }}/.zshrc"
-        regexp: ^export JENKINS_IP=
-        line: export JENKINS_IP={{ target_host_ip }}
-        state: present
+        env_var: "JENKINS_IP"
+        user_name: "alan"
