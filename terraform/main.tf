@@ -19,10 +19,6 @@ resource "digitalocean_droplet" "jenkins_server" {
   ssh_keys = [digitalocean_ssh_key.default.fingerprint]
 }
 
-variable "ansible_command_template" {
-  default = "ansible-playbook --vault-password-file ~/.vault_pass.txt --inventory %s, -e target_host_ip=%s --private-key %s --user root %s"
-}
-
 resource "null_resource" "configure_jenkins_server" {
   triggers = {
     trigger = digitalocean_droplet.jenkins_server.ipv4_address
@@ -30,9 +26,10 @@ resource "null_resource" "configure_jenkins_server" {
   provisioner "local-exec" {
     working_dir = "../ansible"
     command = format(
-      var.ansible_command_template,
+      "ansible-playbook --vault-password-file ~/.vault_pass.txt --inventory %s, -e target_host_ip=%s -e ansible_ip=%s --private-key %s --user root %s",
       digitalocean_droplet.jenkins_server.ipv4_address,
       digitalocean_droplet.jenkins_server.ipv4_address,
+      digitalocean_droplet.ansible_server.ipv4_address,
       var.private_ssh_key,
       "setup_jenkins.yml"
     )
@@ -46,7 +43,7 @@ resource "null_resource" "configure_ansible_server" {
   provisioner "local-exec" {
     working_dir = "../ansible"
     command = format(
-      var.ansible_command_template,
+      "ansible-playbook --vault-password-file ~/.vault_pass.txt --inventory %s, -e target_host_ip=%s --private-key %s --user root %s",
       digitalocean_droplet.ansible_server.ipv4_address,
       digitalocean_droplet.ansible_server.ipv4_address,
       var.private_ssh_key,

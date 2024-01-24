@@ -10,13 +10,20 @@
   tags:
     - jenkins
 
-- name: Copy terraform.env
+- name: Copy secrets.env
   copy:
-    src: terraform.env
-    dest: "{{ user_home }}/terraform.env"
+    src: secrets.env
+    dest: "{{ user_home }}/secrets.env"
     owner: "{{ user_name }}"
     group: "{{ user_name }}"
     mode: 0600
+  tags:
+    - jenkins
+
+- name: Copy .env
+  ansible.builtin.template:
+    src: .env
+    dest: "{{ user_home }}/.env"
   tags:
     - jenkins
 
