@@ -1,11 +1,4 @@
 ---
-- name: Setup ansible
-  hosts: all
-  gather_facts: false
-  roles:
-    - setup_server
-    - setup_ansible
-
 - name: Create SSH Config File
   hosts: localhost
   roles:
@@ -14,3 +7,10 @@
         server_name: "ansible_server"
         env_var: "ANSIBLE_IP"
         user_name: "alan"
+
+- name: Setup ansible
+  hosts: all
+  gather_facts: false
+  roles:
+    - setup_server
+    - setup_ansible

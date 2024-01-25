@@ -1,12 +1,4 @@
 ---
-- name: Setup jenkins
-  hosts: all
-  gather_facts: false
-  roles:
-    - setup_server
-    - setup_docker
-    - setup_jenkins
-
 - name: Create SSH Config File
   hosts: localhost
   roles:
@@ -15,3 +7,11 @@
         server_name: "jenkins_server"
         env_var: "JENKINS_IP"
         user_name: "alan"
+
+- name: Setup jenkins
+  hosts: all
+  gather_facts: false
+  roles:
+    - setup_server
+    - setup_docker
+    - setup_jenkins

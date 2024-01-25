@@ -88,8 +88,27 @@
 
 - name: Run ssh-keygen if key doesn't exist
   command: "ssh-keygen -t rsa -b 2048 -N '' -f {{ user_home }}/.ssh/id_rsa"
+  become: yes
+  become_user: "{{ user_name }}"
   args:
     creates: "{{ user_home }}/.ssh/id_rsa"
+  tags:
+    - jenkins
+
+- name: Copy public key to local machine
+  ansible.builtin.fetch:
+    src: "{{ user_home }}/.ssh/id_rsa.pub"
+    dest: ~/.ssh/jenkins.pub
+    flat: yes
+  tags:
+    - jenkins
+
+- name: Add public key to ansible authorized_keys
+  authorized_key:
+    user: "{{ user_name }}"
+    key: "{{ lookup('file', '~/.ssh/jenkins.pub') }}"
+    state: present
+  delegate_to: "{{ ansible_ip }}"
   tags:
     - jenkins
 
