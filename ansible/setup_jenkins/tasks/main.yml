@@ -146,4 +146,12 @@
   delegate_to: localhost
   register: plugin_versions
   tags:
-    - output
+    - plugins
+
+- name: Write new plugins file
+  copy:
+    content: "{{ plugin_versions.stdout }}"
+    dest: ~/Projects/sports-app-infra/ansible/setup_jenkins/files/plugins.txt
+  delegate_to: localhost
+  tags:
+    - plugins

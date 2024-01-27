@@ -41,8 +41,6 @@ json-path-api:2.8.0-5.v07cb_a_1ca_738c
 junit:1252.vfc2e5efa_294f
 ldap:711.vb_d1a_491714dc
 mailer:463.vedf8358e006b_
-matrix-auth:3.2.1
-matrix-project:822.v01b_8c85d16d2
 mina-sshd-api-common:2.11.0-86.v836f585d47fa_
 mina-sshd-api-core:2.11.0-86.v836f585d47fa_
 okhttp-api:4.11.0-157.v6852a_a_fa_ec11
@@ -85,4 +83,5 @@ workflow-scm-step:415.v434365564324
 workflow-step-api:639.v6eca_cd8c04a_a_
 workflow-support:865.v43e78cc44e0d
 ws-cleanup:0.45
-joda-time-api:2.12.5-5.v5495a_235fedf
+jsch:0.2.16-86.v42e010d9484b_
+ssh-steps:2.0.68.va_d21a_12a_6476
