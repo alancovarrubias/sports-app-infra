@@ -20,5 +20,28 @@
     name:
       - boto3
       - botocore
+      - awscli
     executable: pip3
     state: present
+
+- name: Create a directory
+  file:
+    path: "/home/{{ user_name }}/.aws"
+    state: directory
+    mode: 0755
+
+- name: Copy AWS config
+  copy:
+    src: config
+    dest: "/home/{{ user_name }}/.aws/config"
+    owner: "{{ user_name }}"
+    group: "{{ user_name }}"
+    mode: 0600
+
+- name: Copy AWS credentials
+  copy:
+    src: credentials
+    dest: "/home/{{ user_name }}/.aws/credentials"
+    owner: "{{ user_name }}"
+    group: "{{ user_name }}"
+    mode: 0600
