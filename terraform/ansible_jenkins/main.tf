@@ -24,7 +24,7 @@ resource "null_resource" "configure_jenkins_server" {
     trigger = digitalocean_droplet.jenkins_server.ipv4_address
   }
   provisioner "local-exec" {
-    working_dir = "../ansible"
+    working_dir = "../../ansible"
     command = format(
       "ansible-playbook --vault-password-file ~/.vault_pass.txt --inventory %s, -e target_host_ip=%s -e ansible_ip=%s --private-key %s --user root --skip-tags plugins %s",
       digitalocean_droplet.jenkins_server.ipv4_address,
@@ -41,7 +41,7 @@ resource "null_resource" "configure_ansible_server" {
     trigger = digitalocean_droplet.ansible_server.ipv4_address
   }
   provisioner "local-exec" {
-    working_dir = "../ansible"
+    working_dir = "../../ansible"
     command = format(
       "ansible-playbook --vault-password-file ~/.vault_pass.txt --inventory %s, -e target_host_ip=%s --private-key %s --user root %s",
       digitalocean_droplet.ansible_server.ipv4_address,

@@ -1,4 +1,3 @@
 #!/bin/bash
 
-terraform -chdir="$(pwd)/terraform" apply --auto-approve
-source ~/.zshrc
+terraform -chdir="$(pwd)/terraform/ansible_jenkins" apply --auto-approve
