@@ -9,7 +9,7 @@ pipeline {
             }
             steps {
                 script {
-                    dir('terraform') {
+                    dir('terraform/sports_app') {
                         sh "terraform init"
                         sh "terraform apply --auto-approve"
                         env.SERVER_IP = sh(script: 'terraform output server_ip', returnStdout: true).trim()

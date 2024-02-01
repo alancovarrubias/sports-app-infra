@@ -10,7 +10,7 @@
 - name: Copy SSH key for the new user
   authorized_key:
     user: "{{ user_name }}"
-    key: "{{ lookup('file', '/Users/alancovarrubias/.ssh/id_rsa.pub') }}"
+    key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
     state: present
 
 - name: Allow the new user to run sudo without a password prompt
