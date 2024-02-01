@@ -16,5 +16,5 @@
   lineinfile:
     dest: "{{ ansible_env.HOME }}/.zshrc"
     regexp: ^export {{ env_var }}=
-    line: export {{ env_var }}={{ target_host_ip }}
+    line: export {{ env_var }}={{ ansible_host }}
     state: present

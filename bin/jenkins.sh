@@ -1,2 +1,2 @@
 cd ansible
-ansible-playbook --vault-password-file ~/.vault_pass.txt --inventory $JENKINS_IP, -e target_host_ip=$JENKINS_IP -e ansible_ip=$ANSIBLE_IP --private-key ~/.ssh/id_rsa --user root --tags ${1:-all} --skip-tags plugins setup_jenkins.yml
+ansible-playbook --inventory $JENKINS_IP, -e ansible_ip=$ANSIBLE_IP --tags ${1:-all} --skip-tags plugins setup_jenkins.yml

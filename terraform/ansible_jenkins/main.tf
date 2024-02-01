@@ -26,8 +26,7 @@ resource "null_resource" "configure_jenkins_server" {
   provisioner "local-exec" {
     working_dir = "../../ansible"
     command = format(
-      "ansible-playbook --inventory %s, -e target_host_ip=%s -e ansible_ip=%s --extra-vars @extra_vars.yml --skip-tags plugins setup_jenkins.yml",
-      digitalocean_droplet.jenkins_server.ipv4_address,
+      "ansible-playbook --inventory %s, -e ansible_ip=%s --extra-vars @extra_vars.yml --skip-tags plugins setup_jenkins.yml",
       digitalocean_droplet.jenkins_server.ipv4_address,
       digitalocean_droplet.ansible_server.ipv4_address,
     )
@@ -41,8 +40,7 @@ resource "null_resource" "configure_ansible_server" {
   provisioner "local-exec" {
     working_dir = "../../ansible"
     command = format(
-      "ansible-playbook --inventory %s, -e target_host_ip=%s --extra-vars @extra_vars.yml setup_ansible.yml",
-      digitalocean_droplet.ansible_server.ipv4_address,
+      "ansible-playbook --inventory %s, --extra-vars @extra_vars.yml setup_ansible.yml",
       digitalocean_droplet.ansible_server.ipv4_address,
     )
   }
