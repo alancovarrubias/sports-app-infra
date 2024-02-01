@@ -1,25 +1,6 @@
 pipeline {
     agent any
     stages {
-        stage('build and push docker image') {
-            environment {
-                ECR_REPO_URL = "${env.ECR_REPO_URL}"
-                AWS_DEFAULT_REGION = "${env.AWS_DEFAULT_REGION}"
-                IMAGE_NAMES = "${env.IMAGE_NAMES}"
-                ENV = "${env.ENV}"
-            }
-            steps {
-                script {
-                    sh "aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_REPO_URL"
-                    def imageNameArray = IMAGE_NAMES.split(',')
-                    imageNameArray.each { image_name ->
-                        sh "docker build -t $image_name:$ENV -f $image_name/Dockerfile.prod $image_name"
-                        sh "docker tag $image_name:prod $ECR_REPO_URL/$image_name:prod"
-                        sh "docker push $ECR_REPO_URL/$image_name:prod"
-                    }
-                }
-            }
-        }
         stage('provision server') {
             environment {
                 TF_VAR_domain_name = "${env.DOMAIN_NAME}"
