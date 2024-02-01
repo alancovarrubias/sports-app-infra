@@ -6,7 +6,6 @@
       vars:
         server_name: "ansible_server"
         env_var: "ANSIBLE_IP"
-        user_name: "alan"
 
 - name: Setup ansible
   hosts: all

@@ -1,7 +1,7 @@
 version: "3.4"
 services:
   client:
-    image: 678549062078.dkr.ecr.us-west-1.amazonaws.com/client:prod
+    image: "{{ ecr_repo_url }}/client:{{ env }}"
     ports:
       - 80:80/tcp
       - 443:443/tcp
@@ -9,18 +9,18 @@ services:
       - ./nginx:/etc/nginx/user.conf.d:ro
       - letsencrypt:/etc/letsencrypt/
   server:
-    image: 678549062078.dkr.ecr.us-west-1.amazonaws.com/server:prod
+    image: "{{ ecr_repo_url }}/server:{{ env }}"
     ports:
       - 4000:4000
   auth:
-    image: 678549062078.dkr.ecr.us-west-1.amazonaws.com/auth:prod
+    image: "{{ ecr_repo_url }}/auth:{{ env }}"
   football:
-    image: 678549062078.dkr.ecr.us-west-1.amazonaws.com/football:prod
+    image: "{{ ecr_repo_url }}/football:{{ env }}"
   sidekiq:
-    image: 678549062078.dkr.ecr.us-west-1.amazonaws.com/football:prod
+    image: "{{ ecr_repo_url }}/football:{{ env }}"
     command: bundle exec sidekiq
   crawler:
-    image: 678549062078.dkr.ecr.us-west-1.amazonaws.com/crawler:prod
+    image: "{{ ecr_repo_url }}/crawler:{{ env }}"
   db:
     image: postgres:15
     volumes:

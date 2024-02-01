@@ -26,11 +26,12 @@ resource "null_resource" "configure_jenkins_server" {
   provisioner "local-exec" {
     working_dir = "../../ansible"
     command = format(
-      "ansible-playbook --vault-password-file ~/.vault_pass.txt --inventory %s, -e target_host_ip=%s -e ansible_ip=%s --private-key %s --user root --skip-tags plugins %s",
+      "ansible-playbook --vault-password-file ~/.vault_pass.txt --inventory %s, -e target_host_ip=%s -e ansible_ip=%s --private-key %s --extra-vars %s --user root --skip-tags plugins %s",
       digitalocean_droplet.jenkins_server.ipv4_address,
       digitalocean_droplet.jenkins_server.ipv4_address,
       digitalocean_droplet.ansible_server.ipv4_address,
       var.private_ssh_key,
+      "@extra_vars.yml",
       "setup_jenkins.yml"
     )
   }
@@ -43,10 +44,11 @@ resource "null_resource" "configure_ansible_server" {
   provisioner "local-exec" {
     working_dir = "../../ansible"
     command = format(
-      "ansible-playbook --vault-password-file ~/.vault_pass.txt --inventory %s, -e target_host_ip=%s --private-key %s --user root %s",
+      "ansible-playbook --vault-password-file ~/.vault_pass.txt --inventory %s, -e target_host_ip=%s --private-key %s --extra-vars %s --user root %s",
       digitalocean_droplet.ansible_server.ipv4_address,
       digitalocean_droplet.ansible_server.ipv4_address,
       var.private_ssh_key,
+      "@extra_vars.yml",
       "setup_ansible.yml"
     )
   }

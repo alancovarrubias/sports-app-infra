@@ -6,7 +6,6 @@
       vars:
         server_name: "jenkins_server"
         env_var: "JENKINS_IP"
-        user_name: "alan"
 
 - name: Setup jenkins
   hosts: all

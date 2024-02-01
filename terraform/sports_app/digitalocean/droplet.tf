@@ -5,7 +5,7 @@ resource "digitalocean_ssh_key" "default" {
 
 resource "digitalocean_droplet" "sports-app-web" {
   image    = "ubuntu-22-04-x64"
-  name     = "sports-app-web"
+  name     = "sports-app-server"
   region   = "sfo2"
   size     = "s-2vcpu-2gb"
   ssh_keys = [digitalocean_ssh_key.default.fingerprint]

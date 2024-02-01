@@ -1,6 +1,5 @@
 ---
 # vars file for setup_monitoring
-user_name: alan
 user_home: /home/{{ user_name }}
 monitoring_home: /home/{{ user_name }}/monitoring
 prometheus_endpoint: http://{{ target_host_ip }}:9090
