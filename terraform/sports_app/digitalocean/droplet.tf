@@ -1,6 +1,5 @@
-resource "digitalocean_ssh_key" "default" {
-  name       = "SSH Key"
-  public_key = var.public_ssh_key
+data "digitalocean_ssh_key" "ssh_key" {
+  name = "SSH Key"
 }
 
 resource "digitalocean_droplet" "sports-app-web" {
@@ -8,5 +7,5 @@ resource "digitalocean_droplet" "sports-app-web" {
   name     = "sports-app-server"
   region   = "sfo2"
   size     = "s-2vcpu-2gb"
-  ssh_keys = [digitalocean_ssh_key.default.fingerprint]
+  ssh_keys = [data.digitalocean_ssh_key.ssh_key.fingerprint]
 }

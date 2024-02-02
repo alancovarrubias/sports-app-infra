@@ -11,11 +11,11 @@ variable "do_token" {}
 variable "public_ssh_key" {}
 variable "domain_name" {}
 
+
 module "digitalocean" {
-  source         = "./digitalocean"
-  do_token       = var.do_token
-  domain_name    = var.domain_name
-  public_ssh_key = file(var.public_ssh_key)
+  source      = "./digitalocean"
+  do_token    = var.do_token
+  domain_name = var.domain_name
 }
 
 output "server_ip" {
