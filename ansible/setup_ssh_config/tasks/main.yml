@@ -3,18 +3,21 @@
 - name: Generate SSH Config File
   template:
     src: ssh_config
-    dest: "{{ ansible_env.HOME }}/.ssh/{{ server_name }}"
+    dest: ~/.ssh/{{ server_name }}
+  delegate_to: localhost
 
 - name: Adding the path in the zshrc files
   lineinfile:
-    dest: "{{ ansible_env.HOME }}/.ssh/config"
+    dest: ~/.ssh/config
     regexp: ^Include \./{{ server_name }}
     line: Include ./{{ server_name }}
     state: present
+  delegate_to: localhost
 
 - name: Adding the path in the zshrc files
   lineinfile:
-    dest: "{{ ansible_env.HOME }}/.zshrc"
+    dest: ~/.zshrc
     regexp: ^export {{ env_var }}=
-    line: export {{ env_var }}={{ ansible_host }}
+    line: export {{ env_var }}={{ inventory_hostname }}
     state: present
+  delegate_to: localhost

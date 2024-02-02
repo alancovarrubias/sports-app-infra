@@ -3,7 +3,7 @@
 - name: Copy docker compose
   copy:
     src: docker-compose.yml
-    dest: "{{ user_home }}/docker-compose.yml"
+    dest: /home/{{ user_name }}/docker-compose.yml
     owner: "{{ user_name }}"
     group: "{{ user_name }}"
     mode: 0600
@@ -13,7 +13,7 @@
 - name: Copy secrets.env
   copy:
     src: secrets.env
-    dest: "{{ user_home }}/secrets.env"
+    dest: /home/{{ user_name }}/secrets.env
     owner: "{{ user_name }}"
     group: "{{ user_name }}"
     mode: 0600
@@ -23,14 +23,14 @@
 - name: Copy .env
   ansible.builtin.template:
     src: .env
-    dest: "{{ user_home }}/.env"
+    dest: /home/{{ user_name }}/.env
   tags:
     - jenkins
 
 - name: Copy Dockerfile
   copy:
     src: Dockerfile
-    dest: "{{ user_home }}/Dockerfile"
+    dest: /home/{{ user_name }}/Dockerfile
     owner: "{{ user_name }}"
     group: "{{ user_name }}"
     mode: 0600
@@ -41,7 +41,7 @@
 - name: Copy plugins.txt
   copy:
     src: plugins.txt
-    dest: "{{ user_home }}/plugins.txt"
+    dest: /home/{{ user_name }}/plugins.txt
     owner: "{{ user_name }}"
     group: "{{ user_name }}"
     mode: 0600
@@ -52,7 +52,7 @@
 - name: Copy AWS config
   copy:
     src: config
-    dest: "{{ user_home }}/config"
+    dest: /home/{{ user_name }}/config
     owner: "{{ user_name }}"
     group: "{{ user_name }}"
     mode: 0600
@@ -62,7 +62,7 @@
 - name: Copy AWS credentials
   copy:
     src: credentials
-    dest: "{{ user_home }}/credentials"
+    dest: /home/{{ user_name }}/credentials
     owner: "{{ user_name }}"
     group: "{{ user_name }}"
     mode: 0600
@@ -71,7 +71,7 @@
 
 - name: Create a casc_configs directory
   file:
-    path: "{{ user_home }}/casc_configs"
+    path: /home/{{ user_name }}/casc_configs
     state: directory
     owner: "{{ user_name }}"
     group: "{{ user_name }}"
@@ -82,14 +82,14 @@
 - name: Copy jenkins.yaml
   ansible.builtin.template:
     src: jenkins.yaml
-    dest: "{{ user_home }}/casc_configs/jenkins.yaml"
+    dest: /home/{{ user_name }}/casc_configs/jenkins.yaml
   tags:
     - jenkins
 
 - name: Copy private ssh key
   copy:
     src: ~/.ssh/id_rsa
-    dest: "{{ user_home }}/.ssh/id_rsa"
+    dest: /home/{{ user_name }}/.ssh/id_rsa
     owner: "{{ user_name }}"
     group: "{{ user_name }}"
     mode: 0600
@@ -108,7 +108,7 @@
     name: custom-jenkins
     tag: latest
     build:
-      path: "{{ user_home }}"
+      path: /home/{{ user_name }}
     source: build
     force_source: "{{ plugins_info.changed or Dockerfile_info.changed }}"
   tags:
@@ -116,7 +116,7 @@
 
 - name: Start Docker Compose containers
   community.general.docker_compose:
-    project_src: "{{ user_home }}"
+    project_src: /home/{{ user_name }}"
     restarted: true
   tags:
     - jenkins

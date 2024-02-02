@@ -1,11 +1,3 @@
----
-- name: Perform local tasks
-  hosts: localhost
-  tasks:
-    - name: get ECR password
-      shell: "aws ecr get-login-password --region {{ aws_region }}"
-      register: ecr_password
-
 - name: Deploy sports app
   hosts: all
   gather_facts: false

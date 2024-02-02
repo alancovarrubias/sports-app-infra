@@ -1,5 +1,5 @@
 # ssh_config
 Host {{ server_name }}
-HostName {{ ansible_host }}
+HostName {{ inventory_hostname }}
 User {{ user_name }}
 Port 22

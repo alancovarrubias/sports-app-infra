@@ -16,6 +16,13 @@
   tags:
     - deploy
 
+- name: get ECR password
+  shell: "aws ecr get-login-password --region {{ aws_region }}"
+  register: ecr_password
+  delegate_to: localhost
+  tags:
+    - deploy
+
 - name: Docker repository login
   docker_login:
     registry_url: https://678549062078.dkr.ecr.us-west-1.amazonaws.com

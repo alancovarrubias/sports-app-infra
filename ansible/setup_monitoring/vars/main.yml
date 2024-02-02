@@ -1,7 +1,6 @@
 ---
 # vars file for setup_monitoring
-user_home: /home/{{ user_name }}
-monitoring_home: "{{ user_home }}/monitoring"
+monitoring_home: /home/{{ user_name }}/monitoring
 prometheus_endpoint: http://{{ ansible_ip }}:9090
 webhook_url: https://webhook.site/24bc2ba6-18ec-4ae9-ac08-627d5307e712
 grafana_admin_user: admin
