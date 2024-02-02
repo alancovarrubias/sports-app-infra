@@ -96,16 +96,6 @@
   tags:
     - jenkins
 
-- name: Copy public ssh key
-  copy:
-    src: ~/.ssh/id_rsa.pub
-    dest: /home/{{ user_name }}/.ssh/id_rsa.pub
-    owner: "{{ user_name }}"
-    group: "{{ user_name }}"
-    mode: 0600
-  tags:
-    - jenkins
-
 - name: Change docker.sock permissions
   file:
     path: /var/run/docker.sock

@@ -53,3 +53,11 @@
     owner: "{{ user_name }}"
     group: "{{ user_name }}"
     mode: 0600
+
+- name: Copy vault password text
+  copy:
+    src: ~/.vault_pass.txt
+    dest: /home/{{ user_name }}/.vault_pass.txt
+    owner: "{{ user_name }}"
+    group: "{{ user_name }}"
+    mode: 0600
