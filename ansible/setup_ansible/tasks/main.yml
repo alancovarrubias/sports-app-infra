@@ -45,3 +45,11 @@
     owner: "{{ user_name }}"
     group: "{{ user_name }}"
     mode: 0600
+
+- name: Copy private ssh key
+  copy:
+    src: ~/.ssh/id_rsa
+    dest: "{{ user_home }}/.ssh/id_rsa"
+    owner: "{{ user_name }}"
+    group: "{{ user_name }}"
+    mode: 0600

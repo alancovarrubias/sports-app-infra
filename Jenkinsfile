@@ -25,7 +25,6 @@ pipeline {
             steps {
                 script {
                     sh "scp -r -o StrictHostKeyChecking=no ansible/* $REMOTE_USER@$ANSIBLE_IP:/home/$REMOTE_USER"
-                    sh "scp -r -o StrictHostKeyChecking=no /var/jenkins_home/.ssh/id_rsa* $REMOTE_USER@$ANSIBLE_IP:/home/$REMOTE_USER/.ssh"
                 }
             }
         }
