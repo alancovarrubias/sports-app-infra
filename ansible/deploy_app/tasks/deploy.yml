@@ -1,7 +1,7 @@
 ---
 # tasks file for deploy_app
 - name: Copy docker compose
-  copy:
+  ansible.builtin.template:
     src: docker-compose.yml
     dest: /home/{{user_name}}/docker-compose.yml
     mode: 0600
@@ -23,13 +23,9 @@
   tags:
     - deploy
 
-- name: debug
-  debug:
-    var: ecr_password.stdout
-
 - name: Docker repository login
   docker_login:
-    registry_url: https://678549062078.dkr.ecr.us-west-1.amazonaws.com
+    registry_url: https://{{ ecr_repo_url }}
     username: AWS
     password: "{{ ecr_password.stdout }}"
   tags:
