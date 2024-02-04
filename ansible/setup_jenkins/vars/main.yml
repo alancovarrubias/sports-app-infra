@@ -1,7 +1,5 @@
 ---
 # vars file for jenkins
-jenkins_home: /home/{{ user_name }}/jenkins
 jenkins_port: 8080
 jenkins_user: admin
 jenkins_password: youradminpassword
-jenkins_url: "http://{{ ansible_host }}:{{ jenkins_port }}"

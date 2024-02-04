@@ -32,8 +32,8 @@ RUN curl -fsSL https://get.docker.com -o get-docker.sh && \
 USER jenkins
 RUN mkdir /var/jenkins_home/casc_configs
 RUN mkdir /var/jenkins_home/.aws
-COPY --chown=jenkins:jenkins config /var/jenkins_home/.aws/config
-COPY --chown=jenkins:jenkins credentials /var/jenkins_home/.aws/credentials
+COPY --chown=jenkins:jenkins .aws/config /var/jenkins_home/.aws/config
+COPY --chown=jenkins:jenkins .aws/credentials /var/jenkins_home/.aws/credentials
 COPY --chown=jenkins:jenkins plugins.txt /usr/share/jenkins/ref/plugins.txt
 ENV CASC_JENKINS_CONFIG=/var/jenkins_home/casc_configs
 RUN jenkins-plugin-cli -f /usr/share/jenkins/ref/plugins.txt

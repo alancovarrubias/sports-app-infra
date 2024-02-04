@@ -41,18 +41,10 @@
   tags:
     - jenkins
 
-- name: Copy AWS config
+- name: Copy AWS configuration
   copy:
-    src: config
-    dest: ~/config
-    mode: 0600
-  tags:
-    - jenkins
-
-- name: Copy AWS credentials
-  copy:
-    src: credentials
-    dest: ~/credentials
+    src: ~/.aws
+    dest: "~"
     mode: 0600
   tags:
     - jenkins

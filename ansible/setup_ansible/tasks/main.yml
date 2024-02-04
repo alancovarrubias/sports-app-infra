@@ -1,22 +1,10 @@
 ---
 # tasks file for setup_ansible
 
-- name: Create a directory
-  file:
-    path: ~/.aws
-    state: directory
-    mode: 0755
-
-- name: Copy AWS config
+- name: Copy AWS configuration
   copy:
-    src: config
-    dest: ~/.aws/config
-    mode: 0600
-
-- name: Copy AWS credentials
-  copy:
-    src: credentials
-    dest: ~/.aws/credentials
+    src: ~/.aws
+    dest: "~"
     mode: 0600
 
 - name: Copy private ssh key
