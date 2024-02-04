@@ -1,63 +1,32 @@
 ---
 # tasks file for setup_ansible
-- name: Update apt package cache (for Ubuntu)
-  apt:
-    update_cache: yes
-
-- name: Install Ansible dependencies
-  apt:
-    name:
-      - ansible
-      - python3-pip
-    state: present
-  register: result
-  until: result is not failed
-  retries: 5
-  delay: 5
-
-- name: Install pip3 packages
-  pip:
-    name:
-      - boto3
-      - botocore
-      - awscli
-    executable: pip3
-    state: present
 
 - name: Create a directory
   file:
-    path: /home/{{ user_name }}/.aws
+    path: ~/.aws
     state: directory
     mode: 0755
 
 - name: Copy AWS config
   copy:
     src: config
-    dest: /home/{{ user_name }}/.aws/config
-    owner: "{{ user_name }}"
-    group: "{{ user_name }}"
+    dest: ~/.aws/config
     mode: 0600
 
 - name: Copy AWS credentials
   copy:
     src: credentials
-    dest: /home/{{ user_name }}/.aws/credentials
-    owner: "{{ user_name }}"
-    group: "{{ user_name }}"
+    dest: ~/.aws/credentials
     mode: 0600
 
 - name: Copy private ssh key
   copy:
     src: ~/.ssh/id_rsa
-    dest: /home/{{ user_name }}/.ssh/id_rsa
-    owner: "{{ user_name }}"
-    group: "{{ user_name }}"
+    dest: ~/.ssh/id_rsa
     mode: 0600
 
 - name: Copy vault password text
   copy:
     src: ~/.vault_pass.txt
-    dest: /home/{{ user_name }}/.vault_pass.txt
-    owner: "{{ user_name }}"
-    group: "{{ user_name }}"
+    dest: ~/.vault_pass.txt
     mode: 0600

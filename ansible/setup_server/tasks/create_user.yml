@@ -1,7 +1,7 @@
 ---
 - name: Create a new user
   user:
-    name: "{{user_name}}"
+    name: "{{ user_name }}"
     groups:
       - sudo
     shell: /bin/bash
@@ -10,7 +10,7 @@
 - name: Copy SSH key for the new user
   authorized_key:
     user: "{{ user_name }}"
-    key: "{{ lookup('file', '~/.ssh/authorized_keys') }}"
+    key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
     state: present
 
 - name: Allow the new user to run sudo without a password prompt

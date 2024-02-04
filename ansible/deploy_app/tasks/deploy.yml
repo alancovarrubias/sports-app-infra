@@ -3,7 +3,7 @@
 - name: Copy docker compose
   ansible.builtin.template:
     src: docker-compose.yml
-    dest: /home/{{user_name}}/docker-compose.yml
+    dest: "~"
     mode: 0600
   tags:
     - deploy
@@ -11,7 +11,7 @@
 - name: Copy nginx folder
   copy:
     src: nginx
-    dest: /home/{{user_name}}/
+    dest: "~"
     mode: 0600
   tags:
     - deploy
@@ -33,6 +33,6 @@
 
 - name: Start Docker Compose containers
   community.general.docker_compose:
-    project_src: /home/{{user_name}}
+    project_src: "~"
   tags:
     - deploy

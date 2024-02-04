@@ -3,9 +3,7 @@
 - name: Copy docker compose
   copy:
     src: docker-compose.yml
-    dest: /home/{{ user_name }}/docker-compose.yml
-    owner: "{{ user_name }}"
-    group: "{{ user_name }}"
+    dest: ~/docker-compose.yml
     mode: 0600
   tags:
     - jenkins
@@ -13,9 +11,7 @@
 - name: Copy secrets.env
   copy:
     src: secrets.env
-    dest: /home/{{ user_name }}/secrets.env
-    owner: "{{ user_name }}"
-    group: "{{ user_name }}"
+    dest: ~/secrets.env
     mode: 0600
   tags:
     - jenkins
@@ -23,16 +19,14 @@
 - name: Copy .env
   ansible.builtin.template:
     src: .env
-    dest: /home/{{ user_name }}/.env
+    dest: ~/.env
   tags:
     - jenkins
 
 - name: Copy Dockerfile
   copy:
     src: Dockerfile
-    dest: /home/{{ user_name }}/Dockerfile
-    owner: "{{ user_name }}"
-    group: "{{ user_name }}"
+    dest: ~/Dockerfile
     mode: 0600
   register: Dockerfile_info
   tags:
@@ -41,9 +35,7 @@
 - name: Copy plugins.txt
   copy:
     src: plugins.txt
-    dest: /home/{{ user_name }}/plugins.txt
-    owner: "{{ user_name }}"
-    group: "{{ user_name }}"
+    dest: ~/plugins.txt
     mode: 0600
   register: plugins_info
   tags:
@@ -52,9 +44,7 @@
 - name: Copy AWS config
   copy:
     src: config
-    dest: /home/{{ user_name }}/config
-    owner: "{{ user_name }}"
-    group: "{{ user_name }}"
+    dest: ~/config
     mode: 0600
   tags:
     - jenkins
@@ -62,19 +52,15 @@
 - name: Copy AWS credentials
   copy:
     src: credentials
-    dest: /home/{{ user_name }}/credentials
-    owner: "{{ user_name }}"
-    group: "{{ user_name }}"
+    dest: ~/credentials
     mode: 0600
   tags:
     - jenkins
 
 - name: Create a casc_configs directory
   file:
-    path: /home/{{ user_name }}/casc_configs
+    path: ~/casc_configs
     state: directory
-    owner: "{{ user_name }}"
-    group: "{{ user_name }}"
     mode: 0755
   tags:
     - jenkins
@@ -82,24 +68,15 @@
 - name: Copy jenkins.yaml
   ansible.builtin.template:
     src: jenkins.yaml
-    dest: /home/{{ user_name }}/casc_configs/jenkins.yaml
+    dest: ~/casc_configs/jenkins.yaml
   tags:
     - jenkins
 
 - name: Copy private ssh key
   copy:
     src: ~/.ssh/id_rsa
-    dest: /home/{{ user_name }}/.ssh/id_rsa
-    owner: "{{ user_name }}"
-    group: "{{ user_name }}"
+    dest: ~/.ssh/id_rsa
     mode: 0600
-  tags:
-    - jenkins
-
-- name: Change docker.sock permissions
-  file:
-    path: /var/run/docker.sock
-    mode: 666
   tags:
     - jenkins
 
@@ -108,7 +85,7 @@
     name: custom-jenkins
     tag: latest
     build:
-      path: /home/{{ user_name }}
+      path: "~"
     source: build
     force_source: "{{ plugins_info.changed or Dockerfile_info.changed }}"
   tags:
@@ -116,7 +93,7 @@
 
 - name: Start Docker Compose containers
   community.general.docker_compose:
-    project_src: /home/{{ user_name }}
+    project_src: "~"
     restarted: true
   tags:
     - jenkins

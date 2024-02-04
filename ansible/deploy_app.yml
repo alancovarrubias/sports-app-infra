@@ -1,7 +1,14 @@
-- name: Deploy sports app
+- name: Setup server
   hosts: all
-  gather_facts: false
+  gather_facts: no
   roles:
     - setup_server
     - setup_docker
+
+- name: Deploy sports app
+  hosts: all
+  gather_facts: no
+  become: yes
+  become_user: "{{ user_name }}"
+  roles:
     - deploy_app

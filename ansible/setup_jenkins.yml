@@ -1,13 +1,24 @@
 ---
-- name: Setup jenkins
+- name: Setup ansible server
   hosts: all
-  gather_facts: true
-  gather_timeout: 120
+  gather_facts: no
   roles:
+    - setup_server
+    - setup_docker
     - role: setup_ssh_config
       vars:
         server_name: "jenkins_server"
         env_var: "JENKINS_IP"
-    - setup_server
-    - setup_docker
+  tasks:
+    - name: Change docker.sock permissions
+      file:
+        path: /var/run/docker.sock
+        mode: 666
+
+- name: Setup jenkins
+  hosts: all
+  gather_facts: no
+  become: true
+  become_user: "{{ user_name }}"
+  roles:
     - setup_jenkins
