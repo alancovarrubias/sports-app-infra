@@ -5,19 +5,14 @@ terraform {
     key    = "sports-app/state.tfstate"
     region = "us-west-1"
   }
+  required_providers {
+    digitalocean = {
+      source  = "digitalocean/digitalocean"
+      version = "~> 2.0"
+    }
+  }
 }
 
-variable "do_token" {}
-variable "public_ssh_key" {}
-variable "domain_name" {}
-
-
-module "digitalocean" {
-  source      = "./digitalocean"
-  do_token    = var.do_token
-  domain_name = var.domain_name
-}
-
-output "server_ip" {
-  value = module.digitalocean.ip_address
+provider "digitalocean" {
+  token = var.do_token
 }
