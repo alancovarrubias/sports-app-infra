@@ -1,5 +1,5 @@
 ---
-# tasks file for deploy_app
+# tasks file for setup_sports_app
 - name: Copy docker compose
   ansible.builtin.template:
     src: docker-compose.yml

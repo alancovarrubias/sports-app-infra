@@ -5,10 +5,10 @@
     - setup_server
     - setup_docker
 
-- name: Deploy sports app
+- name: Setup sports app
   hosts: all
   gather_facts: no
   become: yes
   become_user: "{{ user_name }}"
   roles:
-    - deploy_app
+    - setup_sports_app

@@ -41,7 +41,7 @@ pipeline {
                     remote.allowAnyHosts = true
                     remote.user = "$REMOTE_USER"
                     remote.identityFile = "/var/jenkins_home/.ssh/id_rsa"
-                    sshCommand remote: remote, command: "ansible-playbook --inventory $SERVER_IP, --extra-vars @extra_vars.yml deploy_app.yml"
+                    sshCommand remote: remote, command: "ansible-playbook --inventory $SERVER_IP, --extra-vars @extra_vars.yml setup_sports_app.yml"
                 }
             }
         }

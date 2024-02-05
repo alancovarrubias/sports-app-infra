@@ -2,4 +2,4 @@
 - hosts: localhost
   remote_user: root
   roles:
-    - deploy_app
+    - setup_sports_app

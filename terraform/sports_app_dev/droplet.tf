@@ -12,7 +12,7 @@ resource "null_resource" "configure_sports-app-dev" {
   provisioner "local-exec" {
     working_dir = "../../ansible"
     command = format(
-      "ansible-playbook --inventory %s, --extra-vars @extra_vars.yml setup_dev_server.yml",
+      "ansible-playbook --inventory %s, --extra-vars @extra_vars.yml setup_sports_app.yml",
       module.digitalocean.ip_address,
     )
   }
