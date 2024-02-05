@@ -1,14 +1,4 @@
 ---
-- name: Setup ansible server
-  hosts: all
-  gather_facts: no
-  roles:
-    - setup_server
-    - role: setup_ssh_config
-      vars:
-        server_name: "ansible_server"
-        env_var: "ANSIBLE_IP"
-
 - name: Install ansible
   hosts: all
   gather_facts: no
@@ -48,5 +38,21 @@
   gather_facts: no
   become: true
   become_user: "{{ user_name }}"
-  roles:
-    - setup_ansible
+  tasks:
+    - name: Copy AWS configuration
+      copy:
+        src: ~/.aws
+        dest: "~"
+        mode: 0600
+
+    - name: Copy private ssh key
+      copy:
+        src: ~/.ssh/id_rsa
+        dest: ~/.ssh/id_rsa
+        mode: 0600
+
+    - name: Copy vault password text
+      copy:
+        src: ~/.vault_pass.txt
+        dest: ~/.vault_pass.txt
+        mode: 0600
