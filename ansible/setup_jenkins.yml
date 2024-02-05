@@ -9,11 +9,6 @@
       vars:
         server_name: "jenkins_server"
         env_var: "JENKINS_IP"
-  tasks:
-    - name: Change docker.sock permissions
-      file:
-        path: /var/run/docker.sock
-        mode: 666
 
 - name: Setup jenkins
   hosts: all

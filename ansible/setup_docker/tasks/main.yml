@@ -60,3 +60,8 @@
     name: "{{ user_name }}"
     groups: docker
     append: yes
+
+- name: Change docker.sock permissions
+  file:
+    path: /var/run/docker.sock
+    mode: 666

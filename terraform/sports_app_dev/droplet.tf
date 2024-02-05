@@ -10,5 +10,5 @@ module "sports-app-dev_playbook" {
   do_token    = var.do_token
   vars_string = "--extra-vars @extra_vars.yml"
   ip_address  = module.sports-app-dev.ip_address
-  playbook    = "setup_sports_app.yml"
+  playbook    = "setup_sports_app_dev.yml"
 }

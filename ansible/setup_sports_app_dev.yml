@@ -1,0 +1,10 @@
+- name: Setup server
+  hosts: all
+  gather_facts: no
+  roles:
+    - setup_server
+    - setup_docker
+    - role: setup_ssh_config
+      vars:
+        server_name: "dev"
+        env_var: "DEV_IP"
