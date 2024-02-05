@@ -1,3 +1,3 @@
 output "server_ip" {
-  value = module.digitalocean.ip_address
+  value = module.sports-app-dev.ip_address
 }

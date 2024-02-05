@@ -13,29 +13,21 @@ module "jenkins_server" {
   droplet_size = "s-2vcpu-4gb"
 }
 
-resource "null_resource" "configure_jenkins_server" {
-  triggers = {
-    trigger = module.ansible_server.ip_address
-  }
-  provisioner "local-exec" {
-    working_dir = "../../ansible"
-    command = format(
-      "ansible-playbook --inventory %s, -e ansible_ip=%s --extra-vars @extra_vars.yml --skip-tags plugins setup_jenkins.yml",
-      module.jenkins_server.ip_address,
-      module.ansible_server.ip_address,
-    )
-  }
+module "jenkins_server_playbook" {
+  source     = "../modules/ansible_playbook"
+  do_token   = var.do_token
+  ip_address = module.jenkins_server.ip_address
+  playbook   = "setup_jenkins.yml"
+  vars_string = format(
+    "-e ansible_ip=%s --extra-vars @extra_vars.yml --skip-tags plugins",
+    module.ansible.ip_address
+  )
 }
 
-resource "null_resource" "configure_ansible_server" {
-  triggers = {
-    trigger = module.ansible_server.ip_address
-  }
-  provisioner "local-exec" {
-    working_dir = "../../ansible"
-    command = format(
-      "ansible-playbook --inventory %s, --extra-vars @extra_vars.yml setup_ansible.yml",
-      module.ansible_server.ip_address,
-    )
-  }
+module "ansible_server_playbook" {
+  source      = "../modules/ansible_playbook"
+  do_token    = var.do_token
+  ip_address  = module.sports-app-dev.ip_address
+  playbook    = "setup_ansible.yml"
+  vars_string = "--extra-vars @extra_vars.yml"
 }
