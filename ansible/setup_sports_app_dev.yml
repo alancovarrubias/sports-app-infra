@@ -25,3 +25,16 @@
       community.general.docker_compose:
         project_src: "~/sports-app"
         restarted: true
+
+- name: Setup tunnel
+  hosts: all
+  gather_facts: no
+  tasks:
+    - name: Copy tunnel script
+      ansible.builtin.template:
+        src: tunnel.sh
+        dest: ~/tunnel.sh
+        mode: 0700
+      vars:
+        port: 1234
+      delegate_to: localhost
