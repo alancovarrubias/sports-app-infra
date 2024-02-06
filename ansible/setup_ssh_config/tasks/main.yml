@@ -14,7 +14,7 @@
     state: present
   delegate_to: localhost
 
-- name: Adding the path in the zshrc files
+- name: Adding env in the zshrc files
   lineinfile:
     dest: ~/.zshrc
     regexp: ^export {{ env_var }}=

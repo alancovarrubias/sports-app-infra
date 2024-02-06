@@ -8,3 +8,20 @@
       vars:
         server_name: "dev"
         env_var: "DEV_IP"
+
+- name: Setup sports app dev
+  hosts: all
+  gather_facts: no
+  become: yes
+  become_user: "{{ user_name }}"
+  tasks:
+    - name: Clone Git Repository
+      git:
+        repo: https://github.com/alancovarrubias/sports-app.git
+        dest: "~/sports-app"
+        update: yes
+
+    - name: Start Docker Compose containers
+      community.general.docker_compose:
+        project_src: "~/sports-app"
+        restarted: true
