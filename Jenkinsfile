@@ -1,5 +1,8 @@
 pipeline {
     agent any
+    parameters {
+        text(name: 'ANSIBLE_IP', description: 'Enter your ansible ip:')
+    }
     stages {
         stage('provisioning server') {
             environment {
@@ -19,25 +22,23 @@ pipeline {
         }
         stage('copying files to ansible server') {
             environment {
-                ANSIBLE_IP = "${env.ANSIBLE_IP}"
                 REMOTE_USER = "${env.REMOTE_USER}"
             }
             steps {
                 script {
-                    sh "scp -r -o StrictHostKeyChecking=no ansible/* $REMOTE_USER@$ANSIBLE_IP:/home/$REMOTE_USER"
+                    sh "scp -r -o StrictHostKeyChecking=no ansible/* $REMOTE_USER@${params.ANSIBLE_IP}:/home/$REMOTE_USER"
                 }
             }
         }
         stage('deploying sports app') {
             environment {
-                ANSIBLE_IP = "${env.ANSIBLE_IP}"
                 REMOTE_USER = "${env.REMOTE_USER}"
             }
             steps {
                 script {
                     def remote = [:]
                     remote.name = "ansible_server"
-                    remote.host = "$ANSIBLE_IP"
+                    remote.host = "${params.ANSIBLE_IP}"
                     remote.allowAnyHosts = true
                     remote.user = "$REMOTE_USER"
                     remote.identityFile = "/var/jenkins_home/.ssh/id_rsa"
