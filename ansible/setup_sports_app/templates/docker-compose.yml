@@ -1,34 +1,68 @@
 version: "3.4"
 services:
   client:
-    image: "{{ ecr_repo_url }}/client:{{ env }}"
+    image: "{{ ecr_repo_url }}/client:dev"
     ports:
-      - 80:80/tcp
-      - 443:443/tcp
+      - "1234:1234"
+      - "1235:1235"
+    depends_on:
+      - server
     volumes:
-      - ./nginx:/etc/nginx/user.conf.d:ro
-      - letsencrypt:/etc/letsencrypt/
+      - ./client:/home/node/code
+      - /home/node/code/node_modules
   server:
-    image: "{{ ecr_repo_url }}/server:{{ env }}"
+    image: "{{ ecr_repo_url }}/server:dev"
     ports:
-      - 4000:4000
+      - "4000:4000"
+    depends_on:
+      - auth
+      - football
+    volumes:
+      - ./server:/home/node/code
+      - /home/node/code/node_modules
   auth:
-    image: "{{ ecr_repo_url }}/auth:{{ env }}"
+    image: "{{ ecr_repo_url }}/auth:dev"
+    volumes:
+      - ./auth:/project
+    depends_on:
+      - db
+    ports:
+      - "3000:3000"
   football:
-    image: "{{ ecr_repo_url }}/football:{{ env }}"
+    image: "{{ ecr_repo_url }}/football:dev"
+    volumes:
+      - ./football:/project
+    depends_on:
+      - db
+      - sidekiq
+    ports:
+      - "3003:3003"
   sidekiq:
-    image: "{{ ecr_repo_url }}/football:{{ env }}"
+    image: "{{ ecr_repo_url }}/football:prod"
     command: bundle exec sidekiq
+    volumes:
+      - ./football:/project
+      - /project/tmp
+    depends_on:
+      - db
+      - redis
+      - crawler
+    environment:
+      - REDIS_URL_SIDEKIQ=redis://redis:6379/1
   crawler:
-    image: "{{ ecr_repo_url }}/crawler:{{ env }}"
+    image: "{{ ecr_repo_url }}/crawler:prod"
+    volumes:
+      - ./crawler:/project
+    ports:
+      - "5002:5000"
   db:
     image: postgres:15
     volumes:
       - postgres:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
     environment:
       - POSTGRES_HOST_AUTH_METHOD=trust
+    ports:
+      - "5432:5432"
   redis:
     image: redis:7.2.1-alpine
     command: redis-server
@@ -38,6 +72,5 @@ services:
       - redis:/data
 
 volumes:
-  redis:
   postgres:
-  letsencrypt:
+  redis:
