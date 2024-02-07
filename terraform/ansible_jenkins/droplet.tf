@@ -20,14 +20,14 @@ module "jenkins_server_playbook" {
   playbook   = "setup_jenkins.yml"
   vars_string = format(
     "-e ansible_ip=%s --extra-vars @extra_vars.yml --skip-tags plugins",
-    module.ansible.ip_address
+    module.ansible_server.ip_address
   )
 }
 
 module "ansible_server_playbook" {
   source      = "../modules/ansible_playbook"
   do_token    = var.do_token
-  ip_address  = module.sports-app-dev.ip_address
+  ip_address  = module.ansible_server.ip_address
   playbook    = "setup_ansible.yml"
   vars_string = "--extra-vars @extra_vars.yml"
 }
