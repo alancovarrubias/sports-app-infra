@@ -20,7 +20,6 @@ OptionParser.new do |opts|
 end.parse!
 
 class AnsibleData
-  ``
   attr_reader :skip_tags, :playbook, :ip_address, :vars, :tags
 
   MODULE_DATA = {
@@ -50,6 +49,7 @@ end
 
 class Runner
   def initialize(options)
+    @command = options[:command]
     @module = options[:module]
     @data = AnsibleData.new(options)
   end

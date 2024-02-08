@@ -1,1 +1,1 @@
-ssh -L {{ port }}:localhost:{{ port }} {{ user_name }}@{{ inventory_hostname }}
+ssh -L 1234:localhost:1234 -L 3000:localhost:3000 {{ user_name }}@{{ inventory_hostname }} -fN
