@@ -6,10 +6,14 @@ options = {
   command: ARGV[0]
 }
 OptionParser.new do |opts|
-  opts.banner = 'Usage: example_cli.rb [options]'
+  opts.banner = 'Usage: ansible.rb [options]'
 
-  opts.on('-e', '--env ENV', 'Specify env') do |env|
-    options[:env] = env
+  opts.on('-m', '--module MODULE', 'Specify module') do |mod|
+    options[:mod] = mod
+  end
+
+  opts.on('-t', '--tags TAGS', 'Specify tags') do |tags|
+    options[:tags] = tags
   end
 end.parse!
 
@@ -17,6 +21,11 @@ class AnsibleRunner
   def initialize(options)
     @env = options[:env]
     @command = options[:command]
+    @tags = options[:tags]
+  end
+
+  def custom_tags
+    "--tags #{@tags}" if @tags
   end
 
   def tags
@@ -49,9 +58,8 @@ class AnsibleRunner
     end
   end
 
-  def run_command(cmd)
-    puts cmd
-    system("ansible-playbook --inventory #{ip}, --extra-vars @extra_vars.yml #{tags} #{playbook}")
+  def run
+    system("cd ansible && ansible-playbook --inventory #{ip}, --extra-vars @extra_vars.yml #{custom_tags} #{tags} #{playbook}")
   end
 end
 

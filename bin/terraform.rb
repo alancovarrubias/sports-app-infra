@@ -9,7 +9,7 @@ options = {
   'dev' => 'sports_app_dev'
 }
 OptionParser.new do |opts|
-  opts.banner = 'Usage: example_cli.rb [options]'
+  opts.banner = 'Usage: terraform.rb [options]'
 
   opts.on('-m', '--module MODULE', 'Specify module') do |mod|
     options[:module] = @module_map[mod] || mod
