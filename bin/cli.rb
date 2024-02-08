@@ -19,56 +19,39 @@ OptionParser.new do |opts|
   end
 end.parse!
 
-class AnsibleRunner
+class AnsibleData
+  ``
+  attr_reader :skip_tags, :playbook, :ip_address, :vars, :tags
+
+  MODULE_DATA = {
+    'jenkins' => {
+      playbook: 'setup_jenkins.yml',
+      ip_address: 'JENKINS_IP',
+      skip_tags: 'plugins'
+    },
+    'ansible' => {
+      playbook: 'setup_ansible.yml',
+      ip_address: 'ANSIBLE_IP'
+    },
+    'dev' => {
+      playbook: 'setup_sports_app_dev.yml',
+      ip_address: 'DEV_IP'
+    }
+  }
   def initialize(options)
-    @command = options[:command]
-    @tags = options[:tags]
-    @module = options[:module]
-  end
-
-  def custom_tags
-    "--tags #{@tags}" if @tags
-  end
-
-  def tags
-    if @module == 'jenkins'
-      '--skip-tags plugins'
-    elsif @module == 'ansible'
-      ''
-    elsif @module == 'dev'
-      ''
-    end
-  end
-
-  def playbook
-    if @module == 'jenkins'
-      'setup_jenkins.yml'
-    elsif @module == 'ansible'
-      'setup_ansible.yml'
-    elsif @module == 'dev'
-      'setup_sports_app_dev.yml'
-    end
-  end
-
-  def ip
-    if @module == 'jenkins'
-      ENV['JENKINS_IP']
-    elsif @module == 'ansible'
-      ENV['ANSIBLE_IP']
-    elsif @module == 'dev'
-      ENV['DEV_IP']
-    end
-  end
-
-  def run
-    system("cd ansible && ansible-playbook --inventory #{ip}, --extra-vars @extra_vars.yml #{custom_tags} #{tags} #{playbook}")
+    module_data = MODULE_DATA[options[:module]]
+    @skip_tags = "--skip-tags #{module_data[:skip_tags]}" if module_data[:skip_tags]
+    @playbook = module_data[:playbook]
+    @ip_address = ENV[module_data[:ip_address]]
+    @vars = '--extra-vars @extra_vars.yml'
+    @tags = "--tags #{options[:tags]}" if options[:tags]
   end
 end
 
-class TerraformRunner
+class Runner
   def initialize(options)
     @module = options[:module]
-    @command = options[:command]
+    @data = AnsibleData.new(options)
   end
 
   def run
@@ -77,6 +60,8 @@ class TerraformRunner
       run_command("apply #{common_args}")
     elsif @command == 'destroy'
       run_command("destroy #{common_args}")
+    elsif @command == 'run'
+      system("cd ansible && ansible-playbook --inventory #{@data.ip_address}, #{@data.vars} #{@data.tags} #{@data.skip_tags} #{@data.playbook}")
     end
   end
 
@@ -94,8 +79,4 @@ class TerraformRunner
   end
 end
 
-if options[:command] == 'run'
-  AnsibleRunner.new(options).run
-else
-  TerraformRunner.new(options).run
-end
+Runner.new(options).run
