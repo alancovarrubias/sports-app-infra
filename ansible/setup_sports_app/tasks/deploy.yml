@@ -2,8 +2,8 @@
 # tasks file for setup_sports_app
 - name: Copy docker compose
   ansible.builtin.template:
-    src: docker-compose.yml
-    dest: "~"
+    src: docker-compose.prod.yml
+    dest: "~/docker-compose.yml"
     mode: 0600
   tags:
     - deploy

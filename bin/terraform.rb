@@ -6,7 +6,7 @@ options = {
   command: ARGV[0]
 }
 @module_map = {
-  'dev': 'sports_app_dev'
+  'dev' => 'sports_app_dev'
 }
 OptionParser.new do |opts|
   opts.banner = 'Usage: example_cli.rb [options]'

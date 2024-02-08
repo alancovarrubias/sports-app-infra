@@ -8,6 +8,11 @@
       vars:
         server_name: "dev"
         env_var: "DEV_IP"
+  tasks:
+    - name: get ECR password
+      shell: "aws ecr get-login-password --region {{ aws_region }}"
+      register: ecr_password
+      delegate_to: localhost
 
 - name: Setup sports app dev
   hosts: all
@@ -21,20 +26,17 @@
         dest: "~/sports-app"
         update: yes
 
+    - name: Copy docker compose
+      ansible.builtin.template:
+        src: docker-compose.yml
+        dest: "~/sports-app"
+
+    - name: Docker repository login
+      docker_login:
+        registry_url: https://{{ ecr_repo_url }}
+        username: AWS
+        password: "{{ ecr_password.stdout }}"
+
     - name: Start Docker Compose containers
       community.general.docker_compose:
         project_src: "~/sports-app"
-        restarted: true
-
-- name: Setup tunnel
-  hosts: all
-  gather_facts: no
-  tasks:
-    - name: Copy tunnel script
-      ansible.builtin.template:
-        src: tunnel.sh
-        dest: ~/tunnel.sh
-        mode: 0700
-      vars:
-        port: 1234
-      delegate_to: localhost
