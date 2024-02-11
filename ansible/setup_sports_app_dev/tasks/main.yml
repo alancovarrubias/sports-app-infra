@@ -47,3 +47,16 @@
   become_user: "{{ local_user }}"
   become: yes
   delegate_to: localhost
+
+- name: Copy Migration Script
+  template:
+    src: run_migration.sh
+    dest: ~/run_migration.sh
+    mode: 0700
+  tags:
+    - test
+
+- name: Run Command on Container
+  command: ~/run_migration.sh
+  tags:
+    - test
