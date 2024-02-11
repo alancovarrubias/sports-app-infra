@@ -1,0 +1,49 @@
+---
+# tasks file for setup_sports_app_dev
+- name: get ECR password
+  shell: "aws ecr get-login-password --region {{ aws_region }}"
+  register: ecr_password
+  delegate_to: localhost
+  become_user: "{{ local_user }}"
+  become: yes
+
+- name: Copy gitconfig
+  copy:
+    src: ~/.gitconfig
+    dest: "~"
+
+- name: Check if repo exists
+  stat:
+    path: ~/sports-app
+  register: repo_check
+
+- name: Clone Git Repository
+  git:
+    repo: https://github.com/alancovarrubias/sports-app.git
+    dest: ~/sports-app
+    update: yes
+  when: not repo_check.stat.exists
+
+- name: Copy docker compose
+  ansible.builtin.template:
+    src: docker-compose.yml
+    dest: ~/sports-app
+
+- name: Docker repository login
+  docker_login:
+    registry_url: https://{{ ecr_repo_url }}
+    username: AWS
+    password: "{{ ecr_password.stdout }}"
+
+- name: Start Docker Compose containers
+  community.general.docker_compose:
+    project_src: ~/sports-app
+
+- name: Copy tunnel script
+  ansible.builtin.template:
+    src: tunnel.sh
+    dest: ~/tunnel.sh
+    mode: 0700
+  become_user: "{{ local_user }}"
+  become: yes
+  delegate_to: localhost
