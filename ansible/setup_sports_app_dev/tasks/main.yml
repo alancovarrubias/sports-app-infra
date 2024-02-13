@@ -49,7 +49,7 @@
 
 - name: Terminate ssh tunnel
   shell: "kill -TERM {{ tunnel_pid.stdout }}"
-  when: tunnel_pid.stdout is defined
+  when: tunnel_pid.stdout != ''
   become_user: "{{ local_user }}"
   become: yes
   delegate_to: localhost
@@ -68,3 +68,13 @@
   become_user: "{{ local_user }}"
   become: yes
   delegate_to: localhost
+
+- name: Create databases
+  command: docker-compose run --rm auth rake db:create
+  args:
+    chdir: ~/sports-app
+
+- name: Migrate databases
+  command: docker-compose run --rm auth rake db:migrate
+  args:
+    chdir: ~/sports-app
