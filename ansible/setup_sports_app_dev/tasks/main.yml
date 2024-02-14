@@ -104,3 +104,16 @@
     - football
   tags:
     - db
+
+- name: Database dump
+  command: docker run -it --rm --network host -v /home/{{ user_name }}/tmp:/tmp postgres:15 pg_dump -h localhost -U postgres -d auth_development -f /tmp/dump.sql
+  tags:
+    - dump
+
+- name: Fetch dump file
+  ansible.builtin.fetch:
+    src: ~/tmp/dump.sql
+    dest: ~/dump_files/dump.sql
+    flat: yes
+  tags:
+    - dump
