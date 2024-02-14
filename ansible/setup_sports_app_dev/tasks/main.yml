@@ -17,36 +17,6 @@
     update: yes
   when: not repo_check.stat.exists
 
-- name: get ECR password
-  shell: "aws ecr get-login-password --region {{ aws_region }}"
-  register: ecr_password
-  delegate_to: localhost
-  become_user: "{{ local_user }}"
-  become: yes
-  tags:
-    - deploy
-
-- name: Copy docker compose
-  ansible.builtin.template:
-    src: docker-compose.yml
-    dest: ~/sports-app
-  tags:
-    - deploy
-
-- name: Docker repository login
-  docker_login:
-    registry_url: https://{{ ecr_repo_url }}
-    username: AWS
-    password: "{{ ecr_password.stdout }}"
-  tags:
-    - deploy
-
-- name: Start Docker Compose containers
-  community.general.docker_compose:
-    project_src: ~/sports-app
-  tags:
-    - deploy
-
 - name: Find PID of ssh tunnel
   shell: "pgrep -f 'ssh -fN -L'"
   register: tunnel_pid
@@ -85,6 +55,36 @@
   tags:
     - tunnel
 
+- name: get ECR password
+  shell: "aws ecr get-login-password --region {{ aws_region }}"
+  register: ecr_password
+  delegate_to: localhost
+  become_user: "{{ local_user }}"
+  become: yes
+  tags:
+    - deploy
+
+- name: Copy docker compose
+  ansible.builtin.template:
+    src: docker-compose.yml
+    dest: ~/sports-app
+  tags:
+    - deploy
+
+- name: Docker repository login
+  docker_login:
+    registry_url: https://{{ ecr_repo_url }}
+    username: AWS
+    password: "{{ ecr_password.stdout }}"
+  tags:
+    - deploy
+
+- name: Start Docker Compose containers
+  community.general.docker_compose:
+    project_src: ~/sports-app
+  tags:
+    - deploy
+
 - name: Create databases
   command: docker-compose run --rm {{ item }} rake db:create
   args:
@@ -117,3 +117,29 @@
     flat: yes
   tags:
     - dump
+
+- name: Drop databases
+  command: docker-compose run --rm auth rake db:drop
+  args:
+    chdir: ~/sports-app
+  tags:
+    - restore
+
+- name: Create databases
+  command: docker-compose run --rm auth rake db:create
+  args:
+    chdir: ~/sports-app
+  tags:
+    - restore
+
+- name: Copy dump file
+  ansible.builtin.copy:
+    src: ~/dump_files/dump.sql
+    dest: ~/tmp/dump.sql
+  tags:
+    - restore
+
+- name: Database restore
+  command: docker run -it --rm --network host -v /home/alan/tmp:/tmp postgres:15 psql -h localhost -U postgres -d auth_development -f /tmp/dump.sql
+  tags:
+    - restore
