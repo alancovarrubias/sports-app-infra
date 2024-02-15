@@ -25,8 +25,7 @@ class AnsibleData
   MODULE_DATA = {
     'jenkins' => {
       playbook: 'setup_jenkins.yml',
-      ip_address: 'JENKINS_IP',
-      skip_tags: 'plugins'
+      ip_address: 'JENKINS_IP'
     },
     'ansible' => {
       playbook: 'setup_ansible.yml',
@@ -39,7 +38,6 @@ class AnsibleData
   }
   def initialize(options)
     module_data = MODULE_DATA[options[:module]]
-    @skip_tags = "--skip-tags #{module_data[:skip_tags]}" if module_data[:skip_tags]
     @playbook = module_data[:playbook]
     @ip_address = ENV[module_data[:ip_address]]
     @vars = '--extra-vars @extra_vars.yml'
@@ -66,7 +64,7 @@ class Runner
   end
 
   def ansible_args
-    "--inventory #{@data.ip_address}, #{@data.vars} #{@data.tags} #{@data.skip_tags} #{@data.playbook}"
+    "--inventory #{@data.ip_address}, #{@data.vars} --skip-tags skip #{@data.tags} #{@data.playbook}"
   end
 
   def sub_dir
