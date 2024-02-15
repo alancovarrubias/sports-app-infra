@@ -5,7 +5,7 @@ resource "null_resource" "ansible_playbook" {
   provisioner "local-exec" {
     working_dir = "../../ansible"
     command = format(
-      "ansible-playbook --inventory %s, %s %s",
+      "ansible-playbook --inventory %s, %s --skip-tags skip %s",
       var.ip_address,
       var.vars_string,
       var.playbook,

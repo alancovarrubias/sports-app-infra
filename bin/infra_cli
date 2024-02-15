@@ -57,19 +57,23 @@ class Runner
   def run
     if @command == 'apply'
       run_command('init')
-      run_command("apply #{common_args}")
+      run_command("apply #{terraform_args}")
     elsif @command == 'destroy'
-      run_command("destroy #{common_args}")
+      run_command("destroy #{terraform_args}")
     elsif @command == 'run'
-      system("cd ansible && ansible-playbook --inventory #{@data.ip_address}, #{@data.vars} #{@data.tags} #{@data.skip_tags} #{@data.playbook}")
+      system("cd ansible && ansible-playbook #{ansible_args}")
     end
+  end
+
+  def ansible_args
+    "--inventory #{@data.ip_address}, #{@data.vars} #{@data.tags} #{@data.skip_tags} #{@data.playbook}"
   end
 
   def sub_dir
     @module == 'dev' ? 'sports_app_dev' : @module
   end
 
-  def common_args
+  def terraform_args
     '-var-file=../terraform.tfvars --auto-approve'
   end
 

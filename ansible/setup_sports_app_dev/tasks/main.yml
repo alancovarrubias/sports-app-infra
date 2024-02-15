@@ -106,9 +106,10 @@
     - db
 
 - name: Database dump
-  command: docker run -it --rm --network host -v /home/{{ user_name }}/tmp:/tmp postgres:15 pg_dump -h localhost -U postgres -d auth_development -f /tmp/dump.sql
+  command: docker run --rm --network host -v /home/{{ user_name }}:/tmp postgres:15 pg_dump -h localhost -U postgres -d auth_development -f /tmp/dump.sql
   tags:
     - dump
+    - skip
 
 - name: Fetch dump file
   ansible.builtin.fetch:
@@ -117,6 +118,18 @@
     flat: yes
   tags:
     - dump
+    - skip
+
+- name: Stop rails servers
+  command: docker-compose stop {{ item }}
+  args:
+    chdir: ~/sports-app
+  loop:
+    - auth
+    - football
+  tags:
+    - restore
+    - skip
 
 - name: Drop databases
   command: docker-compose run --rm auth rake db:drop
@@ -124,6 +137,7 @@
     chdir: ~/sports-app
   tags:
     - restore
+    - skip
 
 - name: Create databases
   command: docker-compose run --rm auth rake db:create
@@ -131,15 +145,29 @@
     chdir: ~/sports-app
   tags:
     - restore
+    - skip
 
 - name: Copy dump file
   ansible.builtin.copy:
     src: ~/dump_files/dump.sql
-    dest: ~/tmp/dump.sql
+    dest: ~/dump.sql
   tags:
     - restore
+    - skip
 
 - name: Database restore
-  command: docker run -it --rm --network host -v /home/alan/tmp:/tmp postgres:15 psql -h localhost -U postgres -d auth_development -f /tmp/dump.sql
+  command: docker run --rm --network host -v /home/alan:/tmp postgres:15 psql -h localhost -U postgres -d auth_development -f /tmp/dump.sql
   tags:
     - restore
+    - skip
+
+- name: Start rails servers
+  command: docker-compose start {{ item }}
+  args:
+    chdir: ~/sports-app
+  loop:
+    - auth
+    - football
+  tags:
+    - restore
+    - skip
