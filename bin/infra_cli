@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 
 require 'optparse'
+require_relative 'terraform_runner'
+require_relative 'ansible_runner'
 
 options = {}
 OptionParser.new do |opts|
@@ -19,66 +21,9 @@ OptionParser.new do |opts|
   end
 end.parse!
 
-class AnsibleData
-  attr_reader :skip_tags, :playbook, :ip_address, :vars, :tags
-
-  MODULE_DATA = {
-    'jenkins' => {
-      playbook: 'setup_jenkins.yml',
-      ip_address: 'JENKINS_IP'
-    },
-    'ansible' => {
-      playbook: 'setup_ansible.yml',
-      ip_address: 'ANSIBLE_IP'
-    },
-    'dev' => {
-      playbook: 'setup_sports_app_dev.yml',
-      ip_address: 'DEV_IP'
-    }
-  }
-  def initialize(options)
-    module_data = MODULE_DATA[options[:module]]
-    @playbook = module_data[:playbook]
-    @ip_address = ENV[module_data[:ip_address]]
-    @vars = '--extra-vars @extra_vars.yml'
-    @tags = "--tags #{options[:tags]}" if options[:tags]
-  end
+case options[:command]
+when 'apply', 'destroy'
+  TerraformRunner.new(options).run
+when 'run'
+  AnsibleRunner.new(options).run
 end
-
-class Runner
-  def initialize(options)
-    @command = options[:command]
-    @module = options[:module]
-    @data = AnsibleData.new(options)
-  end
-
-  def run
-    if @command == 'apply'
-      run_command('init')
-      run_command("apply #{terraform_args}")
-    elsif @command == 'destroy'
-      run_command("destroy #{terraform_args}")
-    elsif @command == 'run'
-      system("cd ansible && ansible-playbook #{ansible_args}")
-    end
-  end
-
-  def ansible_args
-    "--inventory #{@data.ip_address}, #{@data.vars} --skip-tags skip #{@data.tags} #{@data.playbook}"
-  end
-
-  def sub_dir
-    @module == 'dev' ? 'sports_app_dev' : @module
-  end
-
-  def terraform_args
-    '-var-file=../terraform.tfvars --auto-approve'
-  end
-
-  def run_command(cmd)
-    tf_cmd = "terraform -chdir=\"$(pwd)/terraform/#{sub_dir}\" #{cmd}"
-    system(tf_cmd)
-  end
-end
-
-Runner.new(options).run
