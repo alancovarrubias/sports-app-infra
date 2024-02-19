@@ -1,0 +1,41 @@
+---
+# tasks file for setup_sports_app_worker
+- name: Copy gitconfig
+  copy:
+    src: ~/.gitconfig
+    dest: "~"
+
+- name: Check if repo exists
+  stat:
+    path: ~/sports-app
+  register: repo_check
+
+- name: Clone Git Repository
+  git:
+    repo: https://github.com/alancovarrubias/sports-app.git
+    dest: ~/sports-app
+    update: yes
+  when: not repo_check.stat.exists
+
+- name: get ECR password
+  shell: "aws ecr get-login-password --region {{ aws_region }}"
+  register: ecr_password
+  delegate_to: localhost
+  become_user: "{{ local_user }}"
+  become: yes
+
+- name: Docker repository login
+  docker_login:
+    registry_url: https://{{ ecr_repo_url }}
+    username: AWS
+    password: "{{ ecr_password.stdout }}"
+
+- name: Copy docker compose
+  ansible.builtin.template:
+    src: docker-compose.yml
+    dest: "~/sports-app/docker-compose.yml"
+    mode: 0600
+
+- name: Start Docker Compose containers
+  community.general.docker_compose:
+    project_src: "~/sports-app"
