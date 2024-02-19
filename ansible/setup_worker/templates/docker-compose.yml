@@ -1,0 +1,17 @@
+version: "3.4"
+services:
+  sidekiq:
+    image: "{{ ecr_repo_url }}/football:dev"
+    command: bundle exec sidekiq
+    volumes:
+      - ./football:/project
+      - /project/tmp
+    environment:
+      - REDIS_URL_SIDEKIQ=redis://{{ web_ip }}:6379/1
+      - DB_HOST={{ web_ip }}
+  crawler:
+    image: "{{ ecr_repo_url }}/crawler:dev"
+    volumes:
+      - ./crawler:/project
+    ports:
+      - "5000:5000"

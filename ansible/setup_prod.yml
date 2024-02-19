@@ -1,0 +1,14 @@
+- name: Setup server
+  hosts: all
+  gather_facts: no
+  roles:
+    - setup_server
+    - setup_docker
+
+- name: Setup sports app
+  hosts: all
+  gather_facts: no
+  become: yes
+  become_user: "{{ user_name }}"
+  roles:
+    - setup_prod

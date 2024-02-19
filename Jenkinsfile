@@ -12,7 +12,7 @@ pipeline {
             }
             steps {
                 script {
-                    dir('terraform/sports_app') {
+                    dir('terraform/prod') {
                         sh "terraform init"
                         sh "terraform apply --auto-approve"
                         env.SERVER_IP = sh(script: 'terraform output server_ip', returnStdout: true).trim()
@@ -42,7 +42,7 @@ pipeline {
                     remote.allowAnyHosts = true
                     remote.user = "$REMOTE_USER"
                     remote.identityFile = "/var/jenkins_home/.ssh/id_rsa"
-                    sshCommand remote: remote, command: "ansible-playbook --inventory $SERVER_IP, --extra-vars @extra_vars.yml setup_sports_app.yml"
+                    sshCommand remote: remote, command: "ansible-playbook --inventory $SERVER_IP, --extra-vars @extra_vars.yml setup_prod.yml"
                 }
             }
         }
@@ -60,7 +60,7 @@ pipeline {
                     )
                     if (userInput) {
                         echo 'Destroying sports app...'
-                        dir('terraform/sports_app') {
+                        dir('terraform/prod') {
                             sh "terraform destroy --auto-approve"
                         }
                     }

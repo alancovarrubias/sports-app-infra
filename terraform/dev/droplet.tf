@@ -10,7 +10,7 @@ module "sports_app_web_playbook" {
   do_token    = var.do_token
   vars_string = "--extra-vars @extra_vars.yml"
   ip_address  = module.sports_app_web.ip_address
-  playbook    = "setup_sports_app_dev.yml"
+  playbook    = "setup_dev.yml"
 }
 
 module "sports_app_worker" {
@@ -28,5 +28,5 @@ module "sports_app_worker_playbook" {
     module.sports_app_web.ip_address
   )
   ip_address = module.sports_app_worker.ip_address
-  playbook   = "setup_sports_app_worker.yml"
+  playbook   = "setup_worker.yml"
 }

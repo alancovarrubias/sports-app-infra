@@ -11,11 +11,11 @@ class AnsibleRunner
       ip_address: 'ANSIBLE_IP'
     },
     'dev' => {
-      playbook: 'setup_sports_app_dev.yml',
+      playbook: 'setup_dev.yml',
       ip_address: 'DEV_IP'
     },
     'worker' => {
-      playbook: 'setup_sports_app_worker.yml',
+      playbook: 'setup_worker.yml',
       ip_address: 'WORKER_IP'
     }
   }
