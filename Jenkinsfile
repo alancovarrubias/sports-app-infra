@@ -15,7 +15,8 @@ pipeline {
                     dir('terraform/prod') {
                         sh "terraform init"
                         sh "terraform apply --auto-approve"
-                        env.SERVER_IP = sh(script: 'terraform output server_ip', returnStdout: true).trim()
+                        env.WEB_IP = sh(script: 'terraform output web_ip', returnStdout: true).trim()
+                        env.WORKER_IP = sh(script: 'terraform output worker_ip', returnStdout: true).trim()
                     }
                 }
             }
@@ -42,7 +43,8 @@ pipeline {
                     remote.allowAnyHosts = true
                     remote.user = "$REMOTE_USER"
                     remote.identityFile = "/var/jenkins_home/.ssh/id_rsa"
-                    sshCommand remote: remote, command: "ansible-playbook --inventory $SERVER_IP, --extra-vars @extra_vars.yml setup_prod.yml"
+                    sshCommand remote: remote, command: "ansible-playbook --inventory $WEB_IP, --extra-vars @extra_vars.yml setup_prod.yml"
+                    sshCommand remote: remote, command: "ansible-playbook --inventory $WORKER_IP, --extra-vars @extra_vars.yml -e web_ip=$WEB_IP setup_worker.yml"
                 }
             }
         }

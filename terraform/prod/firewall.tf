@@ -1,7 +1,7 @@
-resource "digitalocean_firewall" "sports-app-firewall" {
+resource "digitalocean_firewall" "sports_app_firewall" {
   name = "only-22-80-and-443"
 
-  droplet_ids = [module.sports-app.ip_address]
+  droplet_ids = [module.sports_app_web.id]
 
   inbound_rule {
     protocol         = "tcp"
