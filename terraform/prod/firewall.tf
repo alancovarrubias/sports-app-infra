@@ -22,6 +22,18 @@ resource "digitalocean_firewall" "sports_app_firewall" {
   }
 
   inbound_rule {
+    protocol         = "tcp"
+    port_range       = "6379"
+    source_addresses = [module.sports_app_worker.ip_address]
+  }
+
+  inbound_rule {
+    protocol         = "tcp"
+    port_range       = "5432"
+    source_addresses = [module.sports_app_worker.ip_address]
+  }
+
+  inbound_rule {
     protocol         = "icmp"
     source_addresses = ["0.0.0.0/0", "::/0"]
   }
