@@ -9,8 +9,10 @@
 
 - name: Create .ssh dir
   ansible.builtin.file:
-    path: /home/{{ user_name }}/.ssh
+    path: ~/.ssh
     state: directory
+  become: yes
+  become_user: "{{ user_name }}"
 
 - name: Copy SSH key for the new user
   ansible.builtin.copy:

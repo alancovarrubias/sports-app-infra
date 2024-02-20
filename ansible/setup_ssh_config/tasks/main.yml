@@ -6,7 +6,13 @@
     dest: ~/.ssh/{{ server_name }}
   delegate_to: localhost
 
-- name: Adding the path in the zshrc files
+- name: Create a file
+  ansible.builtin.file:
+    path: ~/.ssh/config
+    state: touch
+  delegate_to: localhost
+
+- name: Adding the path in the config files
   lineinfile:
     dest: ~/.ssh/config
     regexp: ^Include \./{{ server_name }}
@@ -14,10 +20,32 @@
     state: present
   delegate_to: localhost
 
-- name: Adding env in the zshrc files
+- name: Check if startup file exists
+  ansible.builtin.stat:
+    path: ~/.zshrc
+  delegate_to: localhost
+  register: z_startup_file
+
+- name: Adding env in the startup files
   lineinfile:
     dest: ~/.zshrc
     regexp: ^export {{ env_var }}=
     line: export {{ env_var }}={{ inventory_hostname }}
     state: present
   delegate_to: localhost
+  when: z_startup_file.stat.exists
+
+- name: Check if startup file exists
+  ansible.builtin.stat:
+    path: ~/.bashrc
+  delegate_to: localhost
+  register: b_startup_file
+
+- name: Adding env in the startup files
+  lineinfile:
+    dest: ~/.bashrc
+    regexp: ^export {{ env_var }}=
+    line: export {{ env_var }}={{ inventory_hostname }}
+    state: present
+  delegate_to: localhost
+  when: b_startup_file.stat.exists

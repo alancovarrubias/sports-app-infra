@@ -1,10 +1,5 @@
 ---
 # tasks file for setup_worker
-- name: Copy gitconfig
-  copy:
-    src: ~/.gitconfig
-    dest: "~"
-
 - name: Check if repo exists
   stat:
     path: ~/sports-app
@@ -21,7 +16,7 @@
   shell: "aws ecr get-login-password --region {{ aws_region }}"
   register: ecr_password
   delegate_to: localhost
-  become_user: "{{ local_user }}"
+  become_user: "{{ user_name }}"
   become: yes
 
 - name: Docker repository login
