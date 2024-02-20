@@ -7,11 +7,17 @@
     shell: /bin/bash
     state: present
 
+- name: Create .ssh dir
+  ansible.builtin.file:
+    path: /home/{{ user_name }}/.ssh
+    state: directory
+
 - name: Copy SSH key for the new user
-  authorized_key:
-    user: "{{ user_name }}"
-    key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
-    state: present
+  ansible.builtin.copy:
+    src: /root/.ssh/authorized_keys
+    dest: /home/{{ user_name }}/.ssh/authorized_keys
+    remote_src: yes
+  become: yes
 
 - name: Allow the new user to run sudo without a password prompt
   lineinfile:
