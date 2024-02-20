@@ -36,6 +36,14 @@
     dest: "~/sports-app/docker-compose.yml"
     mode: 0600
 
+- name: Wait for Redis
+  ansible.builtin.wait_for:
+    host: "{{ web_ip }}"
+    port: 6379
+    state: started
+    delay: 5
+    timeout: 300
+
 - name: Start Docker Compose containers
   community.general.docker_compose:
     project_src: "~/sports-app"
