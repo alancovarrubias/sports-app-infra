@@ -10,6 +10,10 @@ class AnsibleRunner
       playbook: 'setup_ansible.yml',
       ip_address: 'ANSIBLE_IP'
     },
+    'stage' => {
+      playbook: 'setup_stage.yml',
+      ip_address: 'STAGE_IP'
+    },
     'dev' => {
       playbook: 'setup_dev.yml',
       ip_address: 'DEV_IP'
