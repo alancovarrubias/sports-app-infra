@@ -1,28 +1,43 @@
----
-# tasks file for setup_stage
 - name: Copy docker compose
   ansible.builtin.template:
     src: docker-compose.stage.yml
-    dest: "~/docker-compose.yml"
-    mode: 0600
+    dest: ~/docker-compose.yml
+  tags:
+    - stage
 
-- name: Copy nginx folder
-  copy:
-    src: nginx
-    dest: "~"
-    mode: 0600
+- name: Create nginx directory
+  ansible.builtin.file:
+    path: ~/nginx
+    state: directory
+  tags:
+    - stage
+
+- name: Copy nginx conf
+  ansible.builtin.copy:
+    src: nginx.stage.conf
+    dest: ~/nginx/nginx.conf
+  tags:
+    - stage
 
 - name: get ECR password
   shell: "aws ecr get-login-password --region {{ aws_region }}"
   register: ecr_password
   delegate_to: localhost
+  become_user: "{{ local_user }}"
+  become: yes
+  tags:
+    - stage
 
 - name: Docker repository login
   docker_login:
     registry_url: https://{{ ecr_repo_url }}
     username: AWS
     password: "{{ ecr_password.stdout }}"
+  tags:
+    - stage
 
 - name: Start Docker Compose containers
   community.general.docker_compose:
     project_src: "~"
+  tags:
+    - stage

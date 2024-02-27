@@ -8,7 +8,7 @@ module "sports_app_web" {
 module "sports_app_web_playbook" {
   source      = "../modules/ansible_playbook"
   do_token    = var.do_token
-  vars_string = "--extra-vars @extra_vars.yml"
+  vars_string = "--extra-vars @extra_vars.yml -t dev,setup"
   ip_address  = module.sports_app_web.ip_address
-  playbook    = "setup_dev.yml"
+  playbook    = "setup_web.yml"
 }

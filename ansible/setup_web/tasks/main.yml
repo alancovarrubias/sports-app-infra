@@ -1,0 +1,13 @@
+---
+# tasks file for setup_web
+- include_tasks: dev.yml
+  tags:
+    - dev
+
+- include_tasks: stage.yml
+  tags:
+    - stage
+
+- include_tasks: prod.yml
+  tags:
+    - prod

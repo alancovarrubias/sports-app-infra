@@ -1,14 +1,16 @@
----
-# tasks file for setup_dev
 - name: Copy gitconfig
   copy:
     src: ~/.gitconfig
     dest: "~"
+  tags:
+    - dev
 
 - name: Check if repo exists
   stat:
     path: ~/sports-app
   register: repo_check
+  tags:
+    - dev
 
 - name: Clone Git Repository
   git:
@@ -16,6 +18,8 @@
     dest: ~/sports-app
     update: yes
   when: not repo_check.stat.exists
+  tags:
+    - dev
 
 - name: Find PID of ssh tunnel
   shell: "pgrep -f 'ssh -fN -L'"
@@ -26,6 +30,7 @@
   delegate_to: localhost
   tags:
     - tunnel
+    - dev
 
 - name: Terminate ssh tunnel
   shell: "kill -TERM {{ tunnel_pid.stdout }}"
@@ -35,6 +40,7 @@
   delegate_to: localhost
   tags:
     - tunnel
+    - dev
 
 - name: Copy tunnel script
   ansible.builtin.template:
@@ -46,6 +52,7 @@
   delegate_to: localhost
   tags:
     - tunnel
+    - dev
 
 - name: Run tunnel script
   command: ~/tunnel.sh
@@ -54,6 +61,7 @@
   delegate_to: localhost
   tags:
     - tunnel
+    - dev
 
 - name: get ECR password
   shell: "aws ecr get-login-password --region {{ aws_region }}"
@@ -63,13 +71,15 @@
   become: yes
   tags:
     - deploy
+    - dev
 
 - name: Copy docker compose
   ansible.builtin.template:
-    src: docker-compose.yml
-    dest: ~/sports-app
+    src: docker-compose.dev.yml
+    dest: ~/sports-app/docker-compose.yml
   tags:
     - deploy
+    - dev
 
 - name: Docker repository login
   docker_login:
@@ -78,12 +88,14 @@
     password: "{{ ecr_password.stdout }}"
   tags:
     - deploy
+    - dev
 
 - name: Start Docker Compose containers
   community.general.docker_compose:
     project_src: ~/sports-app
   tags:
     - deploy
+    - dev
 
 - name: Create databases
   command: docker-compose run --rm {{ item }} rake db:create
@@ -94,6 +106,7 @@
     - football
   tags:
     - db
+    - dev
 
 - name: Migrate databases
   command: docker-compose run --rm {{ item }} rake db:migrate
@@ -104,6 +117,7 @@
     - football
   tags:
     - db
+    - dev
 
 - name: Database dump
   command: docker run --rm --network host -v /home/{{ user_name }}:/tmp postgres:15 pg_dump -h localhost -U postgres -d auth_development -f /tmp/dump.sql

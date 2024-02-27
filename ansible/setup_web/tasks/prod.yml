@@ -1,28 +1,41 @@
----
-# tasks file for setup_prod
 - name: Copy docker compose
   ansible.builtin.template:
     src: docker-compose.prod.yml
     dest: "~/docker-compose.yml"
-    mode: 0600
+  tags:
+    - prod
 
-- name: Copy nginx folder
-  copy:
-    src: nginx
-    dest: "~"
-    mode: 0600
+- name: Create nginx directory
+  ansible.builtin.file:
+    path: ~/nginx
+    state: directory
+  tags:
+    - prod
+
+- name: Copy nginx conf
+  ansible.builtin.copy:
+    src: nginx.prod.conf
+    dest: ~/nginx/nginx.conf
+  tags:
+    - prod
 
 - name: get ECR password
   shell: "aws ecr get-login-password --region {{ aws_region }}"
   register: ecr_password
   delegate_to: localhost
+  tags:
+    - prod
 
 - name: Docker repository login
   docker_login:
     registry_url: https://{{ ecr_repo_url }}
     username: AWS
     password: "{{ ecr_password.stdout }}"
+  tags:
+    - prod
 
 - name: Start Docker Compose containers
   community.general.docker_compose:
     project_src: "~"
+  tags:
+    - prod

@@ -6,8 +6,8 @@
     - setup_docker
     - role: setup_ssh_config
       vars:
-        server_name: "stage"
-        env_var: "STAGE_IP"
+        server_name: "web"
+        env_var: "WEB_IP"
 
 - name: Setup sports app
   hosts: all
@@ -15,4 +15,4 @@
   become: yes
   become_user: "{{ user_name }}"
   roles:
-    - setup_stage
+    - setup_web

@@ -12,6 +12,10 @@ OptionParser.new do |opts|
     options[:command] = cmd
   end
 
+  opts.on('-e', '--env ENV', 'Specify env') do |env|
+    options[:env] = env
+  end
+
   opts.on('-m', '--module MODULE', 'Specify module') do |mod|
     options[:module] = mod
   end

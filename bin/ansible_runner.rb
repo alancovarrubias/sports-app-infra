@@ -10,13 +10,9 @@ class AnsibleRunner
       playbook: 'setup_ansible.yml',
       ip_address: 'ANSIBLE_IP'
     },
-    'stage' => {
-      playbook: 'setup_stage.yml',
-      ip_address: 'STAGE_IP'
-    },
-    'dev' => {
-      playbook: 'setup_dev.yml',
-      ip_address: 'DEV_IP'
+    'web' => {
+      playbook: 'setup_web.yml',
+      ip_address: 'WEB_IP'
     },
     'worker' => {
       playbook: 'setup_worker.yml',
@@ -28,8 +24,8 @@ class AnsibleRunner
     @playbook = module_data[:playbook]
     @ip_address = ENV[module_data[:ip_address]]
     @vars = '--extra-vars @extra_vars.yml'
-    @vars += " -e web_ip=#{ENV['DEV_IP']}" if options[:module] == 'worker'
-    @tags = "--tags #{options[:tags]}" if options[:tags]
+    @vars += " -t setup,#{options[:env]}" if options[:module] == 'web'
+    @vars += " -e web_ip=#{ENV['WEB_IP']}" if options[:module] == 'worker'
   end
 
   def run

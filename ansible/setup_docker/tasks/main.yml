@@ -4,6 +4,8 @@
   ansible.builtin.stat:
     path: /usr/bin/aptitude
   register: aptitude_check
+  tags:
+    - setup
 
 - name: Install aptitude
   apt:
@@ -23,6 +25,8 @@
   retries: 5
   delay: 5
   when: not aptitude_check.stat.exists
+  tags:
+    - setup
 
 - name: Install required system packages
   apt:
@@ -36,16 +40,22 @@
       - python3-setuptools
     state: latest
     update_cache: true
+  tags:
+    - setup
 
 - name: Add Docker GPG apt Key
   apt_key:
     url: https://download.docker.com/linux/ubuntu/gpg
     state: present
+  tags:
+    - setup
 
 - name: Add Docker Repository
   apt_repository:
     repo: deb https://download.docker.com/linux/ubuntu focal stable
     state: present
+  tags:
+    - setup
 
 - name: Update apt and install docker-ce and docker-compose
   apt:
@@ -54,14 +64,20 @@
       - docker-compose
     state: latest
     update_cache: true
+  tags:
+    - setup
 
 - name: Add user to group
   user:
     name: "{{ user_name }}"
     groups: docker
     append: yes
+  tags:
+    - setup
 
 - name: Change docker.sock permissions
   file:
     path: /var/run/docker.sock
     mode: 666
+  tags:
+    - setup

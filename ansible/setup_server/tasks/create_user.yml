@@ -6,6 +6,8 @@
       - sudo
     shell: /bin/bash
     state: present
+  tags:
+    - setup
 
 - name: Create .ssh dir
   ansible.builtin.file:
@@ -13,6 +15,8 @@
     state: directory
   become: yes
   become_user: "{{ user_name }}"
+  tags:
+    - setup
 
 - name: Copy SSH key for the new user
   ansible.builtin.copy:
@@ -20,9 +24,13 @@
     dest: /home/{{ user_name }}/.ssh/authorized_keys
     remote_src: yes
   become: yes
+  tags:
+    - setup
 
 - name: Allow the new user to run sudo without a password prompt
   lineinfile:
     path: /etc/sudoers
     line: "{{ user_name }} ALL=(ALL) NOPASSWD:ALL"
     validate: "visudo -cf %s"
+  tags:
+    - setup
