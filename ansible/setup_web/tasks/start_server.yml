@@ -1,0 +1,19 @@
+- name: Create sports-app directory
+  ansible.builtin.file:
+    path: ~/sports-app
+    state: directory
+  tags:
+    - setup
+
+- name: Copy docker compose
+  ansible.builtin.template:
+    src: docker-compose.{{ env }}.yml
+    dest: ~/sports-app/docker-compose.yml
+  tags:
+    - setup
+
+- name: Start Docker Compose containers
+  community.general.docker_compose:
+    project_src: ~/sports-app
+  tags:
+    - setup

@@ -1,0 +1,16 @@
+- name: get ECR password
+  shell: "aws ecr get-login-password --region {{ aws_region }}"
+  register: ecr_password
+  delegate_to: localhost
+  become: yes
+  become_user: "{{ local_user }}"
+  tags:
+    - setup
+
+- name: Docker repository login
+  docker_login:
+    registry_url: https://{{ ecr_repo_url }}
+    username: AWS
+    password: "{{ ecr_password.stdout }}"
+  tags:
+    - setup

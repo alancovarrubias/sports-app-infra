@@ -1,0 +1,37 @@
+- name: Find PID of ssh tunnel
+  shell: "pgrep -f 'ssh -fN -L'"
+  register: tunnel_pid
+  ignore_errors: true # Ignore errors if the process is not found
+  become_user: "{{ local_user }}"
+  become: yes
+  delegate_to: localhost
+  tags:
+    - setup
+
+- name: Terminate ssh tunnel
+  shell: "kill -TERM {{ tunnel_pid.stdout }}"
+  when: tunnel_pid.stdout != ''
+  become_user: "{{ local_user }}"
+  become: yes
+  delegate_to: localhost
+  tags:
+    - setup
+
+- name: Copy tunnel script
+  ansible.builtin.template:
+    src: tunnel.sh
+    dest: ~/tunnel.sh
+    mode: 0700
+  become_user: "{{ local_user }}"
+  become: yes
+  delegate_to: localhost
+  tags:
+    - setup
+
+- name: Run tunnel script
+  command: ~/tunnel.sh
+  become_user: "{{ local_user }}"
+  become: yes
+  delegate_to: localhost
+  tags:
+    - setup

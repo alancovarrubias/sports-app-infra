@@ -1,13 +1,32 @@
 ---
 # tasks file for setup_web
-- include_tasks: dev.yml
+- include_tasks: login_ecr.yml
+  tags:
+    - dev
+    - stage
+    - prod
+
+- include_tasks: setup_git_repo.yml
   tags:
     - dev
 
-- include_tasks: stage.yml
+- include_tasks: setup_tunnel.yml
+  tags:
+    - dev
+
+- include_tasks: setup_nginx.yml
   tags:
     - stage
+    - prod
 
-- include_tasks: prod.yml
+- include_tasks: start_server.yml
   tags:
+    - dev
+    - stage
+    - prod
+
+- include_tasks: setup_database.yml
+  tags:
+    - dev
+    - stage
     - prod

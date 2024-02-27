@@ -1,0 +1,22 @@
+- name: Copy gitconfig
+  copy:
+    src: ~/.gitconfig
+    dest: "~"
+  tags:
+    - setup
+
+- name: Check if repo exists
+  stat:
+    path: ~/sports-app
+  register: repo_check
+  tags:
+    - setup
+
+- name: Clone Git Repository
+  git:
+    repo: https://github.com/alancovarrubias/sports-app.git
+    dest: ~/sports-app
+    update: yes
+  when: not repo_check.stat.exists
+  tags:
+    - setup

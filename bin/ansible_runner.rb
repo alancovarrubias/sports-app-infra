@@ -21,10 +21,11 @@ class AnsibleRunner
   }
   def initialize(options)
     module_data = MODULE_DATA[options[:module]]
+    env = options[:env]
     @playbook = module_data[:playbook]
     @ip_address = ENV[module_data[:ip_address]]
     @vars = '--extra-vars @extra_vars.yml'
-    @vars += " -t setup,#{options[:env]}" if options[:module] == 'web'
+    @vars += " -t setup,#{env} -e env=#{env}" if options[:module] == 'web'
     @vars += " -e web_ip=#{ENV['WEB_IP']}" if options[:module] == 'worker'
   end
 
