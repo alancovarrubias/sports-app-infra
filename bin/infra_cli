@@ -23,6 +23,14 @@ OptionParser.new do |opts|
   opts.on('-t', '--tags TAGS', 'Specify tags') do |tags|
     options[:tags] = tags
   end
+
+  opts.on('-i', '--inventory INVENTORY', 'Specify inventory') do |inventory|
+    options[:inventory] = inventory
+  end
+
+  opts.on('-a', '--args ARGS', 'Specify args') do |args|
+    options[:args] = args
+  end
 end.parse!
 
 case options[:command]

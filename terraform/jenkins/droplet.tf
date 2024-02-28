@@ -7,9 +7,8 @@ module "jenkins_server" {
 }
 
 module "jenkins_server_playbook" {
-  source      = "../modules/ansible_playbook"
-  do_token    = var.do_token
-  ip_address  = module.jenkins_server.ip_address
-  playbook    = "setup_jenkins.yml"
-  vars_string = "--extra-vars @extra_vars.yml --skip-tags plugins"
+  source     = "../modules/ansible_playbook"
+  do_token   = var.do_token
+  ip_address = module.jenkins_server.ip_address
+  args       = "-m jenkins"
 }

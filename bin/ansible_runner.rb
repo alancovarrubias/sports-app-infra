@@ -23,10 +23,16 @@ class AnsibleRunner
     module_data = MODULE_DATA[options[:module]]
     env = options[:env]
     @playbook = module_data[:playbook]
-    @ip_address = ENV[module_data[:ip_address]]
+    @ip_address = options[:inventory] || ENV[module_data[:ip_address]]
     @vars = '--extra-vars @extra_vars.yml'
     @vars += " -t setup,#{env} -e env=#{env}" if options[:module] == 'web'
-    @vars += " -e web_ip=#{ENV['WEB_IP']}" if options[:module] == 'worker'
+    return unless options[:module] == 'worker'
+
+    @vars += if options[:args]
+               " #{options[:args]}"
+             else
+               " -e web_ip=#{ENV['WEB_IP']}"
+             end
   end
 
   def run

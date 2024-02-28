@@ -3,12 +3,11 @@ resource "null_resource" "ansible_playbook" {
     trigger = var.ip_address
   }
   provisioner "local-exec" {
-    working_dir = "../../ansible"
+    working_dir = "../.."
     command = format(
-      "ansible-playbook --inventory %s, %s --skip-tags skip %s",
+      "./bin/infra_cli -c run -i %s %s",
       var.ip_address,
-      var.vars_string,
-      var.playbook,
+      var.args,
     )
   }
 }

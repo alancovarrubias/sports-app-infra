@@ -6,11 +6,10 @@ module "sports_app_web" {
 }
 
 module "sports_app_web_playbook" {
-  source      = "../modules/ansible_playbook"
-  do_token    = var.do_token
-  vars_string = "--extra-vars @extra_vars.yml -e env=stage -t stage,setup"
-  ip_address  = module.sports_app_web.ip_address
-  playbook    = "setup_web.yml"
+  source     = "../modules/ansible_playbook"
+  do_token   = var.do_token
+  ip_address = module.sports_app_web.ip_address
+  args       = "-m stage -e dev"
 }
 
 module "sports_app_worker" {
@@ -21,12 +20,11 @@ module "sports_app_worker" {
 }
 
 module "sports_app_worker_playbook" {
-  source   = "../modules/ansible_playbook"
-  do_token = var.do_token
-  vars_string = format(
-    "--extra-vars @extra_vars.yml -e web_ip=%s",
+  source     = "../modules/ansible_playbook"
+  do_token   = var.do_token
+  ip_address = module.sports_app_worker.ip_address
+  args = format(
+    "-m worker -a web_ip=%s",
     module.sports_app_web.ip_address
   )
-  ip_address = module.sports_app_worker.ip_address
-  playbook   = "setup_worker.yml"
 }
