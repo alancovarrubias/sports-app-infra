@@ -1,8 +1,6 @@
 #!/usr/bin/env ruby
-
 require 'optparse'
-require_relative 'terraform_runner'
-require_relative 'ansible_runner'
+require_relative 'zeitwerk'
 
 options = {}
 OptionParser.new do |opts|
@@ -33,10 +31,4 @@ OptionParser.new do |opts|
   end
 end.parse!
 
-case options[:command]
-when 'apply', 'destroy'
-  TerraformRunner.new(options).run
-when 'run'
-  runner = "#{options[:module].capitalize}Runner"
-  Object.const_get(runner).new(options).run
-end
+Runner.run(options)
