@@ -1,45 +1,75 @@
-class AnsibleRunner
-  attr_reader :skip_tags, :playbook, :ip_address, :vars, :tags
-
-  MODULE_DATA = {
-    'jenkins' => {
-      playbook: 'setup_jenkins.yml',
-      ip_address: 'JENKINS_IP'
-    },
-    'ansible' => {
-      playbook: 'setup_ansible.yml',
-      ip_address: 'ANSIBLE_IP'
-    },
-    'web' => {
-      playbook: 'setup_web.yml',
-      ip_address: 'WEB_IP'
-    },
-    'worker' => {
-      playbook: 'setup_worker.yml',
-      ip_address: 'WORKER_IP'
-    }
-  }
+class BaseRunner
   def initialize(options)
-    module_data = MODULE_DATA[options[:module]]
-    env = options[:env]
-    @playbook = module_data[:playbook]
-    @ip_address = options[:inventory] || ENV[module_data[:ip_address]]
-    @vars = '--extra-vars @extra_vars.yml'
-    @vars += " -t setup,#{env} -e env=#{env}" if options[:module] == 'web'
-    return unless options[:module] == 'worker'
+    @env = options[:env]
+    @args = options[:args]
+    @inventory = options[:inventory]
+  end
 
-    @vars += if options[:args]
-               " #{options[:args]}"
-             else
-               " -e web_ip=#{ENV['WEB_IP']}"
-             end
+  def inventory
+    @inventory || ENV[ip_address]
+  end
+
+  def vars
+    '--extra-vars @extra_vars.yml'
+  end
+
+  def args
+    ''
   end
 
   def run
-    system("cd ansible && ansible-playbook #{ansible_args}")
+    system("cd ansible && #{ansible_command}")
   end
 
-  def ansible_args
-    "--inventory #{@ip_address}, #{@vars} --skip-tags skip #{@tags} #{@playbook}"
+  def ansible_command
+    "ansible-playbook --inventory #{inventory}, #{vars} --skip-tags skip #{args} #{playbook}"
+  end
+end
+
+class JenkinsRunner < BaseRunner
+  def ip_address
+    'JENKINS_IP'
+  end
+
+  def playbook
+    'setup_jenkins.yml'
+  end
+end
+
+class AnsibleRunner < BaseRunner
+  def ip_address
+    'ANSIBLE_IP'
+  end
+
+  def playbook
+    'setup_ansible.yml'
+  end
+end
+
+class WebRunner < BaseRunner
+  def ip_address
+    'WEB_IP'
+  end
+
+  def playbook
+    'setup_web.yml'
+  end
+
+  def args
+    "-t setup,#{@env} -e env=#{@env}"
+  end
+end
+
+class WorkerRunner < BaseRunner
+  def ip_address
+    'WORKER_IP'
+  end
+
+  def playbook
+    'setup_worker.yml'
+  end
+
+  def args
+    @args || "-e web_ip=#{ENV['WEB_IP']}"
   end
 end

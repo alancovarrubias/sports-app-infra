@@ -37,5 +37,6 @@ case options[:command]
 when 'apply', 'destroy'
   TerraformRunner.new(options).run
 when 'run'
-  AnsibleRunner.new(options).run
+  runner = "#{options[:module].capitalize}Runner"
+  Object.const_get(runner).new(options).run
 end
