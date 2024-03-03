@@ -44,7 +44,7 @@ pipeline {
                     remote.user = "$REMOTE_USER"
                     remote.identityFile = "/var/jenkins_home/.ssh/id_rsa"
                     sshCommand remote: remote, command: "ansible-playbook --inventory $WEB_IP, --extra-vars @extra_vars.yml -e env=prod -t prod,setup setup_web.yml"
-                    sshCommand remote: remote, command: "ansible-playbook --inventory $WORKER_IP, --extra-vars @extra_vars.yml -e web_ip=$WEB_IP setup_worker.yml"
+                    sshCommand remote: remote, command: "ansible-playbook --inventory $WORKER_IP, --extra-vars @extra_vars.yml -e web_ip=$WEB_IP -e env=prod setup_worker.yml"
                 }
             }
         }

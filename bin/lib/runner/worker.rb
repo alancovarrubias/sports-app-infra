@@ -9,7 +9,7 @@ module Runner
     end
 
     def args
-      @args || "-e web_ip=#{ENV['WEB_IP']}"
+      @args || "-e web_ip=#{ENV['WEB_IP']} -e env=#{@env}"
     end
   end
 end
