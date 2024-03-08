@@ -18,6 +18,7 @@
         name:
           - ansible
           - python3-pip
+          - ruby-bundler
         state: present
       register: result
       until: result is not failed
