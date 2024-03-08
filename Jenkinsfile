@@ -2,17 +2,25 @@ pipeline {
     agent any
     parameters {
         text(name: 'ANSIBLE_IP', description: 'Enter your ansible ip:')
+        choice(
+            choices: ['prod'],
+            description: 'Select an env:',
+            name: 'ENV'
+        )
+    }
+    environment {
+        ENV = "${params.ENV}"
+        ANSIBLE_IP = "${params.ANSIBLE_IP}"
+        REMOTE_USER = "${env.REMOTE_USER}"
+        TF_VAR_domain_name = "${env.DOMAIN_NAME}"
+        TF_VAR_public_ssh_key  = "${env.PUBLIC_SSH_KEY}"
+        TF_VAR_do_token     = "${env.DO_TOKEN}"
     }
     stages {
         stage('provisioning server') {
-            environment {
-                TF_VAR_domain_name = "${env.DOMAIN_NAME}"
-                TF_VAR_public_ssh_key  = "${env.PUBLIC_SSH_KEY}"
-                TF_VAR_do_token     = "${env.DO_TOKEN}"
-            }
             steps {
                 script {
-                    dir('terraform/prod') {
+                    dir("terraform/$ENV") {
                         sh "terraform init"
                         sh "terraform apply --auto-approve"
                         env.WEB_IP = sh(script: 'terraform output web_ip', returnStdout: true).trim()
@@ -22,38 +30,27 @@ pipeline {
             }
         }
         stage('copying files to ansible server') {
-            environment {
-                REMOTE_USER = "${env.REMOTE_USER}"
-            }
             steps {
                 script {
-                    sh "scp -r -o StrictHostKeyChecking=no ansible/* $REMOTE_USER@${params.ANSIBLE_IP}:/home/$REMOTE_USER"
+                    sh "scp -r -o StrictHostKeyChecking=no ./* $REMOTE_USER@$ANSIBLE_IP:/home/$REMOTE_USER"
                 }
             }
         }
         stage('deploying sports app') {
-            environment {
-                REMOTE_USER = "${env.REMOTE_USER}"
-            }
             steps {
                 script {
                     def remote = [:]
                     remote.name = "ansible_server"
-                    remote.host = "${params.ANSIBLE_IP}"
+                    remote.host = "$ANSIBLE_IP"
                     remote.allowAnyHosts = true
                     remote.user = "$REMOTE_USER"
                     remote.identityFile = "/var/jenkins_home/.ssh/id_rsa"
-                    sshCommand remote: remote, command: "ansible-playbook --inventory $WEB_IP, --extra-vars @extra_vars.yml -e env=prod -t prod,setup setup_web.yml"
-                    sshCommand remote: remote, command: "ansible-playbook --inventory $WORKER_IP, --extra-vars @extra_vars.yml -e web_ip=$WEB_IP -e env=prod setup_worker.yml"
+                    sshCommand remote: remote, command: "./bin/infra_cli -c run -i $WEB_IP -m web -e $ENV"
+                    sshCommand remote: remote, command: "./bin/infra_cli -c run -i $WORKER_IP -m worker -e $ENV"
                 }
             }
         }
         stage('destroy sports app?') {
-            environment {
-                TF_VAR_domain_name = "${env.DOMAIN_NAME}"
-                TF_VAR_public_ssh_key  = "${env.PUBLIC_SSH_KEY}"
-                TF_VAR_do_token     = "${env.DO_TOKEN}"
-            }
             steps {
                 script {
                     def userInput = input(
@@ -62,7 +59,7 @@ pipeline {
                     )
                     if (userInput) {
                         echo 'Destroying sports app...'
-                        dir('terraform/prod') {
+                        dir("terraform/$ENV") {
                             sh "terraform destroy --auto-approve"
                         }
                     }
