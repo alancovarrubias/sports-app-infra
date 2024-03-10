@@ -7,7 +7,7 @@
     - setup_docker
     - role: setup_ssh_config
       vars:
-        server_name: "jenkins_server"
+        server_name: "jenkins"
         env_var: "JENKINS_IP"
 
 - name: Setup jenkins

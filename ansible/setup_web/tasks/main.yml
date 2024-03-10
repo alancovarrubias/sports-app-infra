@@ -20,8 +20,15 @@
     - prod
 
 - include_tasks: start_server.yml
+  vars:
+    root: "~/sports-app"
   tags:
     - dev
+
+- include_tasks: start_server.yml
+  vars:
+    root: "~"
+  tags:
     - stage
     - prod
 

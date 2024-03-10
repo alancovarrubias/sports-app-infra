@@ -2,7 +2,7 @@
   shell: "pgrep -f 'ssh -fN -L'"
   register: tunnel_pid
   ignore_errors: true # Ignore errors if the process is not found
-  become_user: "{{ local_user }}"
+  become_user: "{{ user_name }}"
   become: yes
   delegate_to: localhost
   tags:
@@ -11,7 +11,7 @@
 - name: Terminate ssh tunnel
   shell: "kill -TERM {{ tunnel_pid.stdout }}"
   when: tunnel_pid.stdout != ''
-  become_user: "{{ local_user }}"
+  become_user: "{{ user_name }}"
   become: yes
   delegate_to: localhost
   tags:
@@ -22,7 +22,7 @@
     src: tunnel.sh
     dest: ~/tunnel.sh
     mode: 0700
-  become_user: "{{ local_user }}"
+  become_user: "{{ user_name }}"
   become: yes
   delegate_to: localhost
   tags:
@@ -30,7 +30,7 @@
 
 - name: Run tunnel script
   command: ~/tunnel.sh
-  become_user: "{{ local_user }}"
+  become_user: "{{ user_name }}"
   become: yes
   delegate_to: localhost
   tags:

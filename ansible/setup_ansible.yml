@@ -6,7 +6,7 @@
     - setup_server
     - role: setup_ssh_config
       vars:
-        server_name: "ansible_server"
+        server_name: "ansible"
         env_var: "ANSIBLE_IP"
   tasks:
     - name: Update apt package cache (for Ubuntu)

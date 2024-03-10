@@ -16,7 +16,7 @@
   shell: "aws ecr get-login-password --region {{ aws_region }}"
   register: ecr_password
   delegate_to: localhost
-  become_user: "{{ local_user }}"
+  become_user: "{{ user_name }}"
   become: yes
 
 - name: Docker repository login

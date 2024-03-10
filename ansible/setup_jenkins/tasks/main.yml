@@ -1,7 +1,7 @@
 ---
 # tasks file for jenkins
 - name: Copy docker compose
-  copy:
+  ansible.builtin.template:
     src: docker-compose.yml
     dest: ~/docker-compose.yml
     mode: 0600

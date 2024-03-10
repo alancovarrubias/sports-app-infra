@@ -1,27 +1,12 @@
 - name: Copy docker compose
   ansible.builtin.template:
     src: docker-compose.{{ env }}.yml
-    dest: ~/sports-app/docker-compose.yml
+    dest: "{{ root }}/docker-compose.yml"
   tags:
     - dev
 
 - name: Start Docker Compose containers
   community.general.docker_compose:
-    project_src: ~/sports-app
+    project_src: "{{ root }}"
   tags:
     - dev
-
-- name: Copy docker compose
-  ansible.builtin.template:
-    src: docker-compose.{{ env }}.yml
-    dest: ~/docker-compose.yml
-  tags:
-    - prod
-    - stage
-
-- name: Start Docker Compose containers
-  community.general.docker_compose:
-    project_src: "~"
-  tags:
-    - prod
-    - stage

@@ -3,7 +3,7 @@
   register: ecr_password
   delegate_to: localhost
   become: yes
-  become_user: "{{ local_user }}"
+  become_user: "{{ user_name }}"
   tags:
     - dev
     - stage

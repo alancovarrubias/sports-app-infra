@@ -65,7 +65,7 @@
     - restore
 
 - name: Database restore
-  command: docker run --rm --network host -v /home/alan:/tmp postgres:15 psql -h localhost -U postgres -d auth_development -f /tmp/dump.sql
+  command: docker run --rm --network host -v /home/{{ user_name }}:/tmp postgres:15 psql -h localhost -U postgres -d auth_development -f /tmp/dump.sql
   tags:
     - restore
 

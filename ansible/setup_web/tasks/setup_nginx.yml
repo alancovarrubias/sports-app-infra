@@ -6,7 +6,7 @@
     - setup
 
 - name: Copy nginx conf
-  ansible.builtin.copy:
+  ansible.builtin.template:
     src: nginx.{{ env }}.conf
     dest: ~/nginx/nginx.conf
   tags:

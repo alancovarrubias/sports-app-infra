@@ -40,7 +40,7 @@ pipeline {
             steps {
                 script {
                     def remote = [:]
-                    remote.name = "ansible_server"
+                    remote.name = "ansible"
                     remote.host = "$ANSIBLE_IP"
                     remote.allowAnyHosts = true
                     remote.user = "$REMOTE_USER"
