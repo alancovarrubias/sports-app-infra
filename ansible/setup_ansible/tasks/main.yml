@@ -1,0 +1,47 @@
+---
+# tasks file for setup_ansible
+- name: Update apt package cache (for Ubuntu)
+  apt:
+    update_cache: yes
+  become: yes
+  become_user: root
+
+- name: Install Ansible dependencies
+  apt:
+    name:
+      - ansible
+      - python3-pip
+      - ruby-bundler
+    state: present
+  register: result
+  until: result is not failed
+  retries: 5
+  delay: 5
+  become: yes
+  become_user: root
+
+- name: Install pip3 packages
+  pip:
+    name:
+      - boto3
+      - botocore
+      - awscli
+    executable: pip3
+    state: present
+  become: yes
+  become_user: root
+
+- name: Copy AWS configuration
+  copy:
+    src: ~/.aws
+    dest: "~"
+
+- name: Copy private ssh key
+  copy:
+    src: ~/.ssh/id_rsa
+    dest: ~/.ssh/id_rsa
+
+- name: Copy vault password text
+  copy:
+    src: ~/.vault_pass.txt
+    dest: ~/.vault_pass.txt
