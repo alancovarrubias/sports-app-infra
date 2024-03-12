@@ -32,9 +32,16 @@ OptionParser.new do |opts|
     options[:inventory] = inventory
   end
 
-  opts.on('-a', '--args ARGS', 'Specify args') do |args|
-    options[:args] = args
+  opts.on('-t', '--args TOKEN', 'Specify token') do |token|
+    options[:token] = token
+  end
+
+  opts.on('-w', '--args WEB_IP', 'Specify web ip') do |web_ip|
+    options[:web_ip] = web_ip
   end
 end.parse!
+
+options[:token] ||= ENV['DO_TOKEN']
+options[:web_ip] ||= ENV['WEB_IP']
 
 Runner.run(options)

@@ -24,7 +24,7 @@ module "sports_app_worker_playbook" {
   do_token   = var.do_token
   ip_address = module.sports_app_worker.ip_address
   args = format(
-    "-m worker -a web_ip=%s -e stage",
+    "-m worker -w %s -e stage",
     module.sports_app_web.ip_address
   )
 }

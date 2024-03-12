@@ -32,16 +32,21 @@
   become_user: root
 
 - name: Copy AWS configuration
-  copy:
+  ansible.builtin.copy:
     src: ~/.aws
     dest: "~"
 
 - name: Copy private ssh key
-  copy:
+  ansible.builtin.copy:
     src: ~/.ssh/id_rsa
     dest: ~/.ssh/id_rsa
 
 - name: Copy vault password text
-  copy:
+  ansible.builtin.copy:
     src: ~/.vault_pass.txt
     dest: ~/.vault_pass.txt
+
+- name: Copy health check script
+  ansible.builtin.template:
+    src: health_check.py
+    dest: ~/health_check.py

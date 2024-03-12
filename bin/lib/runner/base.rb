@@ -2,8 +2,9 @@ module Runner
   class Base
     def initialize(options)
       @env = options[:env]
-      @args = options[:args]
       @inventory = options[:inventory]
+      @token = options[:token]
+      @web_ip = options[:web_ip]
     end
 
     def inventory

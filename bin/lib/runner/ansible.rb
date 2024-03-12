@@ -7,5 +7,9 @@ module Runner
     def playbook
       'setup_ansible.yml'
     end
+
+    def args
+      "-e do_token=#{@token}"
+    end
   end
 end
