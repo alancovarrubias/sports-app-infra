@@ -3,3 +3,5 @@ user_name: alancovarrubias
 ecr_repo_url: 678549062078.dkr.ecr.us-west-1.amazonaws.com
 domain_name: alancovarrubias.com
 aws_region: us-west-1
+repo_name: sports-app
+infra_repo_name: sports-app-infra

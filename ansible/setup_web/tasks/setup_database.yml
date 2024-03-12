@@ -1,7 +1,7 @@
 - name: Create databases
   command: docker-compose run --rm {{ item }} rake db:create
   args:
-    chdir: ~/sports-app
+    chdir: ~/{{ repo_name }}
   loop:
     - auth
     - football
@@ -12,7 +12,7 @@
 - name: Migrate databases
   command: docker-compose run --rm {{ item }} rake db:migrate
   args:
-    chdir: ~/sports-app
+    chdir: ~/{{ repo_name }}
   loop:
     - auth
     - football
@@ -36,7 +36,7 @@
 - name: Stop rails servers
   command: docker-compose stop {{ item }}
   args:
-    chdir: ~/sports-app
+    chdir: ~/{{ repo_name }}
   loop:
     - auth
     - football
@@ -46,14 +46,14 @@
 - name: Drop databases
   command: docker-compose run --rm auth rake db:drop
   args:
-    chdir: ~/sports-app
+    chdir: ~/{{ repo_name }}
   tags:
     - restore
 
 - name: Create databases
   command: docker-compose run --rm auth rake db:create
   args:
-    chdir: ~/sports-app
+    chdir: ~/{{ repo_name }}
   tags:
     - restore
 
@@ -72,7 +72,7 @@
 - name: Start rails servers
   command: docker-compose start {{ item }}
   args:
-    chdir: ~/sports-app
+    chdir: ~/{{ repo_name }}
   loop:
     - auth
     - football

@@ -2,13 +2,13 @@
 # tasks file for setup_worker
 - name: Check if repo exists
   stat:
-    path: ~/sports-app
+    path: ~/{{ repo_name }}
   register: repo_check
 
 - name: Clone Git Repository
   git:
-    repo: https://github.com/alancovarrubias/sports-app.git
-    dest: ~/sports-app
+    repo: https://github.com/alancovarrubias/{{ repo_name }}.git
+    dest: ~/{{ repo_name }}
     update: yes
   when: not repo_check.stat.exists
 
@@ -28,7 +28,7 @@
 - name: Copy docker compose
   ansible.builtin.template:
     src: docker-compose.yml
-    dest: "~/sports-app/docker-compose.yml"
+    dest: "~/{{ repo_name }}/docker-compose.yml"
     mode: 0600
 
 - name: Wait for Redis
@@ -41,4 +41,4 @@
 
 - name: Start Docker Compose containers
   community.general.docker_compose:
-    project_src: "~/sports-app"
+    project_src: "~/{{ repo_name }}"

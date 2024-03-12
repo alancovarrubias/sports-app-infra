@@ -21,7 +21,7 @@
 
 - include_tasks: start_server.yml
   vars:
-    root: "~/sports-app"
+    root: "~/{{ repo_name }}"
   tags:
     - dev
 

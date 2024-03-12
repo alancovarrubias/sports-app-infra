@@ -16,7 +16,7 @@ jobs:
             scm {
               git {
                 remote {
-                  url 'https://github.com/alancovarrubias/sports-app.git'
+                  url 'https://github.com/{{ user_name }}/{{ repo_name }}.git'
                 }
                 branches('*/main')
                 scriptPath 'Jenkinsfile'
@@ -35,7 +35,7 @@ jobs:
             scm {
               git {
                 remote {
-                  url 'https://github.com/alancovarrubias/sports-app-infra.git'
+                  url 'https://github.com/{{ user_name }}/{{ infra_repo_name }}.git'
                 }
                 branches('*/main')
                 scriptPath 'Jenkinsfile'

@@ -7,15 +7,15 @@
 
 - name: Check if repo exists
   stat:
-    path: ~/sports-app
+    path: ~/{{ repo_name }}
   register: repo_check
   tags:
     - setup
 
 - name: Clone Git Repository
   git:
-    repo: https://github.com/alancovarrubias/sports-app.git
-    dest: ~/sports-app
+    repo: https://github.com/alancovarrubias/{{ repo_name }}.git
+    dest: ~/{{ repo_name }}
     update: yes
   when: not repo_check.stat.exists
   tags:
