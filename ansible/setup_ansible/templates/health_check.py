@@ -1,7 +1,7 @@
 from dopy.manager import DoManager
 
 api_token = "{{ do_token }}"
-manager = DoManager(None, None, api_token)
+manager = DoManager(None, api_token, "2")
 
 # List all droplets
 droplets = manager.all_active_droplets()
