@@ -46,15 +46,15 @@
     src: ~/.vault_pass.txt
     dest: ~/.vault_pass.txt
 
-- name: Copy health check script
+- name: Copy files
   ansible.builtin.template:
-    src: health_check.py
-    dest: ~/health_check.py
-
-- name: Copy requirements.txt
-  ansible.builtin.copy:
-    src: requirements.txt
-    dest: ~/requirements.txt
+    src: "{{ item }}"
+    dest: "~"
+  with_items:
+    - requirements.txt
+    - monitor_website.py
+    - send_email.py
+    - health_check.py
 
 - name: Install Python packages from requirements file
   pip:
