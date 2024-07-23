@@ -50,3 +50,12 @@
   ansible.builtin.template:
     src: health_check.py
     dest: ~/health_check.py
+
+- name: Copy requirements.txt
+  ansible.builtin.copy:
+    src: requirements.txt
+    dest: ~/requirements.txt
+
+- name: Install Python packages from requirements file
+  pip:
+    requirements: ~/requirements.txt
