@@ -59,3 +59,15 @@
 - name: Install Python packages from requirements file
   pip:
     requirements: ~/requirements.txt
+
+- name: Add email variable to .bashrc
+  lineinfile:
+    path: ~/.bashrc
+    line: export EMAIL_ADDRESS={{ email_address }}
+    state: present
+
+- name: Add password variable to .bashrc
+  lineinfile:
+    path: ~/.bashrc
+    line: export EMAIL_PASSWORD={{ email_password }}
+    state: present

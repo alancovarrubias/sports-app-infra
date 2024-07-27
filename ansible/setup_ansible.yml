@@ -14,5 +14,7 @@
   gather_facts: no
   become: true
   become_user: "{{ user_name }}"
+  vars_files:
+    - secret_vars.yml
   roles:
     - setup_ansible

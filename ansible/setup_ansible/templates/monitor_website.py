@@ -6,15 +6,15 @@ send_email = SendEmail()
 def read_server():
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect(hostname='138.68.16.95', username='alancovarrubias', key_filename='/Users/alancovarrubias/.ssh/id_rsa')
+    ssh.connect(hostname="{{ web_ip }}", username="{{ user_name }}", key_filename="/home/{{ user_name }}/.ssh/id_rsa")
     stdin, stdout, stderr = ssh.exec_command('docker ps')
     print(stdout.readlines())
     ssh.close()
 
-read_server()
 try:
     print('Attempting')
-    response = requests.get('http://138.68.16.95:3000')
+    read_server()
+    response = requests.get("http://{{ web_ip }}:3000")
     print('Completed')
     if response.status_code == 200:
         print('Application fine')

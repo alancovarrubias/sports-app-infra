@@ -9,7 +9,7 @@ module Runner
     end
 
     def args
-      "-e do_token=#{@token}"
+      "-e do_token=#{@token} -e web_ip=#{@web_ip}"
     end
   end
 end
