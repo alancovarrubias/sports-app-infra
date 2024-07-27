@@ -18,4 +18,5 @@
   vars_files:
     - secret_vars.yml
   roles:
+    - setup_ansible
     - setup_monitoring
