@@ -1,0 +1,74 @@
+---
+# tasks file for database_cmd
+- name: Database dump
+  command: docker run --rm --network host -v /home/{{ user_name }}:/tmp postgres:15 pg_dump -h localhost -U postgres -d {{ item }}_development -f /tmp/{{ item }}.sql
+  loop: "{{ services }}"
+  tags:
+    - dump
+
+- name: Fetch dump file
+  ansible.builtin.fetch:
+    src: ~/{{ item }}.sql
+    dest: ~/dump_files/{{ item }}.sql
+    flat: yes
+  loop: "{{ services }}"
+  tags:
+    - dump
+
+- name: Stop rails servers
+  command: docker-compose stop {{ item }}
+  args:
+    chdir: ~/{{ repo_name }}
+  loop: "{{ services }}"
+  tags:
+    - restore
+
+- name: Drop databases
+  command: docker-compose run --rm {{ item }} rake db:drop
+  args:
+    chdir: ~/{{ repo_name }}
+  loop: "{{ services }}"
+  tags:
+    - restore
+
+- name: Create databases
+  command: docker-compose run --rm {{ item }} rake db:create
+  args:
+    chdir: ~/{{ repo_name }}
+  loop: "{{ services }}"
+  tags:
+    - restore
+    - create
+
+- name: Migrate databases
+  command: docker-compose run --rm {{ item }} rake db:migrate
+  args:
+    chdir: ~/{{ repo_name }}
+  loop: "{{ services }}"
+  tags:
+    - restore
+    - create
+
+- name: Copy dump file
+  ansible.builtin.copy:
+    src: ~/dump_files/{{ item }}.sql
+    dest: ~/{{ item }}.sql
+  loop: "{{ services }}"
+  tags:
+    - restore
+    - create
+
+- name: Database restore
+  command: docker run --rm --network host -v /home/{{ user_name }}:/tmp postgres:15 psql -h localhost -U postgres -d {{ item }}_development -f /tmp/{{ item }}.sql
+  loop: "{{ services }}"
+  tags:
+    - restore
+    - create
+
+- name: Start rails servers
+  command: docker-compose start {{ item }}
+  args:
+    chdir: ~/{{ repo_name }}
+  loop: "{{ services }}"
+  tags:
+    - restore

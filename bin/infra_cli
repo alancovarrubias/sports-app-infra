@@ -32,10 +32,6 @@ OptionParser.new do |opts|
     options[:inventory] = inventory
   end
 
-  opts.on('-t', '--args TOKEN', 'Specify token') do |token|
-    options[:token] = token
-  end
-
   opts.on('-w', '--args WEB_IP', 'Specify web ip') do |web_ip|
     options[:web_ip] = web_ip
   end

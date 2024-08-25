@@ -5,6 +5,7 @@ module Runner
       @inventory = options[:inventory]
       @token = options[:token]
       @web_ip = options[:web_ip]
+      @tags = options[:tags]
     end
 
     def inventory
