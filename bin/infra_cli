@@ -1,12 +1,7 @@
 #!/usr/bin/env ruby
-script_dir = File.dirname(File.expand_path(__FILE__))
-Dir.chdir(script_dir) do
-  success = system('bundle install')
-  system('sudo bundle install') unless success
-end
-
 require 'optparse'
-require_relative 'zeitwerk'
+require_relative 'config/zeitwerk'
+require_relative 'config/bundler'
 
 options = {}
 OptionParser.new do |opts|

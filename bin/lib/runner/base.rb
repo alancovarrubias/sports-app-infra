@@ -21,7 +21,7 @@ module Runner
     end
 
     def run
-      system("cd ansible && #{ansible_command}")
+      "cd ansible && #{ansible_command}"
     end
 
     def ansible_command

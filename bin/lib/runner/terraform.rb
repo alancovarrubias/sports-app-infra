@@ -12,7 +12,7 @@ module Runner
     end
 
     def run_command(command)
-      system("terraform -chdir=#{TERRAFORM_DIR}/#{@module} #{command}")
+      "terraform -chdir=#{TERRAFORM_DIR}/#{@module} #{command}"
     end
   end
 end
