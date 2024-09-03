@@ -3,9 +3,5 @@
   gather_facts: no
   become: yes
   become_user: "{{ user_name }}"
-  vars:
-    services:
-      - auth
-      - football
   roles:
     - database_cmd

@@ -31,9 +31,3 @@
   tags:
     - stage
     - prod
-
-- include_tasks: setup_database.yml
-  tags:
-    - dev
-    - stage
-    - prod

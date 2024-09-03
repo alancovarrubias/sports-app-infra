@@ -9,7 +9,7 @@ module Runner
     end
 
     def args
-      "-t setup,#{@env} -e env=#{@env}"
+      "-t setup,create,#{@env} -e env=#{@env}"
     end
   end
 end

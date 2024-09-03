@@ -16,6 +16,4 @@
   become_user: "{{ user_name }}"
   roles:
     - setup_web
-    - role: database_cmd
-      tags:
-        - create
+    - database_cmd

@@ -5,3 +5,6 @@ domain_name: alancovarrubias.com
 aws_region: us-west-1
 repo_name: sports-app
 infra_repo_name: sports-app-infra
+services:
+  - auth
+  - football
