@@ -3,10 +3,18 @@
     src: docker-compose.{{ env }}.yml
     dest: "{{ root }}/docker-compose.yml"
   tags:
-    - dev
+    - setup
+
+- name: Copy secrets.env
+  ansible.builtin.copy:
+    src: secrets.env
+    dest: "{{ root }}/secrets.env"
+    mode: 0600
+  tags:
+    - setup
 
 - name: Start Docker Compose containers
   community.general.docker_compose:
     project_src: "{{ root }}"
   tags:
-    - dev
+    - setup
