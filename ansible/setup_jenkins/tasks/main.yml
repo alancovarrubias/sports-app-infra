@@ -100,11 +100,10 @@
   register: plugin_versions
   tags:
     - plugins
-
-- name: Write new plugins file
-  copy:
-    content: "{{ plugin_versions.stdout }}"
-    dest: ~/Projects/{{ infra_repo_name }}/ansible/setup_jenkins/files/plugins.txt
-  delegate_to: localhost
-  tags:
-    - plugins
+# - name: Write new plugins file
+#   copy:
+#     content: "{{ plugin_versions.stdout }}"
+#     dest: ~/Projects/{{ infra_repo_name }}/ansible/setup_jenkins/files/plugins.txt
+#   delegate_to: localhost
+#   tags:
+#     - plugins

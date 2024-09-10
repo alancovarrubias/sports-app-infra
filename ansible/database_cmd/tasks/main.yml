@@ -1,7 +1,24 @@
 ---
 # tasks file for database_cmd
+
+- name: Choose a database environment from a map
+  set_fact:
+    value_map:
+      dev: development
+      stage: production
+      prod: production
+  tags:
+    - always
+
+- name: Select database env
+  set_fact:
+    database_env: "{{ value_map[env] }}"
+  when: env is defined
+  tags:
+    - always
+
 - name: Database dump
-  command: docker run --rm --network host -v /home/{{ user_name }}:/tmp postgres:15 pg_dump -h localhost -U postgres -d {{ item }}_development -f /tmp/{{ item }}.sql
+  command: docker run --rm --network host -v /home/{{ user_name }}:/tmp postgres:15 pg_dump -h localhost -U postgres -d {{ item }}_{{ database_env }} -f /tmp/{{ item }}.sql
   loop: "{{ services }}"
   tags:
     - dump
@@ -59,7 +76,7 @@
     - create
 
 - name: Database restore
-  command: docker run --rm --network host -v /home/{{ user_name }}:/tmp postgres:15 psql -h localhost -U postgres -d {{ item }}_development -f /tmp/{{ item }}.sql
+  command: docker run --rm --network host -v /home/{{ user_name }}:/tmp postgres:15 psql -h localhost -U postgres -d {{ item }}_{{ database_env }} -f /tmp/{{ item }}.sql
   loop: "{{ services }}"
   tags:
     - restore
