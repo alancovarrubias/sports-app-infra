@@ -64,6 +64,10 @@
       - docker-compose
     state: latest
     update_cache: true
+  register: result
+  until: result is not failed
+  retries: 5
+  delay: 5
   tags:
     - setup
 
