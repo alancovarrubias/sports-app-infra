@@ -1,6 +1,6 @@
 - name: Create nginx directory
   ansible.builtin.file:
-    path: ~/nginx
+    path: ~/{{ repo_name }}/nginx
     state: directory
   tags:
     - setup
@@ -8,6 +8,6 @@
 - name: Copy nginx conf
   ansible.builtin.template:
     src: nginx.{{ env }}.conf
-    dest: ~/nginx/nginx.conf
+    dest: ~/{{ repo_name }}/nginx/nginx.conf
   tags:
     - setup
