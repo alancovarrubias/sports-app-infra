@@ -7,4 +7,4 @@ grafana_admin_user: admin
 grafana_admin_password: admin
 grafana_endpoint: http://{{ ansible_ip }}:3000
 datasource_name: Prometheus
-bytes_in_gb: 1000000000
+bytes_in_gb: 1_000_000_000
