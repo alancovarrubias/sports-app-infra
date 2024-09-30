@@ -28,3 +28,20 @@ module "sports_app_worker_playbook" {
     module.sports_app_web.ip_address
   )
 }
+
+module "ansible_server" {
+  source       = "../modules/do_droplet"
+  do_token     = var.do_token
+  droplet_name = "ansible-server"
+  droplet_size = "s-1vcpu-1gb"
+}
+
+module "ansible_server_playbook" {
+  source     = "../modules/ansible_playbook"
+  do_token   = var.do_token
+  ip_address = module.ansible_server.ip_address
+  args = format(
+    "-m ansible -w %s",
+    module.ansible_server.ip_address
+  )
+}

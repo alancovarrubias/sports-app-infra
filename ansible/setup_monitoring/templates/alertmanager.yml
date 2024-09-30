@@ -5,5 +5,5 @@ route:
 receivers:
   - name: webhook_receiver
     webhook_configs:
-      - url: "{{ webhook_url }}""
+      - url: "{{ webhook_url }}"
         send_resolved: false

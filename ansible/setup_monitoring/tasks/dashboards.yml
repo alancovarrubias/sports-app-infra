@@ -1,6 +1,8 @@
 - name: Wait for 10 seconds
   pause:
     seconds: 10
+  tags:
+    - server
 
 - name: Check if {{ datasource_name }} data source already exists
   uri:
@@ -12,7 +14,7 @@
   register: prometheus_data_source_result
   ignore_errors: true
   tags:
-    - dashboards
+    - server
 
 - name: Install Grafana data source - Prometheus
   uri:
@@ -25,7 +27,7 @@
     force_basic_auth: true
   when: "prometheus_data_source_result.status == 404"
   tags:
-    - dashboards
+    - server
 
 - name: Get Grafana dashboards
   uri:
@@ -36,13 +38,13 @@
     force_basic_auth: true
   register: grafana_dashboards_result
   tags:
-    - dashboards
+    - server
 
 - name: Set dashboard uids
   set_fact:
     dashboard_uids: "{{ grafana_dashboards_result.json | map(attribute='uid') }}"
   tags:
-    - dashboards
+    - server
 
 - name: Get Grafana dashboard info
   uri:
@@ -54,7 +56,7 @@
   when: dashboard_uids | length != 0
   register: grafana_dashboard_result
   tags:
-    - dashboards
+    - server
 
 - name: Delete Grafana Dashboard
   uri:
@@ -65,7 +67,7 @@
     force_basic_auth: true
   when: dashboard_uids | length != 0
   tags:
-    - dashboards
+    - server
 
 - name: Import Grafana dashboard
   uri:
@@ -77,4 +79,4 @@
     password: "{{ grafana_admin_password }}"
     force_basic_auth: true
   tags:
-    - dashboards
+    - server

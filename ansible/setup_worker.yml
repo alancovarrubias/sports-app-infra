@@ -16,3 +16,4 @@
   become_user: "{{ user_name }}"
   roles:
     - setup_worker
+    - setup_monitoring

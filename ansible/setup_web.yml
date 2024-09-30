@@ -17,3 +17,4 @@
   roles:
     - setup_web
     - database_cmd
+    - setup_monitoring

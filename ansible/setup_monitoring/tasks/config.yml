@@ -6,23 +6,41 @@
     owner: "{{ user_name }}"
     group: "{{ user_name }}"
     state: directory
+  tags:
+    - server
 
 - name: Create Prometheus configuration file
   ansible.builtin.template:
     src: prometheus.yml
     dest: "{{ monitoring_home }}/prometheus.yml"
+  tags:
+    - server
 
 - name: Copy rules config
   ansible.builtin.template:
     src: rules.yml
     dest: "{{ monitoring_home }}/rules.yml"
+  tags:
+    - server
 
 - name: Copy docker compose
   ansible.builtin.template:
-    src: docker-compose.yml
+    src: docker-compose.server.yml
     dest: "{{ monitoring_home }}/docker-compose.yml"
+  tags:
+    - server
+
+- name: Copy docker compose
+  ansible.builtin.template:
+    src: docker-compose.client.yml
+    dest: "{{ monitoring_home }}/docker-compose.yml"
+  tags:
+    - client
 
 - name: Start Docker Compose containers
   community.general.docker_compose:
     project_src: "{{ monitoring_home }}"
     restarted: true
+  tags:
+    - server
+    - client

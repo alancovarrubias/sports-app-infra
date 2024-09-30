@@ -19,8 +19,12 @@ OptionParser.new do |opts|
     options[:module] = mod
   end
 
-  opts.on('-t', '--tags TAGS', 'Specify tags') do |tags|
+  opts.on('--tags TAGS', 'Specify tags') do |tags|
     options[:tags] = tags
+  end
+
+  opts.on('--token TOKEN', 'Specify TOKEN') do |token|
+    options[:token] = token
   end
 
   opts.on('-i', '--inventory INVENTORY', 'Specify inventory') do |inventory|
@@ -32,7 +36,7 @@ OptionParser.new do |opts|
   end
 end.parse!
 
-options[:token] ||= ENV['DO_TOKEN']
 options[:web_ip] ||= ENV['WEB_IP']
+options[:token] ||= ENV['DO_TOKEN']
 
 Runner.run(options)

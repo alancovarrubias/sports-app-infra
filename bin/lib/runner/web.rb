@@ -9,7 +9,7 @@ module Runner
     end
 
     def args
-      "-t setup,create,#{@env} -e env=#{@env}"
+      "--tags setup,create,#{@env},client -e env=#{@env}"
     end
   end
 end

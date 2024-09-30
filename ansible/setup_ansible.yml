@@ -4,6 +4,7 @@
   gather_facts: no
   roles:
     - setup_server
+    - setup_docker
     - role: setup_ssh_config
       vars:
         server_name: "ansible"
@@ -17,4 +18,4 @@
   vars_files:
     - secret_vars.yml
   roles:
-    - setup_ansible
+    - setup_monitoring

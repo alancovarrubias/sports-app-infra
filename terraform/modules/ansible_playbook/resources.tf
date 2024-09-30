@@ -5,7 +5,7 @@ resource "null_resource" "ansible_playbook" {
   provisioner "local-exec" {
     working_dir = "../.."
     command = format(
-      "./bin/infra_cli -c run -i %s -t %s %s",
+      "./bin/infra_cli -c run -i %s --token %s %s",
       var.ip_address,
       var.do_token,
       var.args,

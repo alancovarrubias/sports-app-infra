@@ -1,2 +1,7 @@
 - include_tasks: config.yml
+  tags:
+    - server
+    - client
 - include_tasks: dashboards.yml
+  tags:
+    - server
