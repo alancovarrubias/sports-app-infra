@@ -31,6 +31,14 @@
     dest: "~/{{ repo_name }}/docker-compose.yml"
     mode: 0600
 
+- name: Copy secrets.env
+  ansible.builtin.copy:
+    src: secrets.env
+    dest: "~/{{ repo_name }}/secrets.env"
+    mode: 0600
+  tags:
+    - setup
+
 - name: Wait for Redis
   ansible.builtin.wait_for:
     host: "{{ web_ip }}"

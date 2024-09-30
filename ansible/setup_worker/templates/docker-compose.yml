@@ -3,6 +3,8 @@ services:
   sidekiq:
     image: "{{ ecr_repo_url }}/football:prod"
     command: bundle exec sidekiq
+    env_file:
+      - secrets.env
     volumes:
       - ./football:/project
     environment:
