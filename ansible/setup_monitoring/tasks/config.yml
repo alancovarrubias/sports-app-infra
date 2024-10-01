@@ -8,6 +8,7 @@
     state: directory
   tags:
     - server
+    - client
 
 - name: Create Prometheus configuration file
   ansible.builtin.template:

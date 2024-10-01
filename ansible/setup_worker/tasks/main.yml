@@ -4,6 +4,8 @@
   stat:
     path: ~/{{ repo_name }}
   register: repo_check
+  tags:
+    - setup
 
 - name: Clone Git Repository
   git:
@@ -11,6 +13,8 @@
     dest: ~/{{ repo_name }}
     update: yes
   when: not repo_check.stat.exists
+  tags:
+    - setup
 
 - name: get ECR password
   shell: "aws ecr get-login-password --region {{ aws_region }}"
@@ -18,18 +22,24 @@
   delegate_to: localhost
   become_user: "{{ user_name }}"
   become: yes
+  tags:
+    - setup
 
 - name: Docker repository login
   docker_login:
     registry_url: https://{{ ecr_repo_url }}
     username: AWS
     password: "{{ ecr_password.stdout }}"
+  tags:
+    - setup
 
 - name: Copy docker compose
   ansible.builtin.template:
     src: docker-compose.yml
     dest: "~/{{ repo_name }}/docker-compose.yml"
     mode: 0600
+  tags:
+    - setup
 
 - name: Copy secrets.env
   ansible.builtin.copy:
@@ -46,7 +56,11 @@
     state: started
     delay: 5
     timeout: 300
+  tags:
+    - setup
 
 - name: Start Docker Compose containers
   community.general.docker_compose:
     project_src: "~/{{ repo_name }}"
+  tags:
+    - setup

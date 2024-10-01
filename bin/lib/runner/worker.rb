@@ -9,7 +9,7 @@ module Runner
     end
 
     def args
-      "-e web_ip=#{@web_ip} -e env=#{@env}"
+      "--tags setup,client -e web_ip=#{@web_ip} -e env=#{@env}"
     end
   end
 end
