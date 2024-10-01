@@ -2,6 +2,7 @@
   tags:
     - server
     - client
+
 - include_tasks: dashboards.yml
   tags:
     - server

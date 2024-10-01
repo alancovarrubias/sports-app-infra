@@ -1,7 +1,7 @@
 ---
 # tasks file for setup_monitoring
 - name: Ensure the directory exists
-  file:
+  ansible.builtin.file:
     path: "{{ monitoring_home }}"
     owner: "{{ user_name }}"
     group: "{{ user_name }}"
