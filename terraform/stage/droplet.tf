@@ -10,6 +10,7 @@ module "sports_app_web_playbook" {
   do_token   = var.do_token
   ip_address = module.sports_app_web.ip_address
   args       = "-m web -e stage"
+  depends_on = [module.sports_app_web]
 }
 
 module "sports_app_worker" {
@@ -24,9 +25,10 @@ module "sports_app_worker_playbook" {
   do_token   = var.do_token
   ip_address = module.sports_app_worker.ip_address
   args = format(
-    "-m worker -w %s -e stage",
+    "-m worker --web_ip %s -e stage",
     module.sports_app_web.ip_address
   )
+  depends_on = [module.sports_app_web, module.sports_app_worker]
 }
 
 module "ansible_server" {
@@ -41,7 +43,9 @@ module "ansible_server_playbook" {
   do_token   = var.do_token
   ip_address = module.ansible_server.ip_address
   args = format(
-    "-m ansible -w %s",
-    module.ansible_server.ip_address
+    "-m ansible --web_ip %s --worker_ip %s",
+    module.sports_app_web.ip_address,
+    module.sports_app_worker.ip_address
   )
+  depends_on = [module.sports_app_web, module.sports_app_worker, module.ansible_server]
 }

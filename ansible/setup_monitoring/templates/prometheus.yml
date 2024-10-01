@@ -12,4 +12,4 @@ alerting:
 scrape_configs:
   - job_name: docker-host
     static_configs:
-      - targets: ["localhost:9100"]
+      - targets: ["localhost:9100", "{{ web_ip }}:9100", "{{ worker_ip }}:9100"]

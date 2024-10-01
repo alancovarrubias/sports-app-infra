@@ -17,6 +17,13 @@
   tags:
     - server
 
+- name: Create Alertmanager configuration file
+  ansible.builtin.template:
+    src: alertmanager.yml
+    dest: "{{ monitoring_home }}/alertmanager.yml"
+  tags:
+    - server
+
 - name: Copy rules config
   ansible.builtin.template:
     src: rules.yml
