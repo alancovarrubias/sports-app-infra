@@ -3,8 +3,7 @@
     src: docker-compose.{{ env }}.yml
     dest: "{{ root }}/docker-compose.yml"
   tags:
-    - stage
-    - prod
+    - setup
 
 - name: Copy secrets.env
   ansible.builtin.copy:
