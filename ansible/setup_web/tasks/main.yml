@@ -9,22 +9,14 @@
 - include_tasks: setup_git_repo.yml
   tags:
     - dev
-    - stage
 
 - include_tasks: setup_tunnel.yml
   tags:
     - dev
 
 - include_tasks: setup_nginx.yml
-  vars:
-    root: "~/{{ repo_name }}"
   tags:
     - stage
-
-- include_tasks: setup_nginx.yml
-  vars:
-    root: "~"
-  tags:
     - prod
 
 - include_tasks: start_server.yml
@@ -32,10 +24,10 @@
     root: "~/{{ repo_name }}"
   tags:
     - dev
-    - stage
 
 - include_tasks: start_server.yml
   vars:
     root: "~"
   tags:
+    - stage
     - prod
