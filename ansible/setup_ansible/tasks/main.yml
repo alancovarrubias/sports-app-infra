@@ -21,6 +21,8 @@
   delay: 5
   become: yes
   become_user: root
+  tags:
+    - setup
 
 - name: Install pip3 packages
   pip:
@@ -39,6 +41,8 @@
   ansible.builtin.copy:
     src: ~/.aws
     dest: "~"
+  tags:
+    - setup
 
 - name: Copy private ssh key
   ansible.builtin.copy:
@@ -51,6 +55,8 @@
   ansible.builtin.copy:
     src: ~/.vault_pass.txt
     dest: ~/.vault_pass.txt
+  tags:
+    - setup
 
 - name: Copy files
   ansible.builtin.template:
