@@ -6,7 +6,7 @@ services:
       - 80:80/tcp
       - 443:443/tcp
     volumes:
-      - ./nginx:/etc/nginx:ro
+      - ./nginx:/etc/nginx/user.conf.d:ro
       - letsencrypt:/etc/letsencrypt/
   server:
     image: "{{ ecr_repo_url }}/server:prod"
@@ -14,13 +14,12 @@ services:
       - 4000:4000
   auth:
     image: "{{ ecr_repo_url }}/auth:prod"
+    env_file:
+      - secrets.env
   football:
     image: "{{ ecr_repo_url }}/football:prod"
-  sidekiq:
-    image: "{{ ecr_repo_url }}/football:prod"
-    command: bundle exec sidekiq
-  crawler:
-    image: "{{ ecr_repo_url }}/crawler:prod"
+    env_file:
+      - secrets.env
   db:
     image: postgres:15
     volumes:

@@ -34,6 +34,12 @@ resource "digitalocean_firewall" "sports_app_firewall" {
   }
 
   inbound_rule {
+    protocol         = "tcp"
+    port_range       = "9100"
+    source_addresses = [module.ansible_server.ip_address]
+  }
+
+  inbound_rule {
     protocol         = "icmp"
     source_addresses = ["0.0.0.0/0", "::/0"]
   }

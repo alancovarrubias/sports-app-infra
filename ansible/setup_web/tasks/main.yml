@@ -16,8 +16,15 @@
     - dev
 
 - include_tasks: setup_nginx.yml
+  vars:
+    root: "~/{{ repo_name }}"
   tags:
     - stage
+
+- include_tasks: setup_nginx.yml
+  vars:
+    root: "~"
+  tags:
     - prod
 
 - include_tasks: start_server.yml
