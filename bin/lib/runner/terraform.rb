@@ -7,12 +7,7 @@ module Runner
     end
 
     def run
-      run_command('init')
-      run_command("#{@command} -var-file=#{TERRAFORM_DIR}/terraform.tfvars --auto-approve")
-    end
-
-    def run_command(command)
-      "terraform -chdir=#{TERRAFORM_DIR}/#{@module} #{command}"
+      "terraform -chdir=#{TERRAFORM_DIR}/#{@module} #{@command} -var-file=#{TERRAFORM_DIR}/terraform.tfvars --auto-approve"
     end
   end
 end
