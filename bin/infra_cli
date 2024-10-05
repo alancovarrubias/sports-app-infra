@@ -44,4 +44,5 @@ options[:web_ip] ||= ENV['WEB_IP']
 options[:worker_ip] ||= ENV['WORKER_IP']
 options[:token] ||= ENV['DO_TOKEN']
 
-Runner.run(options)
+cmd = Runner.run(options)
+system(cmd)

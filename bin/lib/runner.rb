@@ -1,11 +1,6 @@
 module Runner
   def self.run(options)
-    cmd = get_runner(options).new(options).run
-    run_command(cmd)
-  end
-
-  def self.run_command(cmd)
-    system(cmd)
+    get_runner(options).new(options).run
   end
 
   def self.get_runner(options)
