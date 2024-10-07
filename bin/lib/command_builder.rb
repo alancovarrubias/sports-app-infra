@@ -1,13 +1,33 @@
 class CommandBuilder
-  def initialize(inventory:, tags:, playbook:, args:)
-    @inventory = inventory
-    @tags = tags
-    @playbook = playbook
-    @args = args
+  TERRAFORM_DIR = '$(pwd)/terraform'.freeze
+  def initialize(options)
+    @playbook = options[:playbook]
+    @command = options[:command]
+    @module = options[:module]
+    @inventory = options[:inventory]
+    @tags = options[:tags]
+    @args = options[:args] || {}
+  end
+
+  def terraform
+    ['init', "#{@command} -var-file=#{TERRAFORM_DIR}/terraform.tfvars --auto-approve"].map do |cmd|
+      build_terraform(cmd)
+    end
+  end
+
+  def build_terraform(cmd)
+    "terraform -chdir=#{TERRAFORM_DIR}/#{@module} #{cmd}"
   end
 
   def ansible
-    ['ansible-playbook', inventory, vars, skip_tags, tags, args, @playbook].join(' ')
+    commands = []
+    commands << 'cd ansible && ansible-playbook'
+    commands << inventory
+    commands << vars
+    commands << tags if @tags
+    commands << args unless @args.empty?
+    commands << @playbook
+    commands.join(' ')
   end
 
   def args
