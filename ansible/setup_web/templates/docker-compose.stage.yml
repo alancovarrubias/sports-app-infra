@@ -2,9 +2,6 @@ version: "3.4"
 services:
   client:
     image: "{{ ecr_repo_url }}/client:stage"
-    environment:
-      - HOST={{ ansible_host }}
-      - PROTOCOL=http
     ports:
       - 80:80/tcp
     volumes:

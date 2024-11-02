@@ -2,9 +2,6 @@ version: "3.4"
 services:
   client:
     image: "{{ ecr_repo_url }}/client:prod"
-    environment:
-      - HOST={{ domain_name }}
-      - PROTOCOL=https
     ports:
       - 80:80/tcp
       - 443:443/tcp
