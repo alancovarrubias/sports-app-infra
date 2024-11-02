@@ -1,0 +1,4 @@
+{
+    "HOST": "{{ domain_name }}",
+    "PROTOCOL": "https"
+}

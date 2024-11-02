@@ -19,6 +19,19 @@
     - stage
     - prod
 
+- include_tasks: setup_build.yml
+  vars:
+    root: "~/{{ repo_name }}/client"
+  tags:
+    - dev
+
+- include_tasks: setup_build.yml
+  vars:
+    root: "~"
+  tags:
+    - stage
+    - prod
+
 - include_tasks: start_server.yml
   vars:
     root: "~/{{ repo_name }}"
