@@ -9,6 +9,8 @@
 - include_tasks: setup_git_repo.yml
   tags:
     - dev
+    - stage
+    - prod
 
 - include_tasks: setup_tunnel.yml
   tags:
@@ -24,11 +26,6 @@
     root: "~/{{ repo_name }}/client/build"
   tags:
     - dev
-
-- include_tasks: setup_build.yml
-  vars:
-    root: "~"
-  tags:
     - stage
     - prod
 
@@ -37,10 +34,5 @@
     root: "~/{{ repo_name }}"
   tags:
     - dev
-
-- include_tasks: start_server.yml
-  vars:
-    root: "~"
-  tags:
     - stage
     - prod

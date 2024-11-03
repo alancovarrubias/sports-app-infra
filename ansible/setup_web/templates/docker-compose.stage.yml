@@ -6,7 +6,7 @@ services:
       - 80:80/tcp
     volumes:
       - ./nginx:/etc/nginx:ro
-      - ./config.json:/usr/share/nginx/html/config.json:ro
+      - ./client/build/config.json:/usr/share/nginx/html/config.json:ro
   server:
     image: "{{ ecr_repo_url }}/server:prod"
     ports:
