@@ -1,13 +1,13 @@
-- name: Create build directory
+- name: Ensure build directory exists
   ansible.builtin.file:
-    path: "{{ root }}/build"
+    path: "{{ root }}"
     state: directory
   tags:
     - setup
 
-- name: Copy build config
+- name: Copy config.json
   ansible.builtin.template:
     src: "config.json.{{ env }}"
-    dest: "{{ root }}/build/config.json"
+    dest: "{{ root }}/config.json"
   tags:
     - setup

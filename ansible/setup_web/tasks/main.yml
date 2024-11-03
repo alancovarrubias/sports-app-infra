@@ -21,7 +21,7 @@
 
 - include_tasks: setup_build.yml
   vars:
-    root: "~/{{ repo_name }}/client"
+    root: "~/{{ repo_name }}/client/build"
   tags:
     - dev
 
