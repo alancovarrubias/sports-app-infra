@@ -1,3 +1,11 @@
+- name: Copy .git-credentials
+  copy:
+    src: .git-credentials
+    dest: "~"
+    mode: 0600
+  tags:
+    - setup
+
 - name: Copy gitconfig
   copy:
     src: ~/.gitconfig
