@@ -6,7 +6,8 @@ RSpec.describe 'CommandBuilder' do
   let(:tags) { 'tags' }
   let(:args) { { key: 'value' } }
   it 'creates the correct ansible command' do
-    command = "ansible-playbook --inventory #{inventory}, " \
+    command = 'ansible-playbook ' \
+    "--inventory #{inventory}, " \
     '--extra-vars @extra_vars.yml ' \
     "--skip-tags skip --tags #{tags} " \
     "-e #{args.keys.first}=#{args.values.first} " \
