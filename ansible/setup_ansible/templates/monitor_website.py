@@ -9,7 +9,7 @@ def restart_server(ip):
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     ssh.connect(hostname=f"{ ip }", username="{{ user_name }}", key_filename="/home/{{ user_name }}/.ssh/id_rsa")
-    stdin, stdout, stderr = ssh.exec_command("docker-compose down && docker-compose up -d")
+    stdin, stdout, stderr = ssh.exec_command("cd {{ repo_name }} && docker-compose down && docker-compose up -d")
     print(stdout.readlines())
     ssh.close()
 
@@ -29,9 +29,9 @@ def monitor_website(ip, port, path):
         restart_server(ip)
 
 def monitor():
-    ips = ["{{ domain_name }}", "{{ web_ip }}" "{{ worker_ip }}"]
-    ports = [443, 80, 5000]
-    paths = ["", "", "/health"]
+    ips = ["{{ worker_ip }}"]
+    ports = [5000]
+    paths = ["/health"]
     for index, ip in enumerate(ips):
         port = ports[index]
         path = paths[index]
