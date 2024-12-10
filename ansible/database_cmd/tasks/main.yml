@@ -53,6 +53,8 @@
   args:
     chdir: ~/{{ repo_name }}
   loop: "{{ services }}"
+  environment:
+    ENV: "{{ env }}"
   tags:
     - restore
     - create
@@ -61,6 +63,8 @@
   command: docker-compose run --rm {{ item }} rake db:migrate
   args:
     chdir: ~/{{ repo_name }}
+  environment:
+    ENV: "{{ env }}"
   loop: "{{ services }}"
   tags:
     - restore

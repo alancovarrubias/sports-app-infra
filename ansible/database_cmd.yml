@@ -4,4 +4,4 @@
   become: yes
   become_user: "{{ user_name }}"
   roles:
-    - database_cmd
+    - role: database_cmd
