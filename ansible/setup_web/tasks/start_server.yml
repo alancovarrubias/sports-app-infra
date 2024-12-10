@@ -1,9 +1,18 @@
+- name: Copy build docker file to default file
+  ansible.builtin.copy:
+    src: "{{ root }}/docker-compose.build.yml"
+    dest: "{{ root }}/docker-compose.yml"
+    remote_src: yes
+  tags:
+    - dev
+
 - name: Copy docker compose
   ansible.builtin.template:
     src: docker-compose.{{ env }}.yml
     dest: "{{ root }}/docker-compose.yml"
   tags:
-    - setup
+    - stage
+    - prod
 
 - name: Copy secrets.env
   ansible.builtin.copy:
@@ -16,5 +25,15 @@
 - name: Start Docker Compose containers
   community.general.docker_compose:
     project_src: "{{ root }}"
+  environment:
+    ENV: "{{ env }}"
+  tags:
+    - setup
+
+- name: Add environment variable to user .bashrc
+  ansible.builtin.lineinfile:
+    path: ~/.bashrc
+    line: 'export ENV="{{ env }}"'
+    create: yes
   tags:
     - setup
