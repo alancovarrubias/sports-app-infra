@@ -5,7 +5,7 @@ module Runner
     end
 
     def args
-      "--tags #{@tags}"
+      "--tags #{@tags} -e env=#{@env}"
     end
 
     def playbook
