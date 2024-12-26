@@ -44,4 +44,14 @@ options[:web_ip] ||= ENV['WEB_IP']
 options[:worker_ip] ||= ENV['WORKER_IP']
 options[:token] ||= ENV['DO_TOKEN']
 
-Runner.run(options)
+def get_runner(options)
+  case options[:command]
+  when 'apply', 'destroy'
+    Runner::Terraform
+  when 'run'
+    Runner.const_get(options[:module].capitalize)
+  end
+end
+
+cmd = get_runner(options).new(options).run
+system(cmd)
