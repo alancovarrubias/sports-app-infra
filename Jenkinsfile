@@ -45,8 +45,8 @@ pipeline {
                     remote.allowAnyHosts = true
                     remote.user = "$REMOTE_USER"
                     remote.identityFile = "/var/jenkins_home/.ssh/id_rsa"
-                    sshCommand remote: remote, command: "./bin/infra_cli -c run -i $WEB_IP -m web -e $ENV"
-                    sshCommand remote: remote, command: "./bin/infra_cli -c run -i $WORKER_IP -m worker -e $ENV"
+                    sshCommand remote: remote, command: "./bin/infra_cli.rb -c run -i $WEB_IP -m web -e $ENV"
+                    sshCommand remote: remote, command: "./bin/infra_cli.rb -c run -i $WORKER_IP -m worker -e $ENV"
                 }
             }
         }
