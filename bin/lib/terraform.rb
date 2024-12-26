@@ -1,5 +1,4 @@
-module Runner
-  class Terraform
+class Terraform
     TERRAFORM_DIR = '$(pwd)/terraform'.freeze
     def initialize(options)
       @command = options[:command]
@@ -14,5 +13,4 @@ module Runner
     def run_command(command)
       "terraform -chdir=#{TERRAFORM_DIR}/#{@module} #{command}"
     end
-  end
 end
