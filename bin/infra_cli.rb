@@ -20,7 +20,7 @@ OptionParser.new do |opts|
   end
 
   opts.on('--tags TAGS', 'Specify tags') do |tags|
-    options[:tags] = tags
+    options[:tags] = tags.split(',')
   end
 
   opts.on('--token TOKEN', 'Specify TOKEN') do |token|
@@ -44,4 +44,18 @@ options[:web_ip] ||= ENV['WEB_IP']
 options[:worker_ip] ||= ENV['WORKER_IP']
 options[:token] ||= ENV['DO_TOKEN']
 
-system(CommandBuilder.run(options))
+def get_runner(command)
+  case command
+  when 'apply', 'destroy'
+    'terraform'
+  when 'run'
+    'ansible'
+  end
+end
+
+runner = get_runner(options[:command])
+Dir.chdir(runner) do
+  Object.const_get(runner.capitalize).run(options) do |command|
+    system(command)
+  end
+end

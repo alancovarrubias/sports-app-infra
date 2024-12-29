@@ -1,16 +1,8 @@
-class Terraform
-    TERRAFORM_DIR = '$(pwd)/terraform'.freeze
-    def initialize(options)
-      @command = options[:command]
-      @module = options[:module]
-    end
+module Terraform
+  module_function
 
-    def run
-      run_command('init')
-      run_command("#{@command} -var-file=#{TERRAFORM_DIR}/terraform.tfvars --auto-approve")
-    end
-
-    def run_command(command)
-      "terraform -chdir=#{TERRAFORM_DIR}/#{@module} #{command}"
-    end
+  def run(options)
+    yield "terraform -chdir=#{options[:module]} init"
+    yield "terraform -chdir=#{options[:module]} #{options[:command]} -var-file=../terraform.tfvars --auto-approve"
+  end
 end

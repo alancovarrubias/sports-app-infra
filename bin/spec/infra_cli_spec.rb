@@ -12,12 +12,14 @@ RSpec.describe 'ansible.rb' do
   describe 'terraform commands' do
     let(:mod) { 'dev' }
     let(:command) { 'apply' }
-    def terraform_command
-      "terraform -chdir=$(pwd)/terraform/#{mod} #{command} -var-file=$(pwd)/terraform/terraform.tfvars --auto-approve"
+    let(:run_command) do
+      "terraform -chdir=#{mod} #{command} -var-file=../terraform.tfvars --auto-approve"
     end
+    let(:init_command) { "terraform -chdir=#{mod} init" }
     it 'sends the correct command to system for "apply"' do
       ARGV.replace(['-c', command, '-m', mod])
-      expect_any_instance_of(Object).to receive(:system).with(terraform_command)
+      expect_any_instance_of(Object).to receive(:system).with(init_command)
+      expect_any_instance_of(Object).to receive(:system).with(run_command)
       load script_path
     end
   end
@@ -26,7 +28,8 @@ RSpec.describe 'ansible.rb' do
     it 'sends the correct command to system for dumping a database' do
       ENV['WEB_IP'] = ip_address
       ARGV.replace(['-c', 'run', '-m', 'dump', '-e', 'dev', '--tags', 'dump'])
-      expect_any_instance_of(Object).to receive(:system).with("cd ansible && ansible-playbook --inventory #{ip_address}, --extra-vars @extra_vars.yml --skip-tags skip --tags dump -e env=dev database_cmd.yml")
+      command = "ansible-playbook --extra-vars @extra_vars.yml --skip-tags skip --inventory #{ip_address}, --tags dump -e env=dev database_cmd.yml"
+      expect_any_instance_of(Object).to receive(:system).with(command)
       load script_path
     end
   end
