@@ -94,3 +94,12 @@
   tags:
     - restore
     - create
+
+- name: Seed database
+  command: docker-compose run --rm football rake db:seed
+  args:
+    chdir: ~/{{ repo_name }}
+  environment:
+    ENV: "{{ env }}"
+  tags:
+    - create
