@@ -25,6 +25,7 @@
 - name: Start Docker Compose containers
   community.general.docker_compose:
     project_src: "{{ root }}"
+    build: yes
   environment:
     ENV: "{{ env }}"
   tags:

@@ -86,10 +86,11 @@
     - restore
     - create
 
-- name: Start rails servers
-  command: docker-compose start {{ item }}
-  args:
-    chdir: ~/{{ repo_name }}
-  loop: "{{ services }}"
+- name: Start Docker Compose containers
+  community.general.docker_compose:
+    project_src: "~/{{ repo_name }}"
+  environment:
+    ENV: "{{ env }}"
   tags:
     - restore
+    - create
