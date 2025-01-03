@@ -53,19 +53,20 @@
     user: "{{ grafana_admin_user }}"
     password: "{{ grafana_admin_password }}"
     force_basic_auth: true
-  when: dashboard_uids | length != 0
+  when: dashboard_uids | length > 0
   register: grafana_dashboard_result
   tags:
     - server
 
 - name: Delete Grafana Dashboard
   uri:
-    url: "{{ grafana_endpoint }}/api/dashboards/uid/{{ dashboard_uids[0] }}"
+    url: "{{ grafana_endpoint }}/api/dashboards/uid/{{ item }}"
     method: DELETE
     user: "{{ grafana_admin_user }}"
     password: "{{ grafana_admin_password }}"
     force_basic_auth: true
-  when: dashboard_uids | length != 0
+  when: dashboard_uids | length > 0
+  with_items: "{{ dashboard_uids }}"
   tags:
     - server
 
@@ -74,7 +75,19 @@
     url: "{{ grafana_endpoint }}/api/dashboards/db"
     method: POST
     body_format: json
-    body: "{{ lookup('template', 'dashboard_file.json') }}"
+    body: "{{ lookup('template', 'memory_dashboard.json.j2') }}"
+    user: "{{ grafana_admin_user }}"
+    password: "{{ grafana_admin_password }}"
+    force_basic_auth: true
+  tags:
+    - server
+
+- name: Import CPU Usage dashboard
+  uri:
+    url: "{{ grafana_endpoint }}/api/dashboards/db"
+    method: POST
+    body_format: json
+    body: "{{ lookup('template', 'cpu_dashboard.json.j2') }}"
     user: "{{ grafana_admin_user }}"
     password: "{{ grafana_admin_password }}"
     force_basic_auth: true

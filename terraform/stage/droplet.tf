@@ -2,7 +2,7 @@ module "sports_app_web" {
   source       = "../modules/do_droplet"
   do_token     = var.do_token
   droplet_name = "sports-app-web"
-  droplet_size = "s-2vcpu-4gb"
+  droplet_size = "s-1vcpu-2gb"
 }
 
 module "sports_app_web_playbook" {

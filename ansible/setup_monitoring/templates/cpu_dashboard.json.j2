@@ -1,0 +1,41 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "CPU Usage Dashboard",
+    "panels": [
+      {% for server in servers %}
+      {
+        "title": "CPU Usage - {{ server.name }}",
+        "type": "timeseries",
+        "datasource": "{{ datasource_name }}",
+        "targets": [
+          {
+            "expr": "100 - (avg by (instance) (rate(node_cpu_seconds_total{mode='idle', instance=\"{{ server.ip }}:9100\"}[1m])) * 100)",
+            "format": "time_series",
+            "legendFormat": "CPU Usage"
+          }
+        ],
+        "legend": {
+          "show": true,
+          "values": false,
+          "min": false,
+          "max": false,
+          "current": false,
+          "total": false,
+          "avg": false
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent"
+          }
+        }
+      }
+      {% if not loop.last %}, {% endif %}
+      {% endfor %}
+    ],
+    "rows": [],
+    "schemaVersion": 21,
+    "version": 1
+  },
+  "overwrite": false
+}

@@ -1,0 +1,51 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "Memory Dashboard",
+    "panels": [
+      {% for server in servers %}
+      {
+        "title": "Memory Usage - {{ server.name }}",
+        "type": "timeseries",
+        "datasource": "{{ datasource_name }}",
+        "targets": [
+          {
+            "expr": "node_memory_MemFree_bytes{instance=\"{{ server.ip }}:9100\"} / {{ bytes_in_gb }}",
+            "format": "time_series",
+            "legendFormat": "MemFree"
+          },
+          {
+            "expr": "node_memory_MemTotal_bytes{instance=\"{{ server.ip }}:9100\"} / {{ bytes_in_gb }}",
+            "format": "time_series",
+            "legendFormat": "MemTotal"
+          },
+          {
+            "expr": "node_memory_MemAvailable_bytes{instance=\"{{ server.ip }}:9100\"} / {{ bytes_in_gb }}",
+            "format": "time_series",
+            "legendFormat": "MemAvailable"
+          },
+        ],
+        "legend": {
+          "show": true,
+          "values": false,
+          "min": false,
+          "max": false,
+          "current": false,
+          "total": false,
+          "avg": false
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "gigabytes"
+          }
+        }
+      }
+      {% if not loop.last %}, {% endif %}
+      {% endfor %}
+    ],
+    "rows": [],
+    "schemaVersion": 21,
+    "version": 1
+  },
+  "overwrite": false
+}

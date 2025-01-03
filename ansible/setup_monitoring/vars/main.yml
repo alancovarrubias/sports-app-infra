@@ -8,3 +8,10 @@ grafana_admin_password: admin
 grafana_endpoint: http://{{ ansible_host }}:3000
 datasource_name: Prometheus
 bytes_in_gb: 1_073_741_824
+servers:
+  - name: "Web Server"
+    ip: "{{ web_ip }}"
+  - name: "Worker Server"
+    ip: "{{ worker_ip }}"
+  - name: "Ansible Server"
+    ip: "localhost"
