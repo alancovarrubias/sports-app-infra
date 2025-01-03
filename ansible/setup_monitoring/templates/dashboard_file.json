@@ -6,7 +6,7 @@
         {
           "title": "Time Series Panel",
           "type": "timeseries",
-          "datasource": "Prometheus",
+          "datasource": "{{ datasource_name }}",
           "targets": [
             {
               "expr": "node_memory_MemFree_bytes / {{ bytes_in_gb }}",
@@ -32,6 +32,11 @@
             "current": false,
             "total": false,
             "avg": false
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "gigabytes"
+            }
           }
         }
       ],

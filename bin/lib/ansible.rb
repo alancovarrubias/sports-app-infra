@@ -51,7 +51,7 @@ module Ansible
     def web
       {
         playbook: 'setup_web.yml',
-        tags: ['setup', 'create', @options[:env]],
+        tags: ['setup', 'create', 'client', @options[:env]],
         ip_env: 'WEB_IP'
       }
     end
