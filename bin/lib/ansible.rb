@@ -11,7 +11,7 @@ module Ansible
     end
 
     def build_command
-      command = ['ansible-playbook', '--extra-vars @extra_vars.yml', '--skip-tags skip']
+      command = ['ansible-playbook', '-e @extra_vars.yml', '-e @custom_vars.yml', '--skip-tags skip']
       command << "--inventory #{@inventory},"
       command << "--tags #{@tags.join(',')}" unless @tags.empty?
       @vars.each do |key, value|

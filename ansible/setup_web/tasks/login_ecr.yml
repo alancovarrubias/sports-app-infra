@@ -14,4 +14,5 @@
     username: AWS
     password: "{{ ecr_password.stdout }}"
   tags:
-    - setup
+    - stage
+    - prod
