@@ -5,16 +5,7 @@
   become: yes
   become_user: "{{ user_name }}"
   tags:
-    - dev
     - stage
-
-- name: get ECR password
-  shell: "aws ecr get-login-password --region {{ aws_region }}"
-  register: ecr_password
-  delegate_to: localhost
-  become: yes
-  become_user: "{{ user_name }}"
-  tags:
     - prod
 
 - name: Docker repository login
