@@ -40,6 +40,10 @@
       - python3-setuptools
     state: latest
     update_cache: true
+  register: apt_result
+  until: apt_result is not failed
+  retries: 5
+  delay: 5
   tags:
     - setup
 
@@ -54,6 +58,10 @@
   apt_repository:
     repo: deb https://download.docker.com/linux/ubuntu focal stable
     state: present
+  register: docker_repo
+  until: docker_repo is not failed
+  retries: 5
+  delay: 5
   tags:
     - setup
 
