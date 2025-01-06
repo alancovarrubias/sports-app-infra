@@ -22,7 +22,7 @@
   # several times in the event that it fails, with a small delay between each attempt.
   register: result
   until: result is not failed
-  retries: 5
+  retries: 10
   delay: 5
   when: not aptitude_check.stat.exists
   tags:
