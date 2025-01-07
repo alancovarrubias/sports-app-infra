@@ -4,7 +4,7 @@ module Ansible
     def run(options)
       @options = options
       @config = send(@options[:module])
-      @tags = (@options[:tags] || []).concat(@config[:tags] || [])
+      @tags = @options[:tags] || @config[:tags]
       @vars = (@config[:vars] || {}).merge(env: @options[:env])
       @inventory = @options[:inventory] || ENV[@config[:ip_env]]
       yield build_command
