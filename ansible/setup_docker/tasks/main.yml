@@ -23,7 +23,7 @@
   register: result
   until: result is not failed
   retries: 10
-  delay: 5
+  delay: 10
   when: not aptitude_check.stat.exists
   tags:
     - setup
@@ -60,8 +60,8 @@
     state: present
   register: docker_repo
   until: docker_repo is not failed
-  retries: 5
-  delay: 5
+  retries: 10
+  delay: 10
   tags:
     - setup
 
