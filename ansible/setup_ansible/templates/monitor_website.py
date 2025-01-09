@@ -37,7 +37,7 @@ def monitor():
         path = paths[index]
         monitor_website(ip, port, path)
 
-schedule.every(5).minutes.do(monitor)
+schedule.every(30).seconds.do(monitor)
 
 while True:
     schedule.run_pending()

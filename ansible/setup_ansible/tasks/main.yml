@@ -91,3 +91,39 @@
     state: present
   tags:
     - setup
+
+- name: Deploy monitor service
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/monitor_website.service
+    content: |
+      [Unit]
+      Description=Monitor Website Script
+      After=network.target
+
+      [Service]
+      ExecStart=/usr/bin/python3 /home/{{ user_name }}/monitor_website.py
+      Restart=always
+      User={{ user_name }}
+      WorkingDirectory=/home/{{ user_name }}
+      Environment="EMAIL_ADDRESS={{ email_address }}"
+      Environment="EMAIL_PASSWORD={{ email_password }}"
+      Restart=always
+      StandardOutput=journal
+      StandardError=journal
+
+      [Install]
+      WantedBy=multi-user.target
+  become_user: root
+  become: yes
+  tags:
+    - setup
+
+- name: Start and enable monitor service
+  ansible.builtin.systemd:
+    name: monitor_website
+    enabled: true
+    state: started
+  become_user: root
+  become: yes
+  tags:
+    - setup

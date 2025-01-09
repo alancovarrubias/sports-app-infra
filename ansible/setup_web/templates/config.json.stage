@@ -1,6 +1,6 @@
 
 {
-    "HOST": "{{ ansible_host }}:4000",
+    "HOST": "{{ ansible_host }}",
     "PROTOCOL": "http",
     "WS_PROTOCOL": "ws"
 }
