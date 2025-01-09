@@ -56,6 +56,7 @@ end
 runner = get_runner(options[:command])
 Dir.chdir(runner) do
   Object.const_get(runner.capitalize).run(options) do |command|
+    puts command
     system(command)
   end
 end

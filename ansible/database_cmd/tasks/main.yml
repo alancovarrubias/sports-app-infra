@@ -8,14 +8,14 @@
       stage: production
       prod: production
   tags:
-    - always
+    - dump
 
 - name: Select database env
   set_fact:
     database_env: "{{ value_map[env] }}"
   when: env is defined
   tags:
-    - always
+    - dump
 
 - name: Database dump
   command: docker run --rm --network host -v /home/{{ user_name }}:/tmp postgres:15 pg_dump -h localhost -U postgres -d {{ item }}_{{ database_env }} -f /tmp/{{ item }}.sql

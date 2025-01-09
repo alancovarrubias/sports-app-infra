@@ -1,6 +1,5 @@
-
 {
-    "HOST": "{{ ansible_host }}",
-    "PROTOCOL": "http",
-    "WS_PROTOCOL": "ws"
+    "HOST": "{{ domain_name }}",
+    "PROTOCOL": "https",
+    "WS_PROTOCOL": "wss"
 }

@@ -4,9 +4,23 @@ services:
     image: "{{ ecr_repo_url }}/client:stage"
     ports:
       - 80:80/tcp
+      - 443:443/tcp
     volumes:
-      - ./nginx:/etc/nginx:ro
+      - ./nginx:/etc/nginx/conf.d:ro
       - ./client/build/config.json:/usr/share/nginx/html/config.json:ro
+      - letsencrypt:/etc/letsencrypt/
+    environment:
+      - STAGING=1
+      - CERTBOT_EMAIL=alan.cov@icloud.com
+    depends_on:
+      - certbot
+  certbot:
+    image: certbot/dns-digitalocean
+    volumes:
+      - letsencrypt:/etc/letsencrypt
+      - ./secrets:/etc/letsencrypt/secrets
+    entrypoint: >
+      sh -c "certbot certonly --force-renewal --dns-digitalocean --dns-digitalocean-credentials /etc/letsencrypt/secrets/digitalocean.ini --email {{ email_address }} --staging --agree-tos --no-eff-email -d {{ domain_name }}"
   server:
     image: "{{ ecr_repo_url }}/server:prod"
     ports:
@@ -38,3 +52,4 @@ services:
 volumes:
   redis:
   postgres:
+  letsencrypt:
