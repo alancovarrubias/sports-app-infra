@@ -6,12 +6,12 @@ services:
       - 80:80/tcp
       - 443:443/tcp
     volumes:
-      - ./nginx:/etc/nginx/conf.d:ro
+      - ./nginx:/etc/nginx/user.conf.d:ro
       - ./client/build/config.json:/usr/share/nginx/html/config.json:ro
       - letsencrypt:/etc/letsencrypt/
     environment:
       - STAGING=1
-      - CERTBOT_EMAIL=alan.cov@icloud.com
+      - CERTBOT_EMAIL={{ email_address }}
     depends_on:
       - certbot
   certbot:

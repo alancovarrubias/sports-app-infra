@@ -8,6 +8,8 @@
       stage: production
       prod: production
   tags:
+    - create
+    - restore
     - dump
 
 - name: Select database env
@@ -15,6 +17,8 @@
     database_env: "{{ value_map[env] }}"
   when: env is defined
   tags:
+    - create
+    - restore
     - dump
 
 - name: Database dump

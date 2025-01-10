@@ -22,6 +22,24 @@
   tags:
     - setup
 
+- name: Ensure secrets directory exists
+  ansible.builtin.file:
+    path: "{{ root }}/secrets"
+    owner: "{{ user_name }}"
+    group: "{{ user_name }}"
+    state: directory
+  tags:
+    - stage
+    - prod
+
+- name: Copy digitalocean.ini
+  ansible.builtin.template:
+    src: digitalocean.ini
+    dest: "{{ root }}/secrets/digitalocean.ini"
+  tags:
+    - stage
+    - prod
+
 - name: Start Docker Compose containers
   community.general.docker_compose:
     project_src: "{{ root }}"
