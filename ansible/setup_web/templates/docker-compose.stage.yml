@@ -6,7 +6,7 @@ services:
       - 80:80/tcp
       - 443:443/tcp
     volumes:
-      - ./nginx:/etc/nginx/user.conf.d:ro
+      - ./nginx:/etc/nginx/user_conf.d:ro
       - ./client/build/config.json:/usr/share/nginx/html/config.json:ro
       - letsencrypt:/etc/letsencrypt/
     environment:
@@ -20,7 +20,13 @@ services:
       - letsencrypt:/etc/letsencrypt
       - ./secrets:/etc/letsencrypt/secrets
     entrypoint: >
-      sh -c "certbot certonly --force-renewal --dns-digitalocean --dns-digitalocean-credentials /etc/letsencrypt/secrets/digitalocean.ini --email {{ email_address }} --staging --agree-tos --no-eff-email -d {{ domain_name }}"
+      sh -c "
+        # Run Certbot to get/renew certificates
+        certbot certonly --force-renewal --dns-digitalocean \
+          --dns-digitalocean-credentials /etc/letsencrypt/secrets/digitalocean.ini \
+          --email {{ email_address }} --staging --agree-tos --no-eff-email \
+          -d {{ domain_name }};
+      "
   server:
     image: "{{ ecr_repo_url }}/server:prod"
     ports:

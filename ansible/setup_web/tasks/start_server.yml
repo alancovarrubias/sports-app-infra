@@ -36,6 +36,7 @@
   ansible.builtin.template:
     src: digitalocean.ini
     dest: "{{ root }}/secrets/digitalocean.ini"
+    mode: "0600"
   tags:
     - stage
     - prod
