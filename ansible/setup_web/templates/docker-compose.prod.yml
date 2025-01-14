@@ -6,9 +6,11 @@ services:
       - 80:80/tcp
       - 443:443/tcp
     volumes:
-      - ./nginx:/etc/nginx/user.conf.d:ro
+      - ./nginx:/etc/nginx/user_conf.d:ro
       - ./client/build/config.json:/usr/share/nginx/html/config.json:ro
       - letsencrypt:/etc/letsencrypt/
+    environment:
+      - CERTBOT_EMAIL={{ email_address }}
   server:
     image: "{{ ecr_repo_url }}/server:prod"
     ports:
