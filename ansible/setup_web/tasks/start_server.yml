@@ -6,6 +6,14 @@
   tags:
     - dev
 
+- name: Copy docker compose cert
+  ansible.builtin.template:
+    src: docker-compose.cert.yml
+    dest: "{{ root }}/docker-compose.cert.yml"
+  tags:
+    - stage
+    - prod
+
 - name: Copy docker compose
   ansible.builtin.template:
     src: docker-compose.{{ env }}.yml
@@ -37,6 +45,16 @@
     src: digitalocean.ini
     dest: "{{ root }}/secrets/digitalocean.ini"
     mode: "0600"
+  tags:
+    - stage
+    - prod
+
+- name: Start Docker Compose cert containers
+  community.general.docker_compose:
+    project_src: "{{ root }}"
+    files:
+      - "{{ root }}/docker-compose.cert.yml"
+    build: yes
   tags:
     - stage
     - prod

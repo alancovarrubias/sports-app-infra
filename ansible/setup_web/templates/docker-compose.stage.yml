@@ -12,21 +12,6 @@ services:
     environment:
       - STAGING=1
       - CERTBOT_EMAIL={{ email_address }}
-    depends_on:
-      - certbot
-  certbot:
-    image: certbot/dns-digitalocean
-    volumes:
-      - letsencrypt:/etc/letsencrypt
-      - ./secrets:/etc/letsencrypt/secrets
-    entrypoint: >
-      sh -c "
-        # Run Certbot to get/renew certificates
-        certbot certonly --force-renewal --dns-digitalocean \
-          --dns-digitalocean-credentials /etc/letsencrypt/secrets/digitalocean.ini \
-          --email {{ email_address }} --staging --agree-tos --no-eff-email \
-          -d {{ domain_name }};
-      "
   server:
     image: "{{ ecr_repo_url }}/server:prod"
     ports:

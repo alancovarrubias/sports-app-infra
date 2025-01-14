@@ -1,0 +1,17 @@
+version: "3.4"
+services:
+  certbot:
+    image: certbot/dns-digitalocean
+    volumes:
+      - letsencrypt:/etc/letsencrypt
+      - ./secrets:/etc/letsencrypt/secrets
+    entrypoint: >
+      sh -c "
+        # Run Certbot to get/renew certificates
+        certbot certonly --force-renewal --dns-digitalocean \
+          --dns-digitalocean-credentials /etc/letsencrypt/secrets/digitalocean.ini \
+          --email {{ email_address }} --staging --agree-tos --no-eff-email \
+          -d {{ domain_name }};
+      "
+volumes:
+  letsencrypt:
