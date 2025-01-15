@@ -10,7 +10,8 @@ services:
         # Run Certbot to get/renew certificates
         certbot certonly --force-renewal --dns-digitalocean \
           --dns-digitalocean-credentials /etc/letsencrypt/secrets/digitalocean.ini \
-          --email {{ email_address }} --staging --agree-tos --no-eff-email \
+          --email {{ email_address }} --agree-tos --no-eff-email \
+          {{ '--staging' if env == 'stage' else '' }} \
           -d {{ domain_name }};
       "
 volumes:

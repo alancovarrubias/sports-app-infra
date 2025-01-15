@@ -16,19 +16,6 @@
   tags:
     - dev
 
-- include_tasks: setup_nginx.yml
-  tags:
-    - stage
-    - prod
-
-- include_tasks: setup_build.yml
-  vars:
-    root: "~/{{ repo_name }}/client/build"
-  tags:
-    - dev
-    - stage
-    - prod
-
 - include_tasks: start_server.yml
   vars:
     root: "~/{{ repo_name }}"

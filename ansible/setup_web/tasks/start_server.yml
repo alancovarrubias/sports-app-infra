@@ -1,3 +1,27 @@
+- name: Create nginx directory
+  ansible.builtin.file:
+    path: "{{ root }}/nginx"
+    state: directory
+  tags:
+    - stage
+    - prod
+
+- name: Copy nginx conf
+  ansible.builtin.template:
+    src: nginx.conf
+    dest: "{{ root }}/nginx/nginx.conf"
+  tags:
+    - stage
+    - prod
+
+- name: Copy config.json
+  ansible.builtin.template:
+    src: "config.json"
+    dest: "{{ root }}/client/build/config.json"
+  tags:
+    - stage
+    - prod
+
 - name: Copy build docker file to default file
   ansible.builtin.copy:
     src: "{{ root }}/docker-compose.build.yml"
@@ -16,8 +40,17 @@
 
 - name: Copy docker compose
   ansible.builtin.template:
-    src: docker-compose.{{ env }}.yml
+    src: docker-compose.yml
     dest: "{{ root }}/docker-compose.yml"
+  tags:
+    - stage
+    - prod
+
+- name: Copy certs.env
+  ansible.builtin.template:
+    src: certs.env
+    dest: "{{ root }}/certs.env"
+    mode: 0600
   tags:
     - stage
     - prod
@@ -28,7 +61,8 @@
     dest: "{{ root }}/secrets.env"
     mode: 0600
   tags:
-    - setup
+    - stage
+    - prod
 
 - name: Ensure secrets directory exists
   ansible.builtin.file:

@@ -1,5 +1,0 @@
-{
-    "HOST": "{{ domain_name }}",
-    "PROTOCOL": "https",
-    "WS_PROTOCOL": "wss"
-}

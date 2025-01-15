@@ -1,7 +1,7 @@
 version: "3.4"
 services:
   client:
-    image: "{{ ecr_repo_url }}/client:stage"
+    image: "{{ ecr_repo_url }}/client:prod"
     ports:
       - 80:80/tcp
       - 443:443/tcp
@@ -9,9 +9,8 @@ services:
       - ./nginx:/etc/nginx/user_conf.d:ro
       - ./client/build/config.json:/usr/share/nginx/html/config.json:ro
       - letsencrypt:/etc/letsencrypt/
-    environment:
-      - CERTBOT_EMAIL={{ email_address }}
-      - STAGING=1
+    env_file:
+      - certs.env
   server:
     image: "{{ ecr_repo_url }}/server:prod"
     ports:
