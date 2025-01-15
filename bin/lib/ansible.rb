@@ -21,6 +21,25 @@ module Ansible
       command.join(' ')
     end
 
+    def web
+      {
+        playbook: 'setup_web.yml',
+        tags: ['setup', 'create', 'client', @options[:env]],
+        ip_env: 'WEB_IP'
+      }
+    end
+
+    def worker
+      {
+        playbook: 'setup_worker.yml',
+        tags: %w[setup client],
+        ip_env: 'WORKER_IP',
+        vars: {
+          web_ip: @options[:web_ip]
+        }
+      }
+    end
+
     def ansible
       {
         playbook: 'setup_ansible.yml',
@@ -45,25 +64,6 @@ module Ansible
       {
         playbook: 'database_cmd.yml',
         ip_env: 'WEB_IP'
-      }
-    end
-
-    def web
-      {
-        playbook: 'setup_web.yml',
-        tags: ['setup', 'create', 'client', @options[:env]],
-        ip_env: 'WEB_IP'
-      }
-    end
-
-    def worker
-      {
-        playbook: "-e web_ip=#{@options[:web_ip]} setup_worker.yml",
-        tags: %w[setup client],
-        ip_env: 'WORKER_IP',
-        vars: {
-          web_ip: @options[:web_ip]
-        }
       }
     end
 end

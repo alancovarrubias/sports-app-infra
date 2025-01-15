@@ -6,12 +6,12 @@ resource "digitalocean_record" "default" {
   domain = data.digitalocean_domain.my_domain.id
   type   = "A"
   name   = "@"
-  value  = module.sports_app_web.ip_address
+  value  = var.web_ip
 }
 
 resource "digitalocean_record" "www" {
   domain = data.digitalocean_domain.my_domain.id
   type   = "A"
   name   = "www"
-  value  = module.sports_app_web.ip_address
+  value  = var.web_ip
 }

@@ -1,7 +1,7 @@
 resource "digitalocean_firewall" "sports_app_firewall" {
   name = "only-22-80-and-443"
 
-  droplet_ids = [module.sports_app_web.id]
+  droplet_ids = [var.web_id]
 
   inbound_rule {
     protocol         = "tcp"
@@ -24,19 +24,19 @@ resource "digitalocean_firewall" "sports_app_firewall" {
   inbound_rule {
     protocol         = "tcp"
     port_range       = "6379"
-    source_addresses = [module.sports_app_worker.ip_address]
+    source_addresses = [var.worker_ip]
   }
 
   inbound_rule {
     protocol         = "tcp"
     port_range       = "5432"
-    source_addresses = [module.sports_app_worker.ip_address]
+    source_addresses = [var.worker_ip]
   }
 
   inbound_rule {
     protocol         = "tcp"
     port_range       = "9100"
-    source_addresses = [module.ansible_server.ip_address]
+    source_addresses = [var.ansible_ip]
   }
 
   inbound_rule {
