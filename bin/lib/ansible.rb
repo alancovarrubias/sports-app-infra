@@ -25,7 +25,11 @@ module Ansible
       {
         playbook: 'setup_web.yml',
         tags: ['setup', 'create', 'client', @options[:env]],
-        ip_env: 'WEB_IP'
+        ip_env: 'WEB_IP',
+        vars: {
+          do_token: @options[:token],
+          domain_name: @options[:domain_name]
+        }
       }
     end
 

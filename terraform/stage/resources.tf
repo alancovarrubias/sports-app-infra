@@ -3,7 +3,7 @@ module "sports_app_web" {
   do_token     = var.do_token
   droplet_name = "sports-app-web"
   droplet_size = "s-1vcpu-2gb"
-  args         = "-m web -e stage"
+  args         = format("-m web -e stage -d %s", var.domain_name)
 }
 
 module "sports_app_worker" {

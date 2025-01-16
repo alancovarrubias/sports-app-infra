@@ -38,6 +38,10 @@ OptionParser.new do |opts|
   opts.on('--worker_ip WORKER_IP', 'Specify worker ip') do |worker_ip|
     options[:worker_ip] = worker_ip
   end
+
+  opts.on('-d', '--domain DOMAIN_NAME', 'Specify web domain name') do |domain_name|
+    options[:domain_name] = domain_name
+  end
 end.parse!
 
 options[:web_ip] ||= ENV['WEB_IP']
