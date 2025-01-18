@@ -28,7 +28,7 @@ RSpec.describe 'ansible.rb' do
     it 'sends the correct command to system for dumping a database' do
       ENV['WEB_IP'] = ip_address
       ARGV.replace(['-c', 'run', '-m', 'dump', '-e', 'dev', '--tags', 'dump'])
-      command = "ansible-playbook --extra-vars @extra_vars.yml --skip-tags skip --inventory #{ip_address}, --tags dump -e env=dev database_cmd.yml"
+      command = "ansible-playbook --extra-vars @extra_vars.yml --inventory #{ip_address}, --tags dump -e env=dev database_cmd.yml"
       expect_any_instance_of(Object).to receive(:system).with(command)
       load script_path
     end
