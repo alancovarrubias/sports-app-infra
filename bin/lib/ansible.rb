@@ -71,4 +71,12 @@ module Ansible
         ip_env: 'WEB_IP'
       }
     end
+
+    def kube
+      {
+        playbook: 'setup_kube.yml',
+        tags: %w[setup kube],
+        ip_env: 'KUBE_IP'
+      }
+    end
 end
