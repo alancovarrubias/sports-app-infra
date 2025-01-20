@@ -1,9 +1,49 @@
 ---
 # tasks file for setup_server
-- include_tasks: wait_for_ssh.yml
+- name: Ensure ssh port open
+  ansible.builtin.wait_for:
+    port: 22
+    host: "{{ (ansible_ssh_host|default(ansible_host))|default(inventory_hostname) }}"
+    search_regex: OpenSSH
+    delay: 10
+  vars:
+    ansible_connection: local
   tags:
-    - setup
-- include_tasks: create_user.yml
+    - server
+
+- name: Create a new user
+  user:
+    name: "{{ user_name }}"
+    groups:
+      - sudo
+    shell: /bin/bash
+    state: present
   tags:
-    - setup
+    - server
+
+- name: Create .ssh dir
+  ansible.builtin.file:
+    path: ~/.ssh
+    state: directory
+  become: yes
+  become_user: "{{ user_name }}"
+  tags:
+    - server
+
+- name: Copy SSH key for the new user
+  ansible.builtin.copy:
+    src: /root/.ssh/authorized_keys
+    dest: /home/{{ user_name }}/.ssh/authorized_keys
+    remote_src: yes
+  become: yes
+  tags:
+    - server
+
+- name: Allow the new user to run sudo without a password prompt
+  lineinfile:
+    path: /etc/sudoers
+    line: "{{ user_name }} ALL=(ALL) NOPASSWD:ALL"
+    validate: "visudo -cf %s"
+  tags:
+    - server
 # - include_tasks: disable_root.yml

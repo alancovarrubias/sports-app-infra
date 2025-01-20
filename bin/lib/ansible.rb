@@ -25,7 +25,7 @@ module Ansible
     def web
       {
         playbook: 'setup_web.yml',
-        tags: ['setup', 'create', 'client', @options[:env]],
+        tags: %w[setup server docker create client].append(@options[:env]),
         ip_env: 'WEB_IP',
         vars: {
           do_token: @options[:token],
@@ -37,7 +37,7 @@ module Ansible
     def worker
       {
         playbook: 'setup_worker.yml',
-        tags: %w[setup client],
+        tags: %w[setup server docker client],
         ip_env: 'WORKER_IP',
         vars: {
           web_ip: @options[:web_ip]
@@ -48,7 +48,7 @@ module Ansible
     def ansible
       {
         playbook: 'setup_ansible.yml',
-        tags: %w[setup server],
+        tags: %w[setup server docker server],
         ip_env: 'ANSIBLE_IP',
         vars: {
           do_token: @options[:token],
@@ -75,7 +75,7 @@ module Ansible
     def kube
       {
         playbook: 'setup_kube.yml',
-        tags: %w[setup kube],
+        tags: %w[setup server docker kube],
         ip_env: 'KUBE_IP'
       }
     end
