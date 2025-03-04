@@ -3,14 +3,14 @@
   gather_facts: no
   roles:
     - setup_server
-    - setup_docker
     - role: setup_ssh_config
       vars:
         server_name: "kube"
         env_var: "KUBE_IP"
+    - setup_docker
     - setup_kube
 
-- name: Setup kubernetes
+- name: Setup sports app
   hosts: all
   gather_facts: no
   become: yes
