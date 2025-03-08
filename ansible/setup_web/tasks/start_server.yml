@@ -84,19 +84,19 @@
     - prod
 
 - name: Start Docker Compose cert containers
-  community.general.docker_compose:
+  community.docker.docker_compose_v2:
     project_src: "{{ root }}"
     files:
       - "{{ root }}/docker-compose.cert.yml"
-    build: yes
+    build: always
   tags:
     - stage
     - prod
 
 - name: Start Docker Compose containers
-  community.general.docker_compose:
+  community.docker.docker_compose_v2:
     project_src: "{{ root }}"
-    build: yes
+    build: always
   environment:
     ENV: "{{ env }}"
   tags:

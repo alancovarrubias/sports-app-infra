@@ -84,7 +84,7 @@
     - jenkins
 
 - name: Start Docker Compose containers
-  community.general.docker_compose:
+  community.docker.docker_compose_v2:
     project_src: "~"
     restarted: true
   tags:
