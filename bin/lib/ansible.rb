@@ -79,4 +79,12 @@ module Ansible
         ip_env: 'KUBE_IP'
       }
     end
+
+    def mercor
+      {
+        playbook: 'setup_mercor.yml',
+        tags: %w[setup server docker mercor],
+        ip_env: 'MERCOR_IP'
+      }
+    end
 end

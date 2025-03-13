@@ -1,0 +1,8 @@
+- name: Start Docker Compose containers
+  community.docker.docker_compose_v2:
+    project_src: "{{ root }}"
+    build: always
+  environment:
+    ENV: "{{ env }}"
+  tags:
+    - setup

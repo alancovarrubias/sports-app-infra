@@ -1,0 +1,30 @@
+- name: Copy .git-credentials
+  copy:
+    src: .git-credentials
+    dest: "~"
+    mode: 0600
+  tags:
+    - setup
+
+- name: Copy gitconfig
+  copy:
+    src: ~/.gitconfig
+    dest: "~"
+  tags:
+    - setup
+
+- name: Check if repo exists
+  stat:
+    path: ~/chatwoot
+  register: repo_check
+  tags:
+    - setup
+
+- name: Clone Git Repository
+  git:
+    repo: https://github.com/chatwoot/chatwoot
+    dest: ~/chatwoot
+    update: yes
+  when: not repo_check.stat.exists
+  tags:
+    - setup
