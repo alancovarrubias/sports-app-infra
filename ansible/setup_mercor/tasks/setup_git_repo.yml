@@ -22,7 +22,7 @@
 
 - name: Clone Git Repository
   git:
-    repo: https://github.com/chatwoot/chatwoot
+    repo: https://github.com/alancovarrubias/chatwoot.git
     dest: ~/chatwoot
     update: yes
   when: not repo_check.stat.exists
