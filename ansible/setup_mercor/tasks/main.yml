@@ -1,6 +1,8 @@
 ---
 # tasks file for setup_web
 - include_tasks: setup_git_repo.yml
+  vars:
+    branch_name: "alan/mercor-task-translation-encoding"
   tags:
     - mercor
 

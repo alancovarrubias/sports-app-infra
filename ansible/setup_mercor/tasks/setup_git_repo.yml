@@ -24,6 +24,7 @@
   git:
     repo: https://github.com/alancovarrubias/chatwoot.git
     dest: ~/chatwoot
+    version: "{{ branch_name }}"
     update: yes
   when: not repo_check.stat.exists
   tags:
