@@ -1,5 +1,5 @@
 # Use the official Jenkins base image
-FROM jenkins/jenkins:latest
+FROM jenkins/jenkins:lts-jdk17
 
 # Switch to the root user for Docker installation
 USER root
