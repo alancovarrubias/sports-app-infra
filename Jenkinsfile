@@ -20,11 +20,25 @@ pipeline {
         stage('provisioning server') {
             steps {
                 script {
-                    dir("terraform/$ENV") {
-                        sh "terraform init"
-                        sh "terraform apply --auto-approve"
-                        env.WEB_IP = sh(script: 'terraform output web_ip', returnStdout: true).trim()
-                        env.WORKER_IP = sh(script: 'terraform output worker_ip', returnStdout: true).trim()
+                    // ensure bundler + gems available for local-exec
+                    dir("bin") {
+                        sh '''
+                        set -eu
+                        (bundle -v) || gem install --no-document bundler
+                        bundle config set path vendor/bundle
+                        bundle install --jobs 4 --retry 3
+                        '''
+                    }
+                    withEnv([
+                      "BUNDLE_GEMFILE=${env.WORKSPACE}/bin/Gemfile",
+                      "RUBYOPT=-rbundler/setup"
+                    ]) {
+                      dir("terraform/$ENV") {
+                          sh "terraform init"
+                          sh "terraform apply --auto-approve"
+                          env.WEB_IP = sh(script: 'terraform output web_ip', returnStdout: true).trim()
+                          env.WORKER_IP = sh(script: 'terraform output worker_ip', returnStdout: true).trim()
+                      }
                     }
                 }
             }
@@ -45,8 +59,8 @@ pipeline {
                     remote.allowAnyHosts = true
                     remote.user = "$REMOTE_USER"
                     remote.identityFile = "/var/jenkins_home/.ssh/id_rsa"
-                    sshCommand remote: remote, command: "./bin/infra_cli.rb -c run -i $WEB_IP -m web -e $ENV"
-                    sshCommand remote: remote, command: "./bin/infra_cli.rb -c run -i $WORKER_IP -m worker -e $ENV"
+                    sshCommand remote: remote, command: "BUNDLE_GEMFILE=~/bin/Gemfile RUBYOPT=-rbundler/setup ./bin/infra_cli.rb -c run -i $WEB_IP -m web -e $ENV"
+                    sshCommand remote: remote, command: "BUNDLE_GEMFILE=~/bin/Gemfile RUBYOPT=-rbundler/setup ./bin/infra_cli.rb -c run -i $WORKER_IP -m worker -e $ENV"
                 }
             }
         }

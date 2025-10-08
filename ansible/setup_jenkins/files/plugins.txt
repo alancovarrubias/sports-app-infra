@@ -30,3 +30,6 @@ ssh-credentials:361.vb_f6760818e8c
 # ---- Folders / multibranch prereqs ----
 cloudbees-folder:6.1042.v37b_8229708e4
 branch-api:2.1244.vf95c81f1641c
+
+# ---- SSH steps ----
+ssh-steps                     # provides sshCommand/sshPut/sshGet
