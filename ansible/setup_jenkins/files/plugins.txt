@@ -1,12 +1,12 @@
 # ---- Essentials / config ----
-configuration-as-code:1850.va_a_8c31d3158b_
-credentials:1415.v831096eb_5534
-credentials-binding:696.v256688029804
-plain-credentials:183.va_de8f1dd5a_2b_
+configuration-as-code:1985.vdda_32d0c4ea_b_
+credentials:1442.v292d4234d1b_f
+credentials-binding:702.vfe613e537e88
+plain-credentials:199.v9f8e1f741799
 
 # ---- Git & GitHub ----
 git:5.2.1
-git-client:4.6.0
+git-client                      # unpinned to pick a safe version
 github:1.37.3.1
 github-api:1.318-461.v7a_c09c9fa_d63
 github-branch-source:1767.va_7d01ea_c7256
@@ -25,8 +25,8 @@ timestamper:1.26
 ldap:711.vb_d1a_491714dc
 pam-auth:1.10
 ssh-slaves:2.947.v64ee6b_f87b_c1
-ssh-credentials:355.v9b_e5b_cde5003
+ssh-credentials:361.vb_f6760818e8c
 
 # ---- Folders / multibranch prereqs ----
-cloudbees-folder:6.1026.ve06dfa_cf31c3
-branch-api:2.1226.ve1e7e0b_4b_95f
+cloudbees-folder:6.1042.v37b_8229708e4
+branch-api:2.1244.vf95c81f1641c
