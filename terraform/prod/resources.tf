@@ -10,7 +10,7 @@ module "sports_app_worker" {
   source       = "../modules/do_droplet"
   do_token     = var.do_token
   droplet_name = "sports-app-worker"
-  droplet_size = "s-2vcpu-2gb"
+  droplet_size = "s-2vcpu-4gb"
   args = format(
     "-m worker --web_ip %s -e prod",
     module.sports_app_web.ip_address
