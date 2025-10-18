@@ -20,6 +20,12 @@
   vars:
     root: "~/{{ repo_name }}"
   tags:
-    - dev
     - stage
     - prod
+
+- include_tasks: start_kube.yml
+  vars:
+    root: "~/{{ repo_name }}"
+  tags:
+    - dev
+    - test

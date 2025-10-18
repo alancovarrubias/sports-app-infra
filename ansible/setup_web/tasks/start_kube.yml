@@ -1,0 +1,33 @@
+- name: Copy build docker file to default file
+  ansible.builtin.copy:
+    src: "{{ root }}/docker-compose.build.yml"
+    dest: "{{ root }}/docker-compose.yml"
+    remote_src: yes
+  tags:
+    - dev
+
+- name: Build Docker Compose images without starting containers
+  ansible.builtin.command:
+    cmd: docker-compose build
+    chdir: "{{ root }}"
+  environment:
+    ENV: "{{ env }}"
+  tags:
+    - setup
+    - test
+
+- name: Add environment variable to user .bashrc
+  ansible.builtin.lineinfile:
+    path: ~/.bashrc
+    line: 'export ENV="{{ env }}"'
+    create: yes
+  tags:
+    - setup
+
+- name: Install k3s
+  ansible.builtin.shell: |
+    curl -sfL https://get.k3s.io | sh -
+  args:
+    creates: /usr/local/bin/k3s
+  tags:
+    - dev
