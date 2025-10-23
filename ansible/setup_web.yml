@@ -16,5 +16,3 @@
   become_user: "{{ user_name }}"
   roles:
     - setup_web
-    - database_cmd
-    - setup_monitoring

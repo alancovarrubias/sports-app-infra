@@ -13,8 +13,7 @@
   environment:
     ENV: "{{ env }}"
   tags:
-    - setup
-    - test
+    - dev
 
 - name: Add environment variable to user .bashrc
   ansible.builtin.lineinfile:
@@ -29,5 +28,35 @@
     curl -sfL https://get.k3s.io | sh -
   args:
     creates: /usr/local/bin/k3s
+  tags:
+    - dev
+
+- name: Create client dev tar
+  ansible.builtin.shell: |
+    docker save client:dev -o ~/{{ repo_name }}/client-dev.tar
+  tags:
+    - dev
+
+- name: Import client dev tar
+  ansible.builtin.shell: |
+    sudo ctr --address /run/k3s/containerd/containerd.sock -n k8s.io images import ~/{{ repo_name }}/client-dev.tar
+  tags:
+    - dev
+
+- name: Tag client dev tar
+  ansible.builtin.shell: |
+    sudo ctr --address /run/k3s/containerd/containerd.sock -n k8s.io images tag docker.io/library/client:dev client:dev
+  tags:
+    - dev
+
+- name: Create deployment
+  ansible.builtin.shell: |
+    sudo kubectl apply -f ~/{{ repo_name }}/k8s/client-deployment.yaml
+  tags:
+    - dev
+
+- name: Create service
+  ansible.builtin.shell: |
+    sudo kubectl apply -f ~/{{ repo_name }}/k8s/client-service.yaml
   tags:
     - dev
