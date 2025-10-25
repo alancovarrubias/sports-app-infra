@@ -31,9 +31,9 @@
   tags:
     - setup
 
-- name: Build and deploy app images
+- name: Build app images
   vars:
-    apps: ["client", "server"]
+    apps: ["client", "server", "auth"]
   tags:
     - setup
   block:
@@ -52,6 +52,12 @@
         sudo ctr --address /run/k3s/containerd/containerd.sock -n k8s.io images tag docker.io/library/{{ item }}:dev {{ item }}:dev || true
       loop: "{{ apps }}"
 
+- name: Deploy app images
+  vars:
+    apps: ["client", "server", "auth", "db"]
+  tags:
+    - setup
+  block:
     - name: Apply deployments
       ansible.builtin.shell: |
         sudo kubectl apply -f {{ root }}/k8s/{{ item }}-deployment.yaml
@@ -60,4 +66,21 @@
     - name: Apply services
       ansible.builtin.shell: |
         sudo kubectl apply -f {{ root }}/k8s/{{ item }}-service.yaml
+      loop: "{{ apps }}"
+
+- name: Build databases
+  vars:
+    apps: ["auth"]
+  tags:
+    - setup
+    - test
+  block:
+    - name: Create database
+      ansible.builtin.shell: |
+        sudo kubectl exec -it $(sudo kubectl get pods -l app={{ item }} -o jsonpath="{.items[0].metadata.name}") -- rake db:create
+      loop: "{{ apps }}"
+
+    - name: Migrate database
+      ansible.builtin.shell: |
+        sudo kubectl exec -it $(sudo kubectl get pods -l app={{ item }} -o jsonpath="{.items[0].metadata.name}") -- rake db:migrate
       loop: "{{ apps }}"
