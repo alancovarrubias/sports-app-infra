@@ -29,17 +29,17 @@
   args:
     creates: /usr/local/bin/k3s
   tags:
-    - dev
+    - setup
 
 - name: Create client dev tar
   ansible.builtin.shell: |
-    docker save client:dev -o ~/{{ repo_name }}/client-dev.tar
+    docker save client:dev -o {{ root }}/client-dev.tar
   tags:
     - dev
 
 - name: Import client dev tar
   ansible.builtin.shell: |
-    sudo ctr --address /run/k3s/containerd/containerd.sock -n k8s.io images import ~/{{ repo_name }}/client-dev.tar
+    sudo ctr --address /run/k3s/containerd/containerd.sock -n k8s.io images import {{ root }}/client-dev.tar
   tags:
     - dev
 
@@ -51,12 +51,12 @@
 
 - name: Create deployment
   ansible.builtin.shell: |
-    sudo kubectl apply -f ~/{{ repo_name }}/k8s/client-deployment.yaml
+    sudo kubectl apply -f {{ root }}/k8s/client-deployment.yaml
   tags:
     - dev
 
 - name: Create service
   ansible.builtin.shell: |
-    sudo kubectl apply -f ~/{{ repo_name }}/k8s/client-service.yaml
+    sudo kubectl apply -f {{ root }}/k8s/client-service.yaml
   tags:
     - dev
