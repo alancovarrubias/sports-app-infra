@@ -31,32 +31,33 @@
   tags:
     - setup
 
-- name: Create client dev tar
-  ansible.builtin.shell: |
-    docker save client:dev -o {{ root }}/client-dev.tar
+- name: Build and deploy app images
+  vars:
+    apps: ["client", "server"]
   tags:
-    - dev
+    - setup
+  block:
+    - name: Save image
+      ansible.builtin.shell: |
+        docker save {{ item }}:dev -o {{ root }}/{{ item }}-dev.tar
+      loop: "{{ apps }}"
 
-- name: Import client dev tar
-  ansible.builtin.shell: |
-    sudo ctr --address /run/k3s/containerd/containerd.sock -n k8s.io images import {{ root }}/client-dev.tar
-  tags:
-    - dev
+    - name: Import image
+      ansible.builtin.shell: |
+        sudo ctr --address /run/k3s/containerd/containerd.sock -n k8s.io images import {{ root }}/{{ item }}-dev.tar
+      loop: "{{ apps }}"
 
-- name: Tag client dev tar
-  ansible.builtin.shell: |
-    sudo ctr --address /run/k3s/containerd/containerd.sock -n k8s.io images tag docker.io/library/client:dev client:dev
-  tags:
-    - dev
+    - name: Tag image
+      ansible.builtin.shell: |
+        sudo ctr --address /run/k3s/containerd/containerd.sock -n k8s.io images tag docker.io/library/{{ item }}:dev {{ item }}:dev || true
+      loop: "{{ apps }}"
 
-- name: Create deployment
-  ansible.builtin.shell: |
-    sudo kubectl apply -f {{ root }}/k8s/client-deployment.yaml
-  tags:
-    - dev
+    - name: Apply deployments
+      ansible.builtin.shell: |
+        sudo kubectl apply -f {{ root }}/k8s/{{ item }}-deployment.yaml
+      loop: "{{ apps }}"
 
-- name: Create service
-  ansible.builtin.shell: |
-    sudo kubectl apply -f {{ root }}/k8s/client-service.yaml
-  tags:
-    - dev
+    - name: Apply services
+      ansible.builtin.shell: |
+        sudo kubectl apply -f {{ root }}/k8s/{{ item }}-service.yaml
+      loop: "{{ apps }}"
