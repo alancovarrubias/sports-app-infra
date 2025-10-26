@@ -33,7 +33,7 @@
 
 - name: Build app images
   vars:
-    apps: ["client", "server", "auth"]
+    apps: ["client", "server", "auth", "football", "crawler"]
   tags:
     - setup
   block:
@@ -54,9 +54,10 @@
 
 - name: Deploy app images
   vars:
-    apps: ["client", "server", "auth", "db"]
+    apps: ["db", "redis", "client", "server", "auth", "football", "crawler"]
   tags:
     - setup
+    - test
   block:
     - name: Apply deployments
       ansible.builtin.shell: |
@@ -70,7 +71,7 @@
 
 - name: Build databases
   vars:
-    apps: ["auth"]
+    apps: ["auth", "football"]
   tags:
     - setup
     - test
