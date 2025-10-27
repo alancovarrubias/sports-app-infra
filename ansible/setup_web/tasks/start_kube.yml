@@ -52,6 +52,17 @@
         sudo ctr --address /run/k3s/containerd/containerd.sock -n k8s.io images tag docker.io/library/{{ item }}:dev {{ item }}:dev || true
       loop: "{{ apps }}"
 
+- name: Deploy config maps
+  vars:
+    apps: ["nginx"]
+  tags:
+    - setup
+  block:
+    - name: Apply configmaps
+      ansible.builtin.shell: |
+        sudo kubectl apply -f {{ root }}/k8s/{{ item }}-configmap.yaml
+      loop: "{{ apps }}"
+
 - name: Deploy app images
   vars:
     apps: ["db", "redis", "client", "server", "auth", "football", "crawler"]
@@ -74,7 +85,6 @@
     apps: ["auth", "football"]
   tags:
     - setup
-    - test
   block:
     - name: Create database
       ansible.builtin.shell: |
