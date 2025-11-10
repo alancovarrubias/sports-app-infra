@@ -31,6 +31,20 @@
   tags:
     - setup
 
+- name: Copy k3s kubeconfig to user's home
+  ansible.builtin.shell: |
+    sudo mkdir -p ~/.kube
+    sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
+    sudo chown {{ user_name }}:{{ user_name }} ~/.kube/config
+
+- name: Add KUBECONFIG environment variable to user's .bashrc
+  ansible.builtin.lineinfile:
+    path: ~/.bashrc
+    line: "export KUBECONFIG=$HOME/.kube/config"
+    create: yes
+  tags:
+    - setup
+
 - name: Build app images
   vars:
     apps: ["client", "server", "auth", "football", "crawler"]
@@ -52,6 +66,17 @@
         sudo ctr --address /run/k3s/containerd/containerd.sock -n k8s.io images tag docker.io/library/{{ item }}:dev {{ item }}:dev || true
       loop: "{{ apps }}"
 
+- name: Deploy persistent volume claims
+  vars:
+    apps: ["db"]
+  tags:
+    - setup
+  block:
+    - name: Apply configmaps
+      ansible.builtin.shell: |
+        sudo kubectl apply -f {{ root }}/k8s/{{ item }}-pvc.yaml
+      loop: "{{ apps }}"
+
 - name: Deploy config maps
   vars:
     apps: ["nginx"]
@@ -68,7 +93,6 @@
     apps: ["db", "redis", "client", "server", "auth", "football", "crawler"]
   tags:
     - setup
-    - test
   block:
     - name: Apply deployments
       ansible.builtin.shell: |
