@@ -1,90 +1,98 @@
 module Ansible
-    module_function
+  module_function
 
-    def run(options)
-      @options = options
-      @config = send(@options[:module])
-      @tags = @options[:tags] || @config[:tags]
-      @vars = @config[:vars] || {}
-      @vars.merge!(env: @options[:env]) if @options[:env]
-      @inventory = @options[:inventory] || ENV[@config[:ip_env]]
-      yield build_command
+  def run(options)
+    @options = options
+    @config = create_config
+    @tags = @options[:tags] || @config[:tags]
+    @vars = @config[:vars] || {}
+    @vars.merge!(env: @options[:env]) if @options[:env]
+    @inventory = @options[:inventory] || ENV[@config[:ip_env]]
+    yield build_command
+  end
+
+  def create_config
+    if @options[:module] == 'dev'
+      @options[:env] = 'dev'
+      @options[:module] = 'web'
     end
+    send(@options[:module])
+  end
 
-    def build_command
-      command = ['ansible-playbook', '-e @extra_vars.yml', '-e @custom_vars.yml']
-      command << "--inventory #{@inventory},"
-      command << "--tags #{@tags.join(',')}" if @tags&.any?
-      @vars.each do |key, value|
-        command << "-e #{key}=#{value}"
-      end
-      command << @config[:playbook]
-      command.join(' ')
+  def build_command
+    command = ['ansible-playbook', '-e @extra_vars.yml', '-e @custom_vars.yml']
+    command << "--inventory #{@inventory},"
+    command << "--tags #{@tags.join(',')}" if @tags&.any?
+    @vars.each do |key, value|
+      command << "-e #{key}=#{value}"
     end
+    command << @config[:playbook]
+    command.join(' ')
+  end
 
-    def web
-      {
-        playbook: 'setup_web.yml',
-        tags: %w[setup server docker create client].append(@options[:env]),
-        ip_env: 'WEB_IP',
-        vars: {
-          do_token: @options[:token],
-          domain_name: @options[:domain_name]
-        }
+  def web
+    {
+      playbook: 'setup_web.yml',
+      tags: %w[setup server docker create client].append(@options[:env]),
+      ip_env: 'WEB_IP',
+      vars: {
+        do_token: @options[:token],
+        domain_name: @options[:domain_name]
       }
-    end
+    }
+  end
 
-    def worker
-      {
-        playbook: 'setup_worker.yml',
-        tags: %w[setup server docker client],
-        ip_env: 'WORKER_IP',
-        vars: {
-          web_ip: @options[:web_ip]
-        }
+  def worker
+    {
+      playbook: 'setup_worker.yml',
+      tags: %w[setup server docker client],
+      ip_env: 'WORKER_IP',
+      vars: {
+        web_ip: @options[:web_ip]
       }
-    end
+    }
+  end
 
-    def ansible
-      {
-        playbook: 'setup_ansible.yml',
-        tags: %w[setup server docker server],
-        ip_env: 'ANSIBLE_IP',
-        vars: {
-          do_token: @options[:token],
-          web_ip: @options[:web_ip],
-          worker_ip: @options[:worker_ip]
-        }
+  def ansible
+    {
+      playbook: 'setup_ansible.yml',
+      tags: %w[setup server docker server],
+      ip_env: 'ANSIBLE_IP',
+      vars: {
+        do_token: @options[:token],
+        web_ip: @options[:web_ip],
+        worker_ip: @options[:worker_ip]
       }
-    end
+    }
+  end
 
-    def jenkins
-      {
-        playbook: 'setup_jenkins.yml',
-        ip_env: 'JENKINS_IP'
-      }
-    end
+  def jenkins
+    {
+      playbook: 'setup_jenkins.yml',
+      ip_env: 'JENKINS_IP'
+    }
+  end
 
-    def dump
-      {
-        playbook: 'database_cmd.yml',
-        ip_env: 'WEB_IP'
-      }
-    end
+  def dump
+    {
+      playbook: 'database_cmd.yml',
+      ip_env: 'WEB_IP'
+    }
+  end
 
-    def kube
-      {
-        playbook: 'setup_kube.yml',
-        tags: %w[setup server docker kube],
-        ip_env: 'KUBE_IP'
-      }
-    end
+  def kube
+    {
+      playbook: 'setup_kube.yml',
+      tags: %w[setup server docker kube],
+      ip_env: 'KUBE_IP'
+    }
+  end
 
-    def mercor
-      {
-        playbook: 'setup_mercor.yml',
-        tags: %w[setup server docker mercor],
-        ip_env: 'MERCOR_IP'
-      }
-    end
+  def mercor
+    {
+      playbook: 'setup_mercor.yml',
+      tags: %w[setup server docker mercor],
+      ip_env: 'MERCOR_IP'
+    }
+  end
 end
