@@ -9,6 +9,7 @@ COMMANDS = [
   [:env, '-e', '--env ENV', 'Specify env'],
   [:module, '-m', '--module MODULE', 'Specify module'],
   [:tags, '--tags TAGS', 'Specify tags'],
+  [:kube_id, '-k', '--kube_id KUBE_ID', 'Specify kube cluster id'],
   [:token, '--token TOKEN', 'Specify TOKEN'],
   [:inventory, '-i', '--inventory INVENTORY', 'Specify inventory'],
   [:web_ip, '--web_ip WEB_IP', 'Specify web ip'],
@@ -26,6 +27,7 @@ OptionParser.new do |opts|
   end
 end.parse!
 
+options[:kube_id] ||= ENV['KUBE_ID']
 options[:web_ip] ||= ENV['WEB_IP']
 options[:worker_ip] ||= ENV['WORKER_IP']
 options[:token] ||= ENV['DO_TOKEN']

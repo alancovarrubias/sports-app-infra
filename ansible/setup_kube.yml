@@ -1,23 +1,5 @@
-- name: Setup server
-  hosts: all
+- name: Setup kubernetes environment
+  hosts: localhost
   gather_facts: no
   roles:
-    - setup_server
-    - role: setup_ssh_config
-      vars:
-        server_name: "kube"
-        env_var: "KUBE_IP"
-    - setup_docker
     - setup_kube
-
-- name: Setup sports app
-  hosts: all
-  gather_facts: no
-  become: yes
-  become_user: "{{ user_name }}"
-  tasks:
-    - name: Start Minikube cluster
-      ansible.builtin.command:
-        cmd: minikube start
-      tags:
-        - kube

@@ -7,7 +7,7 @@ module Ansible
     @tags = @options[:tags] || @config[:tags]
     @vars = @config[:vars] || {}
     @vars.merge!(env: @options[:env]) if @options[:env]
-    @inventory = @options[:inventory] || ENV[@config[:ip_env]]
+    @inventory = @options[:inventory] || ENV[@config[:ip_env]] unless @config[:ip_env].nil?
     yield build_command
   end
 
@@ -83,8 +83,9 @@ module Ansible
   def kube
     {
       playbook: 'setup_kube.yml',
-      tags: %w[setup server docker kube],
-      ip_env: 'KUBE_IP'
+      vars: {
+        kube_id: @options[:kube_id]
+      }
     }
   end
 
