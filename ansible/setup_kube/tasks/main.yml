@@ -17,19 +17,17 @@
   shell: doctl registry login
 
 - name: Tag images for DOCR
-  shell: |
-    docker tag {{ item }}:dev registry.digitalocean.com/{{ registry_name }}/{{ item }}:dev
+  shell: docker tag {{ item }}:dev registry.digitalocean.com/{{ registry_name }}/{{ item }}:dev
   loop: "{{ custom_services }}"
 
 - name: Push images
-  shell: |
-    docker push registry.digitalocean.com/{{ registry_name }}/{{ item }}:dev
+  shell: docker push registry.digitalocean.com/{{ registry_name }}/{{ item }}:dev
   loop: "{{ custom_services }}"
 
 - name: Deploy config map to Kubernetes
   shell: kubectl apply -f {{ role_path }}/files/k8s/nginx-configmap.yaml
 
-- name: Deploy config map to Kubernetes
+- name: Deploy pvc to Kubernetes
   shell: kubectl apply -f {{ role_path }}/files/k8s/db-pvc.yaml
 
 - name: Deploy service to Kubernetes
@@ -39,3 +37,22 @@
 - name: Deploy deployment to Kubernetes
   shell: kubectl apply -f {{ role_path }}/files/k8s/{{ item }}-deployment.yaml
   loop: "{{ all_services }}"
+
+- name: Get db service pod name
+  command: kubectl get pod -l app={{ item }} -o jsonpath="{.items[0].metadata.name}"
+  register: db_pod
+  loop: "{{ db_services }}"
+  loop_control:
+    label: "{{ item }}"
+
+- name: Run rake db:create in each DB service pod
+  command: kubectl exec {{ item.stdout }} -- rake db:create
+  loop: "{{ db_pod.results }}"
+  loop_control:
+    label: "{{ item.item }}"
+
+- name: Run rake db:migrate in each DB service pod
+  command: kubectl exec {{ item.stdout }} -- rake db:migrate
+  loop: "{{ db_pod.results }}"
+  loop_control:
+    label: "{{ item.item }}"
