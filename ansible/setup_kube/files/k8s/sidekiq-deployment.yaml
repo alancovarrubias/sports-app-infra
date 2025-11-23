@@ -16,11 +16,8 @@ spec:
     spec:
       containers:
         - name: sidekiq
-          image: registry.digitalocean.com/sports/sidekiq:dev
-          args:
-            - bundle
-            - exec
-            - sidekiq
+          image: registry.digitalocean.com/sports/football:dev
+          command: ["bundle", "exec", "sidekiq"]
           env:
             - name: REDIS_URL_SIDEKIQ
               value: redis://redis:6379/1

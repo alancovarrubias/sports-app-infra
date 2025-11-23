@@ -10,9 +10,10 @@ db_services:
   - auth
   - football
 
-dependency_services:
+dependencies:
   - db
   - redis
 
 custom_services: "{{ services + db_services }}"
-all_services: "{{ custom_services + dependency_services }}"
+all_services: "{{ custom_services + dependencies }}"
+deployment_services: "{{ all_services + ['sidekiq'] }}"

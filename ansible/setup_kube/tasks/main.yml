@@ -36,7 +36,7 @@
 
 - name: Deploy deployment to Kubernetes
   shell: kubectl apply -f {{ role_path }}/files/k8s/{{ item }}-deployment.yaml
-  loop: "{{ all_services }}"
+  loop: "{{ deployment_services }}"
 
 - name: Get db service pod name
   command: kubectl get pod -l app={{ item }} -o jsonpath="{.items[0].metadata.name}"
