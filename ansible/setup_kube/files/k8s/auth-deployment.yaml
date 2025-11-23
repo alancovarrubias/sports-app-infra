@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: auth
   labels:
     app: auth
-  name: auth
 spec:
   replicas: 1
   selector:
@@ -15,7 +15,7 @@ spec:
         app: auth
     spec:
       containers:
-        - image: auth:dev
-          name: auth
+        - name: auth
+          image: registry.digitalocean.com/sports/auth:dev
           ports:
             - containerPort: 3000

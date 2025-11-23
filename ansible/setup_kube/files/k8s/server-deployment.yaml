@@ -15,7 +15,7 @@ spec:
         app: server
     spec:
       containers:
-        - image: server:dev
-          name: server
+        - name: server
+          image: registry.digitalocean.com/sports/server:dev
           ports:
             - containerPort: 4000

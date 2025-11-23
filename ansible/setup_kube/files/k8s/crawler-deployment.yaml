@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
         - name: crawler
-          image: crawler:dev
+          image: registry.digitalocean.com/sports/crawler:dev
           ports:
             - containerPort: 5000

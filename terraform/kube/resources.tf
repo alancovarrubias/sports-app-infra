@@ -5,15 +5,15 @@ resource "digitalocean_kubernetes_cluster" "main" {
 
   node_pool {
     name       = "app-pool"
-    size       = "s-1vcpu-2gb"
+    size       = "s-2vcpu-4gb"
     node_count = 1
   }
 }
 
 resource "digitalocean_container_registry" "sports" {
-  name                   = "sports"  # registry name
-  region                 = "sfo3"    # optional, defaults to your account region
-  subscription_tier_slug = "starter" # optional: starter, basic, professional
+  name                   = "sports" # registry name
+  region                 = "sfo3"   # optional, defaults to your account region
+  subscription_tier_slug = "basic"  # optional: starter, basic, professional
 }
 
 resource "null_resource" "attach_registry" {

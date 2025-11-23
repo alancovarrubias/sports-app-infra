@@ -2,5 +2,16 @@
 repo_name: sports-app
 infra_repo_name: sports-app-infra
 services:
+  - client
+  - server
+  - crawler
+
+db_services:
   - auth
   - football
+
+dependency_services:
+  - db
+
+custom_services: "{{ services + db_services }}"
+all_services: "{{ custom_services + dependency_services }}"

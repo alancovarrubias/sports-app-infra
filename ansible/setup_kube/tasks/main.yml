@@ -6,6 +6,10 @@
     line: export KUBE_ID={{ kube_id }}
     state: present
 
+- name: Show the kube_id
+  debug:
+    var: kube_id
+
 - name: Save kubeconfig locally
   command: doctl kubernetes cluster kubeconfig save {{ kube_id }}
 
@@ -14,17 +18,24 @@
 
 - name: Tag images for DOCR
   shell: |
-    docker tag client:dev registry.digitalocean.com/{{ registry_name }}/client:dev
+    docker tag {{ item }}:dev registry.digitalocean.com/{{ registry_name }}/{{ item }}:dev
+  loop: "{{ custom_services }}"
 
 - name: Push images
   shell: |
-    docker push registry.digitalocean.com/{{ registry_name }}/client:dev
+    docker push registry.digitalocean.com/{{ registry_name }}/{{ item }}:dev
+  loop: "{{ custom_services }}"
 
 - name: Deploy config map to Kubernetes
   shell: kubectl apply -f {{ role_path }}/files/k8s/nginx-configmap.yaml
 
+- name: Deploy config map to Kubernetes
+  shell: kubectl apply -f {{ role_path }}/files/k8s/db-pvc.yaml
+
 - name: Deploy service to Kubernetes
-  shell: kubectl apply -f {{ role_path }}/files/k8s/client-service.yaml
+  shell: kubectl apply -f {{ role_path }}/files/k8s/{{ item }}-service.yaml
+  loop: "{{ all_services }}"
 
 - name: Deploy deployment to Kubernetes
-  shell: kubectl apply -f {{ role_path }}/files/k8s/client-deployment.yaml
+  shell: kubectl apply -f {{ role_path }}/files/k8s/{{ item }}-deployment.yaml
+  loop: "{{ all_services }}"

@@ -15,7 +15,7 @@ spec:
         app: football
     spec:
       containers:
-        - image: football:dev
-          name: football
+        - name: football
+          image: registry.digitalocean.com/sports/football:dev
           ports:
             - containerPort: 3003
