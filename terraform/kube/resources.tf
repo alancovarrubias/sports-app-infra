@@ -16,28 +16,11 @@ resource "digitalocean_container_registry" "sports" {
   subscription_tier_slug = "basic"  # optional: starter, basic, professional
 }
 
-resource "null_resource" "attach_registry" {
-  provisioner "local-exec" {
-    command = "doctl kubernetes cluster registry add ${digitalocean_kubernetes_cluster.main.name}"
-  }
-  depends_on = [digitalocean_container_registry.sports, digitalocean_kubernetes_cluster.main]
-}
-
-resource "null_resource" "ansible_cluster" {
-  depends_on = [
-    digitalocean_kubernetes_cluster.main
-  ]
-
-  triggers = {
-    cluster_id = digitalocean_kubernetes_cluster.main.id
-  }
-
-  provisioner "local-exec" {
-    working_dir = "../.."
-    command = format(
-      "./bin/infra_cli.rb -c run -k %s --token %s -m kube",
-      digitalocean_kubernetes_cluster.main.id,
-      var.do_token,
-    )
-  }
+resource "digitalocean_database_cluster" "postgres" {
+  name       = "sports-db"
+  engine     = "pg"
+  version    = "15"
+  size       = "db-s-1vcpu-1gb"
+  region     = "sfo3"
+  node_count = 1
 }

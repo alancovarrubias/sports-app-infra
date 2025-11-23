@@ -49,3 +49,13 @@ Dir.chdir(runner) do
     system(command)
   end
 end
+
+if runner == 'terraform' && options[:command] == 'apply'
+  runner = 'ansible'
+  Dir.chdir(runner) do
+    Object.const_get(runner.capitalize).run(options) do |command|
+      puts command
+      system(command)
+    end
+  end
+end
