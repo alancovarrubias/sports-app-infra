@@ -18,11 +18,11 @@
 
 - name: Tag images for DOCR
   shell: docker tag {{ item }}:dev registry.digitalocean.com/{{ registry_name }}/{{ item }}:dev
-  loop: "{{ custom_services }}"
+  loop: "{{ registry_containers }}"
 
 - name: Push images
   shell: docker push registry.digitalocean.com/{{ registry_name }}/{{ item }}:dev
-  loop: "{{ custom_services }}"
+  loop: "{{ registry_containers }}"
 
 - name: Deploy config map to Kubernetes
   shell: kubectl apply -f {{ role_path }}/files/k8s/nginx-configmap.yaml
@@ -32,16 +32,16 @@
 
 - name: Deploy service to Kubernetes
   shell: kubectl apply -f {{ role_path }}/files/k8s/{{ item }}-service.yaml
-  loop: "{{ all_services }}"
+  loop: "{{ service_containers }}"
 
 - name: Deploy deployment to Kubernetes
   shell: kubectl apply -f {{ role_path }}/files/k8s/{{ item }}-deployment.yaml
-  loop: "{{ deployment_services }}"
+  loop: "{{ deployment_containers }}"
 
 - name: Get db service pod name
   command: kubectl get pod -l app={{ item }} -o jsonpath="{.items[0].metadata.name}"
   register: db_pod
-  loop: "{{ db_services }}"
+  loop: "{{ db_containers }}"
   loop_control:
     label: "{{ item }}"
 

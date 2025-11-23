@@ -1,19 +1,29 @@
 # extra_vars.yml
 repo_name: sports-app
 infra_repo_name: sports-app-infra
-services:
-  - client
-  - server
-  - crawler
-
-db_services:
+db_containers:
   - auth
   - football
-
-dependencies:
+registry_containers:
+  - client
+  - server
+  - auth
+  - football
+  - crawler
+service_containers:
+  - client
+  - server
+  - auth
+  - football
+  - crawler
   - db
   - redis
-
-custom_services: "{{ services + db_services }}"
-all_services: "{{ custom_services + dependencies }}"
-deployment_services: "{{ all_services + ['sidekiq'] }}"
+deployment_containers:
+  - client
+  - server
+  - auth
+  - football
+  - crawler
+  - db
+  - redis
+  - sidekiq
