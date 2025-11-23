@@ -10,21 +10,3 @@ resource "digitalocean_droplet" "droplet_instance" {
   ssh_keys = [data.digitalocean_ssh_key.ssh_key.fingerprint]
 }
 
-
-resource "null_resource" "ansible_playbook" {
-  depends_on = [
-    digitalocean_droplet.droplet_instance,
-  ]
-  triggers = {
-    trigger = digitalocean_droplet.droplet_instance.ipv4_address
-  }
-  provisioner "local-exec" {
-    working_dir = "../.."
-    command = format(
-      "./bin/infra_cli.rb -c run -i %s --token %s %s",
-      digitalocean_droplet.droplet_instance.ipv4_address,
-      var.do_token,
-      var.args,
-    )
-  }
-}

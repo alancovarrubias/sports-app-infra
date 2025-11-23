@@ -1,22 +1,18 @@
+require 'json'
 module Ansible
   module_function
 
   def run(options)
     @options = options
-    @config = create_config
-    @tags = @options[:tags] || @config[:tags]
-    @vars = @config[:vars] || {}
-    @vars.merge!(env: @options[:env]) if @options[:env]
-    @inventory = @options[:inventory] || ENV[@config[:ip_env]] unless @config[:ip_env].nil?
-    yield build_command
-  end
-
-  def create_config
-    if @options[:module] == 'dev'
-      @options[:env] = 'dev'
-      @options[:module] = 'web'
+    @env = options[:module]
+    @config = send(@options[:module])
+    unless @options[:module] == 'kube'
+      output_contents = File.read("./outputs/#{options[:module]}.json")
+      @inventory = JSON.parse(output_contents)['web_ip']['value']
     end
-    send(@options[:module])
+    @tags = @options[:tags] || @config[:tags]
+    @vars = { env: @env }
+    yield build_command
   end
 
   def build_command
@@ -30,15 +26,10 @@ module Ansible
     command.join(' ')
   end
 
-  def web
+  def dev
     {
-      playbook: 'setup_web.yml',
-      tags: %w[setup server docker create client].append(@options[:env]),
-      ip_env: 'WEB_IP',
-      vars: {
-        do_token: @options[:token],
-        domain_name: @options[:domain_name]
-      }
+      playbook: 'setup_dev.yml',
+      tags: %w[setup server docker create client dev]
     }
   end
 
@@ -75,17 +66,13 @@ module Ansible
 
   def dump
     {
-      playbook: 'database_cmd.yml',
-      ip_env: 'WEB_IP'
+      playbook: 'database_cmd.yml'
     }
   end
 
   def kube
     {
-      playbook: 'setup_kube.yml',
-      vars: {
-        kube_id: @options[:kube_id]
-      }
+      playbook: 'setup_kube.yml'
     }
   end
 
