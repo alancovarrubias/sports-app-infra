@@ -12,6 +12,7 @@ db_services:
 
 dependency_services:
   - db
+  - redis
 
 custom_services: "{{ services + db_services }}"
 all_services: "{{ custom_services + dependency_services }}"
