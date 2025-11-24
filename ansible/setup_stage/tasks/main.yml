@@ -1,0 +1,113 @@
+- name: Check if repo exists
+  stat:
+    path: "{{ root }}"
+  register: repo_check
+
+- name: Clone Git Repository
+  git:
+    repo: https://github.com/alancovarrubias/{{ repo_name }}.git
+    dest: "{{ root }}"
+    update: yes
+  when: not repo_check.stat.exists
+
+- name: Copy build docker file to default file
+  ansible.builtin.copy:
+    src: "{{ root }}/docker-compose.build.yml"
+    dest: "{{ root }}/docker-compose.yml"
+    remote_src: yes
+
+- name: Build Docker Compose images without starting containers
+  ansible.builtin.command:
+    cmd: docker-compose build
+    chdir: "{{ root }}"
+  environment:
+    ENV: "dev"
+
+- name: Add environment variable to user .bashrc
+  ansible.builtin.lineinfile:
+    path: ~/.bashrc
+    line: 'export ENV="dev"'
+    create: yes
+
+- name: Install k3s
+  ansible.builtin.shell: |
+    curl -sfL https://get.k3s.io | sh -
+  args:
+    creates: /usr/local/bin/k3s
+
+- name: Copy k3s kubeconfig to user's home
+  ansible.builtin.shell: |
+    sudo mkdir -p ~/.kube
+    sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
+    sudo chown {{ user_name }}:{{ user_name }} ~/.kube/config
+
+- name: Add KUBECONFIG environment variable to user's .bashrc
+  ansible.builtin.lineinfile:
+    path: ~/.bashrc
+    line: "export KUBECONFIG=$HOME/.kube/config"
+    create: yes
+
+- name: Build app images
+  vars:
+    apps: ["client", "server", "auth", "football", "crawler"]
+  block:
+    - name: Save image
+      ansible.builtin.shell: |
+        docker save {{ item }}:dev -o {{ root }}/{{ item }}-dev.tar
+      loop: "{{ apps }}"
+
+    - name: Import image
+      ansible.builtin.shell: |
+        sudo ctr --address /run/k3s/containerd/containerd.sock -n k8s.io images import {{ root }}/{{ item }}-dev.tar
+      loop: "{{ apps }}"
+
+    - name: Tag image
+      ansible.builtin.shell: |
+        sudo ctr --address /run/k3s/containerd/containerd.sock -n k8s.io images tag docker.io/library/{{ item }}:dev {{ item }}:dev || true
+      loop: "{{ apps }}"
+
+- name: Deploy persistent volume claims
+  vars:
+    apps: ["db"]
+  block:
+    - name: Apply configmaps
+      ansible.builtin.shell: |
+        sudo kubectl apply -f {{ root }}/k8s/{{ item }}-pvc.yaml
+      loop: "{{ apps }}"
+
+- name: Deploy config maps
+  vars:
+    apps: ["nginx"]
+  block:
+    - name: Apply configmaps
+      ansible.builtin.shell: |
+        sudo kubectl apply -f {{ root }}/k8s/{{ item }}-configmap.yaml
+      loop: "{{ apps }}"
+
+- name: Deploy app images
+  vars:
+    apps: ["db", "redis", "client", "server", "auth", "football", "crawler"]
+  block:
+    - name: Apply deployments
+      ansible.builtin.shell: |
+        sudo kubectl apply -f {{ root }}/k8s/{{ item }}-deployment.yaml
+      loop: "{{ apps }}"
+
+    - name: Apply services
+      ansible.builtin.shell: |
+        sudo kubectl apply -f {{ root }}/k8s/{{ item }}-service.yaml
+      loop: "{{ apps }}"
+
+- name: Build databases
+  vars:
+    apps: ["auth", "football"]
+  block:
+    - name: Create database
+      ansible.builtin.shell: |
+        sudo kubectl exec -it $(sudo kubectl get pods -l app={{ item }} -o jsonpath="{.items[0].metadata.name}") -- rake db:create
+      loop: "{{ apps }}"
+
+    - name: Migrate database
+      ansible.builtin.shell: |
+        sudo kubectl exec -it $(sudo kubectl get pods -l app={{ item }} -o jsonpath="{.items[0].metadata.name}") -- rake db:migrate
+      loop: "{{ apps }}"

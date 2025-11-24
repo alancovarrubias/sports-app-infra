@@ -27,6 +27,12 @@ module Ansible
     }
   end
 
+  def stage
+    {
+      playbook: 'setup_stage.yml'
+    }
+  end
+
   def prod
     {
       playbook: 'setup_prod.yml'

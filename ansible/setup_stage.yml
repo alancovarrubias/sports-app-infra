@@ -6,13 +6,14 @@
     - setup_docker
     - role: setup_ssh_config
       vars:
-        server_name: "dev"
+        server_name: "stage"
 
 - name: Setup sports app
   hosts: all
   gather_facts: no
   become: yes
   become_user: "{{ user_name }}"
+  vars:
+    root: "~/{{ repo_name }}"
   roles:
-    - setup_dev
-    - database_cmd
+    - setup_stage
