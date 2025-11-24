@@ -1,8 +1,7 @@
 terraform {
   required_version = ">= 0.12"
   backend "s3" {
-    bucket = "sports-app-buck"
-    key    = "prod/state.tfstate"
+    key    = "kube/state.tfstate"
     region = "us-west-1"
   }
   required_providers {

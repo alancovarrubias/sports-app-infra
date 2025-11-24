@@ -27,6 +27,12 @@ module Ansible
     }
   end
 
+  def prod
+    {
+      playbook: 'setup_prod.yml'
+    }
+  end
+
   def worker
     {
       playbook: 'setup_worker.yml',
@@ -50,12 +56,6 @@ module Ansible
   def dump
     {
       playbook: 'database_cmd.yml'
-    }
-  end
-
-  def kube
-    {
-      playbook: 'setup_kube.yml'
     }
   end
 

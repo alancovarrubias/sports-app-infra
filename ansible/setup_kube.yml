@@ -1,5 +1,0 @@
-- name: Setup kubernetes environment
-  hosts: localhost
-  gather_facts: no
-  roles:
-    - setup_kube
