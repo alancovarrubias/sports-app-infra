@@ -4,24 +4,18 @@ module Ansible
 
   def run(options)
     @options = options
-    @env = options[:module]
     @config = send(@options[:module])
-    unless @options[:module] == 'kube'
-      output_contents = File.read("./outputs/#{options[:module]}.json")
-      @inventory = JSON.parse(output_contents)['web_ip']['value']
-    end
+    @output = JSON.parse(File.read("./outputs/#{options[:module]}.json"))
+    @inventory = @output['web_ip']['value'] unless @output['web_ip'].nil?
     @tags = @options[:tags] || @config[:tags]
-    @vars = { env: @env }
     yield build_command
   end
 
   def build_command
     command = ['ansible-playbook', '-e @extra_vars.yml', '-e @custom_vars.yml']
     command << "--inventory #{@inventory},"
-    command << "--tags #{@tags.join(',')}" if @tags&.any?
-    @vars.each do |key, value|
-      command << "-e #{key}=#{value}"
-    end
+    command << "--tags #{@tags.join(',')}" if @tags
+    command << "-e env=#{@options[:module]}"
     command << @config[:playbook]
     command.join(' ')
   end
@@ -36,31 +30,20 @@ module Ansible
   def worker
     {
       playbook: 'setup_worker.yml',
-      tags: %w[setup server docker client],
-      ip_env: 'WORKER_IP',
-      vars: {
-        web_ip: @options[:web_ip]
-      }
+      tags: %w[setup server docker client]
     }
   end
 
   def ansible
     {
       playbook: 'setup_ansible.yml',
-      tags: %w[setup server docker server],
-      ip_env: 'ANSIBLE_IP',
-      vars: {
-        do_token: @options[:token],
-        web_ip: @options[:web_ip],
-        worker_ip: @options[:worker_ip]
-      }
+      tags: %w[setup server docker server]
     }
   end
 
   def jenkins
     {
-      playbook: 'setup_jenkins.yml',
-      ip_env: 'JENKINS_IP'
+      playbook: 'setup_jenkins.yml'
     }
   end
 
@@ -79,8 +62,7 @@ module Ansible
   def mercor
     {
       playbook: 'setup_mercor.yml',
-      tags: %w[setup server docker mercor],
-      ip_env: 'MERCOR_IP'
+      tags: %w[setup server docker mercor]
     }
   end
 end
