@@ -4,17 +4,18 @@ require_relative 'config/zeitwerk'
 require_relative 'config/bundler'
 
 class InfraCLI
-  OPTIONS = {
-    command: ['-c', '--command COMMAND', 'Specify command'],
-    module: ['-m', '--module MODULE', 'Specify module'],
-    tags: ['--tags TAGS', 'Specify tags']
-  }.freeze
   ANSIBLE_RUNNER = 'ansible'.freeze
   TERRAFORM_RUNNER = 'terraform'.freeze
   APPLY_COMMAND = 'apply'.freeze
   DESTROY_COMMAND = 'destroy'.freeze
   RUN_COMMAND = 'run'.freeze
-  OUTPUTS_DIR = './bin/outputs'.freeze
+  ROOT_DIR = File.expand_path('..', __dir__)
+  OUTPUTS_DIR = File.join(ROOT_DIR, 'bin/outputs')
+  OPTIONS = {
+    command: ['-c', '--command COMMAND', 'Specify command'],
+    module: ['-m', '--module MODULE', 'Specify module'],
+    tags: ['--tags TAGS', 'Specify tags']
+  }.freeze
 
   def initialize
     @options = {}
@@ -27,6 +28,7 @@ class InfraCLI
     end.parse!
     @options[:tags] = @options[:tags].split(',') if @options[:tags]
     Dir.mkdir(OUTPUTS_DIR) unless Dir.exist?(OUTPUTS_DIR)
+    @options.merge!(config_file: File.join(OUTPUTS_DIR, "#{@options[:module]}.json"))
   end
 
   def run
