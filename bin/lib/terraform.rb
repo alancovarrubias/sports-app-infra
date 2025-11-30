@@ -1,9 +1,13 @@
-module Terraform
-  module_function
+class Terraform
+  def initialize(options)
+    @module = options[:module]
+    @command = options[:command]
+    @output_file = options[:output_file]
+  end
 
-  def run(options)
-    yield "terraform -chdir=#{options[:module]} init"
-    yield "terraform -chdir=#{options[:module]} #{options[:command]} -var-file=../terraform.tfvars --auto-approve"
-    yield "terraform -chdir=#{options[:module]} output -json > #{options[:config_file]}"
+  def run
+    yield "terraform -chdir=#{@module} init"
+    yield "terraform -chdir=#{@module} #{@command} -var-file=../terraform.tfvars --auto-approve"
+    yield "terraform -chdir=#{@module} output -json > #{@output_file}"
   end
 end

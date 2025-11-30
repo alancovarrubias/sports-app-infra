@@ -18,17 +18,10 @@ class InfraCLI
   }.freeze
 
   def initialize
-    @options = {}
-    OptionParser.new do |opts|
-      OPTIONS.each do |key, args|
-        opts.on(*args) do |cmd|
-          @options[key] = cmd
-        end
-      end
-    end.parse!
+    @options = parse_options
     @options[:tags] = @options[:tags].split(',') if @options[:tags]
     Dir.mkdir(OUTPUTS_DIR) unless Dir.exist?(OUTPUTS_DIR)
-    @options.merge!(config_file: File.join(OUTPUTS_DIR, "#{@options[:module]}.json"))
+    @options.merge!(output_file: File.join(OUTPUTS_DIR, "#{@options[:module]}.json"))
   end
 
   def run
@@ -37,6 +30,18 @@ class InfraCLI
   end
 
   private
+
+  def parse_options
+    options = {}
+    OptionParser.new do |opts|
+      OPTIONS.each do |key, args|
+        opts.on(*args) do |cmd|
+          options[key] = cmd
+        end
+      end
+    end.parse!
+    options
+  end
 
   def command_runner
     case @options[:command]
@@ -49,7 +54,7 @@ class InfraCLI
 
   def run_command(runner)
     Dir.chdir(runner) do
-      Object.const_get(runner.capitalize).run(@options) do |command|
+      Object.const_get(runner.capitalize).new(@options).run do |command|
         puts command
         system(command)
       end

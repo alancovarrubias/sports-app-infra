@@ -1,22 +1,25 @@
 require 'json'
-module Ansible
-  module_function
-
-  def run(options)
+class Ansible
+  def initialize(options)
     @options = options
-    @config = send(@options[:module])
-    @output = File.exist?(@options[:config_file]) ? JSON.parse(File.read(@options[:config_file])) : {}
+    @module_config = send(@options[:module])
+    @output = File.exist?(@options[:output_file]) ? JSON.parse(File.read(@options[:output_file])) : {}
     @inventory = @output['web_ip']['value'] unless @output['web_ip'].nil?
-    @tags = @options[:tags] || @config[:tags]
+    @tags = @options[:tags] || @module_config[:tags]
+  end
+
+  def run
     yield build_command
   end
+
+  private
 
   def build_command
     command = ['ansible-playbook', '-e @extra_vars.yml', '-e @custom_vars.yml']
     command << "--inventory #{@inventory},"
     command << "--tags #{@tags.join(',')}" if @tags
     command << "-e env=#{@options[:module]}"
-    command << @config[:playbook]
+    command << @module_config[:playbook]
     command.join(' ')
   end
 
