@@ -14,6 +14,7 @@ class InfraCLI
   APPLY_COMMAND = 'apply'.freeze
   DESTROY_COMMAND = 'destroy'.freeze
   RUN_COMMAND = 'run'.freeze
+  OUTPUTS_DIR = './bin/outputs'.freeze
 
   def initialize
     @options = {}
@@ -25,6 +26,7 @@ class InfraCLI
       end
     end.parse!
     @options[:tags] = @options[:tags].split(',') if @options[:tags]
+    Dir.mkdir(OUTPUTS_DIR) unless Dir.exist?(OUTPUTS_DIR)
   end
 
   def run

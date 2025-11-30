@@ -2,10 +2,11 @@ require 'json'
 module Ansible
   module_function
 
+  OUTPUTS_DIR = '../bin/outputs'.freeze
   def run(options)
     @options = options
     @config = send(@options[:module])
-    @output = JSON.parse(File.read("./outputs/#{options[:module]}.json"))
+    @output = read_output
     @inventory = @output['web_ip']['value'] unless @output['web_ip'].nil?
     @tags = @options[:tags] || @config[:tags]
     yield build_command
@@ -18,6 +19,11 @@ module Ansible
     command << "-e env=#{@options[:module]}"
     command << @config[:playbook]
     command.join(' ')
+  end
+
+  def read_output
+    config_file = "#{OUTPUTS_DIR}/#{@options[:module]}.json"
+    File.exist?(config_file) ? JSON.parse(File.read(config_file)) : {}
   end
 
   def dev
