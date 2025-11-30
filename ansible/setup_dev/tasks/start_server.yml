@@ -31,12 +31,12 @@
     - dev
 
 - name: Copy .env
-  copy:
+  ansible.builtin.template:
     src: .env
     dest: "{{ root }}/.env"
     mode: 0600
   tags:
-    - setup
+    - dev
 
 - name: Copy docker compose cert
   ansible.builtin.template:
