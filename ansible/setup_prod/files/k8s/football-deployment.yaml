@@ -19,3 +19,5 @@ spec:
           image: registry.digitalocean.com/sports/football:dev
           ports:
             - containerPort: 3003
+      imagePullSecrets:
+        - name: registry-sports

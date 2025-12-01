@@ -19,3 +19,5 @@ spec:
           image: registry.digitalocean.com/sports/auth:dev
           ports:
             - containerPort: 3000
+      imagePullSecrets:
+        - name: registry-sports

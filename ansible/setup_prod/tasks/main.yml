@@ -13,6 +13,9 @@
 - name: Save kubeconfig locally
   command: doctl kubernetes cluster kubeconfig save {{ cluster_id }}
 
+- name: Create DOCR Kubernetes secret
+  shell: doctl registry kubernetes-manifest | kubectl apply -f -
+
 - name: Login to registry
   shell: doctl registry login
 

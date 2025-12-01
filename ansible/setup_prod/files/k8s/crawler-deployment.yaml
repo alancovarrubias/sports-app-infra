@@ -19,3 +19,5 @@ spec:
           image: registry.digitalocean.com/sports/crawler:dev
           ports:
             - containerPort: 5000
+      imagePullSecrets:
+        - name: registry-sports
