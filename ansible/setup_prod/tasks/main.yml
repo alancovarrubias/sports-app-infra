@@ -1,15 +1,4 @@
 ---
-- name: Adding env in the startup files
-  lineinfile:
-    dest: ~/.zshrc
-    regexp: ^export KUBE_ID=
-    line: export KUBE_ID={{ cluster_id }}
-    state: present
-
-- name: Show the cluster_id
-  debug:
-    var: cluster_id
-
 - name: Save kubeconfig locally
   command: doctl kubernetes cluster kubeconfig save {{ cluster_id }}
 
