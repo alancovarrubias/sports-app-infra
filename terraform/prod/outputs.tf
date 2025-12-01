@@ -8,3 +8,4 @@ output "db_password" {
   sensitive = true
 }
 output "db_name" { value = digitalocean_database_cluster.postgres.database }
+output "registry_name" { value = digitalocean_container_registry.sports.name }

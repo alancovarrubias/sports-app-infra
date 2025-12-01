@@ -2,8 +2,9 @@ require 'json'
 class Ansible
   def initialize(options)
     @options = options
-    @module_config = send(@options[:module])
     @output = File.exist?(@options[:output_file]) ? JSON.parse(File.read(@options[:output_file])) : {}
+    @module_config = send(@options[:module])
+    @variables = @module_config[:variables] || {}
     @inventory = @output['web_ip']['value'] unless @output['web_ip'].nil?
     @tags = @options[:tags] || @module_config[:tags]
   end
@@ -19,8 +20,19 @@ class Ansible
     command << "--inventory #{@inventory},"
     command << "--tags #{@tags.join(',')}" if @tags
     command << "-e env=#{@options[:module]}"
+    @variables.each do |key, value|
+      command << "-e #{key}=#{value}"
+    end
     command << @module_config[:playbook]
     command.join(' ')
+  end
+
+  def database_url
+    db_user = @output['db_user']['value']
+    db_password = @output['db_password']['value']
+    db_host = @output['db_host']['value']
+    db_port = @output['db_port']['value']
+    "postgres://#{db_user}:#{db_password}@#{db_host}:#{db_port}"
   end
 
   def dev
@@ -38,7 +50,12 @@ class Ansible
 
   def prod
     {
-      playbook: 'setup_prod.yml'
+      playbook: 'setup_prod.yml',
+      variables: {
+        database_url: database_url,
+        cluster_id: @output['k8s_cluster_id']['value'],
+        registry_name: @output['registry_name']['value']
+      }
     }
   end
 
