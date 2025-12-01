@@ -2,22 +2,22 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: server
-  name: server
+    app: crawler
+  name: crawler
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: server
+      app: crawler
   template:
     metadata:
       labels:
-        app: server
+        app: crawler
     spec:
       containers:
-        - name: server
-          image: registry.digitalocean.com/sports/server:dev
+        - name: crawler
+          image: "{{ registry_name }}/crawler:dev"
           ports:
-            - containerPort: 4000
+            - containerPort: 5000
       imagePullSecrets:
         - name: registry-sports

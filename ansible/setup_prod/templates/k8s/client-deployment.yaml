@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: client
-          image: registry.digitalocean.com/sports/client:dev
+          image: "{{ registry_name }}/client:dev"
           ports:
             - containerPort: 1234
         - name: nginx

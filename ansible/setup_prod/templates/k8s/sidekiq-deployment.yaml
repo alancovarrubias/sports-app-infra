@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: sidekiq
-          image: registry.digitalocean.com/sports/football:dev
+          image: "{{ registry_name }}/football:dev"
           command: ["bundle", "exec", "sidekiq"]
           env:
             - name: REDIS_URL_SIDEKIQ

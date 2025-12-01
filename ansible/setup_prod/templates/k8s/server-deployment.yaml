@@ -2,22 +2,22 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: football
-  name: football
+    app: server
+  name: server
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: football
+      app: server
   template:
     metadata:
       labels:
-        app: football
+        app: server
     spec:
       containers:
-        - name: football
-          image: registry.digitalocean.com/sports/football:dev
+        - name: server
+          image: "{{ registry_name }}/server:dev"
           ports:
-            - containerPort: 3003
+            - containerPort: 4000
       imagePullSecrets:
         - name: registry-sports

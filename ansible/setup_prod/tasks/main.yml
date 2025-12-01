@@ -20,26 +20,38 @@
   shell: doctl registry login
 
 - name: Tag images for DOCR
-  shell: docker tag {{ item }}:dev registry.digitalocean.com/{{ registry_name }}/{{ item }}:dev
+  shell: docker tag {{ item }}:dev {{ registry_name }}/{{ item }}:dev
   loop: "{{ registry_containers }}"
 
 - name: Push images
-  shell: docker push registry.digitalocean.com/{{ registry_name }}/{{ item }}:dev
+  shell: docker push {{ registry_name }}/{{ item }}:dev
   loop: "{{ registry_containers }}"
 
-- name: Deploy config map to Kubernetes
-  shell: kubectl apply -f {{ role_path }}/files/k8s/nginx-configmap.yaml
+- name: Gather all Kubernetes template files
+  find:
+    paths: "{{ role_path }}/templates/k8s"
+    patterns: "*.yaml"
+  register: k8s_templates
 
-- name: Deploy pvc to Kubernetes
-  shell: kubectl apply -f {{ role_path }}/files/k8s/db-pvc.yaml
+- name: Ensure /tmp/k8s directory exists
+  file:
+    path: /tmp/k8s
+    state: directory
+    mode: "0755"
 
-- name: Deploy service to Kubernetes
-  shell: kubectl apply -f {{ role_path }}/files/k8s/{{ item }}-service.yaml
-  loop: "{{ service_containers }}"
+- name: Render all Kubernetes templates
+  template:
+    src: "{{ item.path }}"
+    dest: "/tmp/k8s/{{ item.path | basename }}"
+  loop: "{{ k8s_templates.files }}"
+  loop_control:
+    label: "{{ item.path }}"
 
-- name: Deploy deployment to Kubernetes
-  shell: kubectl apply -f {{ role_path }}/files/k8s/{{ item }}-deployment.yaml
-  loop: "{{ deployment_containers }}"
+- name: Apply all rendered Kubernetes manifests
+  shell: kubectl apply -f /tmp/k8s/{{ item.path | basename }}
+  loop: "{{ k8s_templates.files }}"
+  loop_control:
+    label: "{{ item.path }}"
 
 - name: Get db service pod name
   command: kubectl get pod -l app={{ item }} -o jsonpath="{.items[0].metadata.name}"

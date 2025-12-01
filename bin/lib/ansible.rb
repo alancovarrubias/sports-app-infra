@@ -54,7 +54,7 @@ class Ansible
       variables: {
         database_url: database_url,
         cluster_id: @output['k8s_cluster_id']['value'],
-        registry_name: @output['registry_name']['value']
+        registry_name: "registry.digitalocean.com/#{@output['registry_name']['value']}"
       }
     }
   end

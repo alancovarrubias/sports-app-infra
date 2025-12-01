@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: auth
-          image: registry.digitalocean.com/sports/auth:dev
+          image: "{{ registry_name }}/auth:dev"
           ports:
             - containerPort: 3000
       imagePullSecrets:
