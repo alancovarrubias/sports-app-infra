@@ -57,6 +57,7 @@ class Ansible
       playbook: 'setup_prod.yml',
       variables: {
         secret_key_base: secret_key_base,
+        db_name: @output['db_name']['value'],
         database_url: database_url,
         cluster_id: @output['k8s_cluster_id']['value'],
         registry_name: "registry.digitalocean.com/#{@output['registry_name']['value']}"
