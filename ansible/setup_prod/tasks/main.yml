@@ -50,7 +50,7 @@
 
 - name: Create Postgres database using DATABASE_URL
   shell: |
-    export DATABASE_URL="{{ database_url }}/{{ db_name }}"
+    export DATABASE_URL="{{ database_url }}"
     psql "$DATABASE_URL" -c "CREATE DATABASE {{ item }}_production;"
   args:
     executable: /bin/bash

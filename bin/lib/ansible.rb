@@ -27,14 +27,6 @@ class Ansible
     command.join(' ')
   end
 
-  def database_url
-    db_user = @output['db_user']['value']
-    db_password = @output['db_password']['value']
-    db_host = @output['db_host']['value']
-    db_port = @output['db_port']['value']
-    "postgres://#{db_user}:#{db_password}@#{db_host}:#{db_port}"
-  end
-
   def secret_key_base
     `ruby -rsecurerandom -e 'puts SecureRandom.hex(64)'`.chomp
   end
@@ -57,10 +49,10 @@ class Ansible
       playbook: 'setup_prod.yml',
       variables: {
         secret_key_base: secret_key_base,
-        db_name: @output['db_name']['value'],
-        database_url: database_url,
+        cache_url: @output['cache_uri']['value'],
+        database_url: @output['database_uri']['value'],
         cluster_id: @output['k8s_cluster_id']['value'],
-        registry_name: "registry.digitalocean.com/#{@output['registry_name']['value']}"
+        registry_name: @output['registry_name']['value']
       }
     }
   end

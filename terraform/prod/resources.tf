@@ -1,4 +1,4 @@
-resource "digitalocean_kubernetes_cluster" "main" {
+resource "digitalocean_kubernetes_cluster" "app" {
   name    = "sports-app-cluster"
   region  = "sfo3"
   version = "latest"
@@ -10,17 +10,26 @@ resource "digitalocean_kubernetes_cluster" "main" {
   }
 }
 
-resource "digitalocean_container_registry" "sports" {
-  name                   = "sports" # registry name
-  region                 = "sfo3"   # optional, defaults to your account region
-  subscription_tier_slug = "basic"  # optional: starter, basic, professional
+resource "digitalocean_container_registry" "registry" {
+  name                   = "sports"
+  region                 = "sfo3"
+  subscription_tier_slug = "basic"
 }
 
-resource "digitalocean_database_cluster" "postgres" {
+resource "digitalocean_database_cluster" "db" {
   name       = "sports-db"
   engine     = "pg"
-  version    = "15"
+  version    = "18"
   size       = "db-s-1vcpu-1gb"
   region     = "sfo3"
+  node_count = 1
+}
+
+resource "digitalocean_database_cluster" "cache" {
+  name      = "sports-cache"
+  engine    = "valkey"
+  version    = "8"
+  size      = "db-s-1vcpu-1gb"
+  region    = "sfo3"
   node_count = 1
 }
