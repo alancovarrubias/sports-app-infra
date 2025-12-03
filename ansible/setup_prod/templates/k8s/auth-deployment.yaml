@@ -19,5 +19,20 @@ spec:
           image: "{{ registry_name }}/auth:dev"
           ports:
             - containerPort: 3000
+          env:
+            - name: RAILS_ENV
+              value: "production"
+            - name: RAILS_LOG_TO_STDOUT
+              value: "true"
+            - name: SECRET_KEY_BASE
+              valueFrom:
+                secretKeyRef:
+                  name: rails-secrets
+                  key: secret_key_base
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: database-url
+                  key: DATABASE_URL
       imagePullSecrets:
         - name: registry-sports

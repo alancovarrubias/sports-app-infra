@@ -35,6 +35,10 @@ class Ansible
     "postgres://#{db_user}:#{db_password}@#{db_host}:#{db_port}"
   end
 
+  def secret_key_base
+    `ruby -rsecurerandom -e 'puts SecureRandom.hex(64)'`.chomp
+  end
+
   def dev
     {
       playbook: 'setup_dev.yml',
@@ -52,6 +56,7 @@ class Ansible
     {
       playbook: 'setup_prod.yml',
       variables: {
+        secret_key_base: secret_key_base,
         database_url: database_url,
         cluster_id: @output['k8s_cluster_id']['value'],
         registry_name: "registry.digitalocean.com/#{@output['registry_name']['value']}"
