@@ -32,6 +32,11 @@ spec:
                 secretKeyRef:
                   name: database-url
                   key: DATABASE_URL
+            - name: REDIS_URL_SIDEKIQ
+              valueFrom:
+                secretKeyRef:
+                  name: cache-url
+                  key: CACHE_URL
           ports:
             - containerPort: 3003
       imagePullSecrets:
