@@ -26,7 +26,7 @@ class InfraCLI
 
   def run
     run_command(command_runner)
-    run_command(ANSIBLE_RUNNER) if command_runner == TERRAFORM_RUNNER && @options[:command] == APPLY_COMMAND
+    # run_command(ANSIBLE_RUNNER) if command_runner == TERRAFORM_RUNNER && @options[:command] == APPLY_COMMAND
   end
 
   private
