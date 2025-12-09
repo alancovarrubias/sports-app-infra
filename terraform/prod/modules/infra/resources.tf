@@ -26,10 +26,10 @@ resource "digitalocean_database_cluster" "db" {
 }
 
 resource "digitalocean_database_cluster" "cache" {
-  name      = "sports-cache"
-  engine    = "valkey"
+  name       = "sports-cache"
+  engine     = "valkey"
   version    = "8"
-  size      = "db-s-1vcpu-1gb"
-  region    = "sfo3"
+  size       = "db-s-1vcpu-1gb"
+  region     = "sfo3"
   node_count = 1
 }
