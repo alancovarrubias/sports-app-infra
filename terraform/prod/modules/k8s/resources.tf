@@ -26,7 +26,7 @@ resource "kubernetes_deployment" "football" {
       spec {
         container {
           name  = "football"
-          image = var.football_image
+          image = "${var.registry_name}/football:dev"
 
           env {
             name  = "DATABASE_URL"
