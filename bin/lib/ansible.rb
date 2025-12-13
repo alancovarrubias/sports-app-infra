@@ -1,25 +1,30 @@
 require 'json'
 class Ansible
+  WORKING_DIR = File.join(InfraCLI::ROOT_DIR, 'ansible')
   def initialize(options)
     @options = options
-    @output = File.exist?(@options[:output_file]) ? JSON.parse(File.read(@options[:output_file])) : {}
-    @module_config = send(@options[:module])
-    @variables = @module_config[:variables] || {}
-    @inventory = @output['web_ip']['value'] unless @output['web_ip'].nil?
-    @tags = @options[:tags] || @module_config[:tags]
+    @module = @options[:module]
+    @output_file = @options[:output_file]
   end
 
   def run
-    yield build_command
+    @output = File.exist?(@output_file) ? JSON.parse(File.read(@output_file)) : {}
+    @inventory = @output['web_ip']['value'] if @output['web_ip']
+    @module_config = send(@module)
+    @variables = @module_config[:variables] || {}
+    @tags = @options[:tags] || @module_config[:tags]
+    Dir.chdir(WORKING_DIR) do
+      system(command)
+    end
   end
 
   private
 
-  def build_command
+  def command
     command = ['ansible-playbook', '-e @extra_vars.yml', '-e @custom_vars.yml']
     command << "--inventory #{@inventory},"
     command << "--tags #{@tags.join(',')}" if @tags
-    command << "-e env=#{@options[:module]}"
+    command << "-e env=#{@module}"
     @variables.each do |key, value|
       command << "-e #{key}=#{value}"
     end

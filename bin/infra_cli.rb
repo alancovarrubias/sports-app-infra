@@ -18,41 +18,44 @@ class InfraCLI
   }.freeze
 
   def initialize
-    @options = parse_options
-    @options[:tags] = @options[:tags].split(',') if @options[:tags]
+    options = parse_options
+    @command = options[:command]
+    @module = options[:module]
+    options[:tags] = options[:tags].split(',') if options[:tags]
     Dir.mkdir(OUTPUTS_DIR) unless Dir.exist?(OUTPUTS_DIR)
-    @options.merge!(output_file: File.join(OUTPUTS_DIR, "#{@options[:module]}.json"))
-    @module = @options[:module]
-    @command = @options[:command]
-    @output_file = @options[:output_file]
+    options[:output_file] = File.join(OUTPUTS_DIR, "#{options[:module]}.json")
+    @terraform_runner = Terraform.new(options)
+    @ansible_runner = Ansible.new(options)
   end
 
   def run
-    if @options[:module] == 'prod'
-      if @options[:command] == APPLY_COMMAND
-        Dir.chdir(File.join(ROOT_DIR, 'terraform')) do
-          system("terraform -chdir=#{@module} init")
-          system("terraform -chdir=#{@module} #{@command} -target=module.infra -var-file=../terraform.tfvars --auto-approve")
-          system("terraform -chdir=#{@module} output -raw kubeconfig > ~/.kube/sports-app.yaml")
-          system("terraform -chdir=#{@module} output -json > #{@output_file}")
-        end
-        run_command(ANSIBLE_RUNNER) if @options[:command] == APPLY_COMMAND
-        Dir.chdir(File.join(ROOT_DIR, 'terraform')) do
-          system("terraform -chdir=#{@module} #{@command} -target=module.k8s -var-file=../terraform.tfvars --auto-approve")
-        end
-      elsif @options[:command] == DESTROY_COMMAND
-        Dir.chdir(File.join(ROOT_DIR, 'terraform')) do
-          system("terraform -chdir=#{@module} #{@command} -target=module.k8s -var-file=../terraform.tfvars --auto-approve")
-          system("terraform -chdir=#{@module} #{@command} -target=module.infra -var-file=../terraform.tfvars --auto-approve")
-        end
-      end
-    else
-      run_command(command_runner)
-      run_command(ANSIBLE_RUNNER) if command_runner == TERRAFORM_RUNNER && @options[:command] == APPLY_COMMAND
-    end
+    @module == 'prod' ? run_prod_commands : run_commands
   end
 
   private
+
+  def run_prod_commands
+    case @command
+    when APPLY_COMMAND
+      @terraform_runner.run_prod_infra_commands
+      @ansible_runner.run
+      @terraform_runner.run_prod_kube_commands
+    when DESTROY_COMMAND
+      @terraform_runner.run_prod_destroy_commands
+    end
+  end
+
+  def run_commands
+    case @command
+    when APPLY_COMMAND
+      @terraform_runner.run
+      @ansible_runner.run
+    when DESTROY_COMMAND
+      @terraform_runner.run
+    when RUN_COMMAND
+      @ansible_runner.run
+    end
+  end
 
   def parse_options
     options = {}
@@ -64,24 +67,6 @@ class InfraCLI
       end
     end.parse!
     options
-  end
-
-  def command_runner
-    case @options[:command]
-    when APPLY_COMMAND, DESTROY_COMMAND
-      TERRAFORM_RUNNER
-    when RUN_COMMAND
-      ANSIBLE_RUNNER
-    end
-  end
-
-  def run_command(runner)
-    Dir.chdir(runner) do
-      Object.const_get(runner.capitalize).new(@options).run do |command|
-        puts command
-        system(command)
-      end
-    end
   end
 end
 
