@@ -9,6 +9,7 @@ class InfraCLI
   APPLY_COMMAND = 'apply'.freeze
   DESTROY_COMMAND = 'destroy'.freeze
   RUN_COMMAND = 'run'.freeze
+  KUBE_CONFIG = '~/.kube/sports-app.yaml'.freeze
   ROOT_DIR = File.expand_path('..', __dir__)
   OUTPUTS_DIR = File.join(ROOT_DIR, 'bin/outputs')
   OPTIONS = {
@@ -29,23 +30,24 @@ class InfraCLI
   end
 
   def run
-    @module == 'prod' ? run_prod_commands : run_commands
+    @module == 'prod' ? prod : other
   end
 
   private
 
-  def run_prod_commands
+  def prod
     case @command
     when APPLY_COMMAND
-      @terraform_runner.run_prod_infra_commands
-      @ansible_runner.run
-      @terraform_runner.run_prod_kube_commands
+      @terraform_runner.prod_infra
+      @ansible_runner.prod_infra
+      @terraform_runner.prod_kube
+      @ansible_runner.prod_kube
     when DESTROY_COMMAND
-      @terraform_runner.run_prod_destroy_commands
+      @terraform_runner.prod_destroy
     end
   end
 
-  def run_commands
+  def other
     case @command
     when APPLY_COMMAND
       @terraform_runner.run

@@ -15,24 +15,24 @@ class Terraform
     run_commands(commands)
   end
 
-  def run_prod_infra_commands
+  def prod_infra
     commands = [
       'init',
       "#{@command} -target=module.infra -var-file=../terraform.tfvars --auto-approve",
-      'output -raw kubeconfig > ~/.kube/sports-app.yaml',
+      "output -raw kubeconfig > #{InfraCLI::KUBE_CONFIG}",
       "output -json > #{@output_file}"
     ]
     run_commands(commands)
   end
 
-  def run_prod_kube_commands
+  def prod_kube
     commands = [
       "#{@command} -target=module.k8s -var-file=../terraform.tfvars --auto-approve"
     ]
     run_commands(commands)
   end
 
-  def run_prod_destroy_commands
+  def prod_destroy
     commands = [
       "#{@command} -target=module.k8s -var-file=../terraform.tfvars --auto-approve",
       "#{@command} -target=module.infra -var-file=../terraform.tfvars --auto-approve"
