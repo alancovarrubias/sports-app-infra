@@ -1,74 +1,10 @@
 ---
-- name: Save kubeconfig locally
-  command: doctl kubernetes cluster kubeconfig save {{ cluster_id }}
+- name: Infra tasks (registry, images)
+  import_tasks: infra.yml
+  tags:
+    - infra
 
-- name: Create DOCR Kubernetes secret
-  shell: doctl registry kubernetes-manifest | kubectl apply -f -
-
-- name: Login to registry
-  shell: doctl registry login
-
-- name: Tag images for DOCR
-  shell: docker tag {{ item }}:dev {{ registry_name }}/{{ item }}:dev
-  loop: "{{ registry_containers }}"
-
-- name: Push images
-  shell: docker push {{ registry_name }}/{{ item }}:dev
-  loop: "{{ registry_containers }}"
-# - name: Gather all Kubernetes template files
-#   find:
-#     paths: "{{ role_path }}/templates/k8s"
-#     patterns: "*.yaml"
-#   register: k8s_templates
-#
-# - name: Ensure /tmp/k8s directory exists
-#   file:
-#     path: /tmp/k8s
-#     state: directory
-#     mode: "0755"
-#
-# - name: Render all Kubernetes templates
-#   template:
-#     src: "{{ item.path }}"
-#     dest: "/tmp/k8s/{{ item.path | basename }}"
-#   loop: "{{ k8s_templates.files }}"
-#   loop_control:
-#     label: "{{ item.path }}"
-#
-# - name: Apply all rendered Kubernetes manifests
-#   shell: kubectl apply -f /tmp/k8s/{{ item.path | basename }}
-#   loop: "{{ k8s_templates.files }}"
-#   loop_control:
-#     label: "{{ item.path }}"
-#
-# - name: Wait for pod to be ready
-#   command: kubectl wait --for=condition=ready pod -l app={{ item }} --timeout=120s
-#   loop: "{{ db_containers }}"
-#   loop_control:
-#     label: "{{ item }}"
-#
-# - name: Create Postgres database using DATABASE_URL
-#   shell: |
-#     export DATABASE_URL="{{ database_url }}"
-#     psql "$DATABASE_URL" -c "CREATE DATABASE {{ item }}_production;"
-#   args:
-#     executable: /bin/bash
-#   register: db_create
-#   ignore_errors: yes
-#   loop: "{{ db_containers }}"
-#   loop_control:
-#     label: "{{ item }}"
-#
-# - name: Get db service pod name
-#   command: kubectl get pod -l app={{ item }} -o jsonpath="{.items[0].metadata.name}"
-#   register: db_pod
-#   loop: "{{ db_containers }}"
-#   loop_control:
-#     label: "{{ item }}"
-#
-# - name: Run rake db:migrate in each DB service pod
-#   command: kubectl exec {{ item.stdout }} -- rake db:migrate
-#   loop: "{{ db_pod.results }}"
-#   loop_control:
-#     label: "{{ item.item }}"
-#
+- name: Kubernetes tasks (manifests, migrations)
+  import_tasks: k8s.yml
+  tags:
+    - k8s

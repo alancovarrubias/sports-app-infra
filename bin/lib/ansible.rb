@@ -8,6 +8,7 @@ class Ansible
   end
 
   def run
+    ENV['KUBECONFIG'] ||= File.expand_path('~/.kube/sports-app.yaml')
     @output = File.exist?(@output_file) ? JSON.parse(File.read(@output_file)) : {}
     @inventory = @output['web_ip']['value'] if @output['web_ip']
     @module_config = send(@module)
@@ -52,11 +53,11 @@ class Ansible
   def prod
     {
       playbook: 'setup_prod.yml',
+      tags: %w[infra],
       variables: {
         secret_key_base: secret_key_base,
         cache_url: @output['cache_uri']['value'],
         database_url: @output['database_uri']['value'],
-        cluster_id: @output['k8s_cluster_id']['value'],
         registry_name: @output['registry_name']['value']
       }
     }
