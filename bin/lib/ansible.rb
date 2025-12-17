@@ -7,8 +7,20 @@ class Ansible
     @output_file = @options[:output_file]
   end
 
+  def prod_infra
+    ENV['KUBECONFIG'] ||= File.expand_path(InfraCLI::KUBE_CONFIG)
+    @output = File.exist?(@output_file) ? JSON.parse(File.read(@output_file)) : {}
+    @module_config = {
+      playbook: 'setup_prod.yml'
+    }
+    @variables = { registry_name: @output['registry_name']['value'] }
+    @tags = %w[infra]
+    Dir.chdir(WORKING_DIR) do
+      system(command)
+    end
+  end
+
   def run
-    ENV['KUBECONFIG'] ||= File.expand_path('~/.kube/sports-app.yaml')
     @output = File.exist?(@output_file) ? JSON.parse(File.read(@output_file)) : {}
     @inventory = @output['web_ip']['value'] if @output['web_ip']
     @module_config = send(@module)
