@@ -6,7 +6,7 @@ db_containers:
   - football
 registry_containers:
   - client
-  # - server
-  # - auth
-  # - football
-  # - crawler
+  - server
+  - auth
+  - football
+  - crawler

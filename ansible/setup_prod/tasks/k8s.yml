@@ -1,4 +1,11 @@
 ---
+- name: Ensure KUBECONFIG is set in .zshrc
+  ansible.builtin.lineinfile:
+    path: ~/.zshrc
+    regexp: "^export KUBECONFIG="
+    line: 'export KUBECONFIG="{{ kubeconfig }}"'
+    create: yes
+
 - name: Gather all Kubernetes template files
   find:
     paths: "{{ role_path }}/templates/k8s"

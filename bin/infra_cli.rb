@@ -6,7 +6,6 @@ require_relative 'config/bundler'
 module InfraCLI
   module_function
 
-  KUBE_CONFIG = '~/.kube/sports-app.yaml'.freeze
   ROOT_DIR = File.expand_path('..', __dir__)
   OPTIONS = {
     command: ['-c', '--command COMMAND', 'Specify command'],
