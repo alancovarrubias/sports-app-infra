@@ -7,17 +7,11 @@ module Commands
       @options[:output_file] = generate_output_file
       @terraform_runner = Runners::Terraform.new(@options)
       @ansible_runner = Runners::Ansible.new
+      set_env
     end
 
-    def start
-      case @options[:command]
-      when APPLY_COMMAND
-        apply
-      when DESTROY_COMMAND
-        destroy
-      when RUN_COMMAND
-        run
-      end
+    def set_env
+      ENV['KUBECONFIG'] ||= File.expand_path(KUBECONFIG)
     end
 
     def outputs
@@ -25,18 +19,19 @@ module Commands
     end
 
     def run_ansible(commands)
-      run_commands(ANSIBLE_WORKING_DIR, commands)
+      run_commands(ANSIBLE, commands)
     end
 
     def run_terraform(commands)
-      run_commands(TERRAFORM_WORKING_DIR, commands)
+      run_commands(TERRAFORM, commands)
 
       reload_outputs!
     end
 
     private
 
-    def run_commands(dir, commands)
+    def run_commands(dir_name, commands)
+      dir = File.join(InfraCLI::ROOT_DIR, dir_name)
       Dir.chdir(dir) do
         Array(commands).each do |command|
           system(command)

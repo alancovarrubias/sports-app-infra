@@ -1,11 +1,18 @@
 module Commands
   class Prod < Base
     def apply
-      ENV['KUBECONFIG'] ||= File.expand_path(KUBECONFIG)
       run_terraform(terraform_infra)
       run_ansible(ansible_infra)
       run_terraform(terraform_kube)
       run_ansible(ansible_kube)
+    end
+
+    def infra
+      run_ansible(ansible_command('infra'))
+    end
+
+    def kube
+      run_ansible(ansible_command('k8s'))
     end
 
     def destroy
@@ -36,20 +43,11 @@ module Commands
       ]
     end
 
-    def ansible_kube
+    def ansible_command(tags)
       @ansible_runner.command(
         playbook: 'setup_prod',
         variables: variables,
-        tags: %w[k8s],
-        env: @options[:module]
-      )
-    end
-
-    def ansible_infra
-      @ansible_runner.command(
-        playbook: 'setup_prod',
-        variables: variables,
-        tags: %w[infra],
+        tags: tags,
         env: @options[:module]
       )
     end
@@ -57,9 +55,9 @@ module Commands
     def variables
       {
         secret_key_base: secret_key_base,
-        cache_url: @outputs['cache_uri']['value'],
-        database_url: @outputs['database_uri']['value'],
-        registry_name: @outputs['registry_name']['value'],
+        cache_url: outputs['cache_uri']['value'],
+        database_url: outputs['database_uri']['value'],
+        registry_name: outputs['registry_name']['value'],
         kubeconfig: KUBECONFIG
       }
     end

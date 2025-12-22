@@ -5,7 +5,7 @@ module Runners
       command = []
       command << 'ansible-playbook -e @extra_vars.yml -e @custom_vars.yml'
       command << "--inventory #{inventory}," if inventory
-      command << "--tags #{tags.join(',')}" if tags
+      command << "--tags #{Array(tags).join(',')}" if tags
       command << "-e env=#{env}" if env
       variables.each do |key, value|
         command << "-e #{key}=#{value}"
