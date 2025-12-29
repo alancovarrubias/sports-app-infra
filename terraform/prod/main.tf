@@ -8,6 +8,6 @@ module "ingress" {
 
 module "dns" {
   source      = "./modules/dns"
-  domain_name = "alancovarrubias.com"
+  domain_name = var.domain_name
   ingress_ip  = module.ingress.ingress_ip
 }

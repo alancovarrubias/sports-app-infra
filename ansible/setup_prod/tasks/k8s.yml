@@ -26,9 +26,9 @@
   loop_control:
     label: "{{ item.path }}"
 
-- name: Apply all rendered Kubernetes manifests
+- name: Apply all rendered Kubernetes manifests except client ingress
   shell: kubectl apply -f /tmp/k8s/{{ item.path | basename }}
-  loop: "{{ k8s_templates.files }}"
+  loop: "{{ k8s_templates.files | reject('search', 'client-ingress') | list }}"
   loop_control:
     label: "{{ item.path }}"
   environment:
@@ -64,3 +64,8 @@
   loop: "{{ db_pod.results }}"
   loop_control:
     label: "{{ item.item }}"
+
+- name: Apply client ingress yaml
+  shell: kubectl apply -f /tmp/k8s/client-ingress.yaml
+  environment:
+    KUBECONFIG: "{{ kubeconfig }}"
