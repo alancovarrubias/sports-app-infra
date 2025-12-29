@@ -7,11 +7,6 @@ module Commands
       @options[:output_file] = generate_output_file
       @terraform_runner = Runners::Terraform.new(@options)
       @ansible_runner = Runners::Ansible.new
-      set_env
-    end
-
-    def set_env
-      ENV['KUBECONFIG'] ||= File.expand_path(KUBECONFIG)
     end
 
     def outputs
@@ -34,6 +29,7 @@ module Commands
       dir = File.join(InfraCLI::ROOT_DIR, dir_name)
       Dir.chdir(dir) do
         Array(commands).each do |command|
+          puts command
           system(command)
         end
       end

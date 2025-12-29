@@ -1,17 +1,18 @@
 module Commands
   class Prod < Base
     def apply
-      run_terraform(terraform_infra)
-      run_ansible(ansible_infra)
-      run_terraform(terraform_kube)
-      run_ansible(ansible_kube)
+      infra
+      kube
     end
 
     def infra
+      run_terraform(terraform_infra)
       run_ansible(ansible_command('infra'))
     end
 
     def kube
+      run_terraform(terraform_ingress)
+      run_terraform(terraform_dns)
       run_ansible(ansible_command('k8s'))
     end
 
@@ -30,15 +31,22 @@ module Commands
       ]
     end
 
-    def terraform_kube
+    def terraform_ingress
       [
-        @terraform_runner.apply(target: 'module.k8s')
+        @terraform_runner.apply(target: 'module.ingress')
+      ]
+    end
+
+    def terraform_dns
+      [
+        @terraform_runner.apply(target: 'module.dns')
       ]
     end
 
     def terraform_destroy
       [
-        @terraform_runner.apply(target: 'module.k8s'),
+        @terraform_runner.apply(target: 'module.dns'),
+        @terraform_runner.apply(target: 'module.ingress'),
         @terraform_runner.apply(target: 'module.infra')
       ]
     end

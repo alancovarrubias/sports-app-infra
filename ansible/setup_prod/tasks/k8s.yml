@@ -31,6 +31,8 @@
   loop: "{{ k8s_templates.files }}"
   loop_control:
     label: "{{ item.path }}"
+  environment:
+    KUBECONFIG: "{{ kubeconfig }}"
 
 - name: Wait for pod to be ready
   command: kubectl wait --for=condition=ready pod -l app={{ item }} --timeout=120s

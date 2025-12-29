@@ -1,6 +1,8 @@
 ---
 - name: Create DOCR Kubernetes secret
   shell: doctl registry kubernetes-manifest | kubectl apply -f -
+  environment:
+    KUBECONFIG: "{{ kubeconfig }}"
 
 - name: Login to registry
   shell: doctl registry login
