@@ -5,15 +5,12 @@ resource "digitalocean_kubernetes_cluster" "app" {
 
   node_pool {
     name       = "app-pool"
-    size       = "s-2vcpu-4gb"
+    size       = "s-4vcpu-8gb"
     node_count = 1
+    auto_scale = true
+    min_nodes  = 1
+    max_nodes  = 5
   }
-}
-
-resource "digitalocean_container_registry" "registry" {
-  name                   = "sports"
-  region                 = "sfo3"
-  subscription_tier_slug = "basic"
 }
 
 resource "digitalocean_database_cluster" "db" {

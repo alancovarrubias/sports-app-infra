@@ -17,7 +17,7 @@ module Commands
       run_commands(ANSIBLE, commands)
     end
 
-    def run_terraform(commands)
+    def run_terraform(*commands)
       run_commands(TERRAFORM, commands)
 
       reload_outputs!

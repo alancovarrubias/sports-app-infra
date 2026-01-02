@@ -1,12 +1,20 @@
 module Commands
   class Dev < Base
     def apply
-      run_terraform(terraform_commands)
+      run_terraform(
+        @terraform_runner.init,
+        @terraform_runner.apply,
+        @terraform_runner.output
+      )
       run_ansible(ansible_commands)
     end
 
     def destroy
-      run_terraform(terraform_commands)
+      run_terraform(
+        @terraform_runner.init,
+        @terraform_runner.destroy,
+        @terraform_runner.output
+      )
     end
 
     def run
@@ -14,14 +22,6 @@ module Commands
     end
 
     private
-
-    def terraform_commands
-      [
-        @terraform_runner.init,
-        @terraform_runner.apply,
-        @terraform_runner.output
-      ]
-    end
 
     def ansible_commands
       @ansible_runner.command(

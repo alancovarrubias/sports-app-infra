@@ -2,54 +2,54 @@ module Commands
   class Prod < Base
     def apply
       infra
+      registry
       kube
     end
 
     def infra
-      run_terraform(terraform_infra)
+      run_terraform(
+        @terraform_runner.init,
+        @terraform_runner.apply('infra'),
+        @terraform_runner.output_raw,
+        @terraform_runner.output
+      )
+    end
+
+    def registry
+      run_terraform(
+        @terraform_runner.apply('registry')
+      )
       run_ansible(ansible_command('registry'))
     end
 
     def kube
-      run_terraform(terraform_ingress)
-      run_terraform(terraform_dns)
+      run_terraform(
+        @terraform_runner.apply('ingress')
+      )
+      run_terraform(
+        @terraform_runner.apply('dns')
+      )
       run_ansible(ansible_command('kube'))
     end
 
     def destroy
-      run_terraform(terraform_destroy)
+      run_terraform(
+        @terraform_runner.destroy('dns'),
+        @terraform_runner.destroy('ingress'),
+        @terraform_runner.destroy('registry'),
+        @terraform_runner.destroy('infra')
+      )
+    end
+
+    def destroy_infra
+      run_terraform(
+        @terraform_runner.destroy('dns'),
+        @terraform_runner.destroy('ingress'),
+        @terraform_runner.destroy('infra')
+      )
     end
 
     private
-
-    def terraform_infra
-      [
-        @terraform_runner.init,
-        @terraform_runner.apply(target: 'infra'),
-        @terraform_runner.output_raw,
-        @terraform_runner.output
-      ]
-    end
-
-    def terraform_ingress
-      [
-        @terraform_runner.apply(target: 'ingress')
-      ]
-    end
-
-    def terraform_dns
-      [
-        @terraform_runner.apply(target: 'dns')
-      ]
-    end
-
-    def terraform_destroy
-      [
-        @terraform_runner.apply(target: 'dns'),
-        @terraform_runner.apply(target: 'ingress'),
-        @terraform_runner.apply(target: 'infra')
-      ]
-    end
 
     def ansible_command(tags)
       @ansible_runner.command(

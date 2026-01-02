@@ -9,9 +9,17 @@ module Runners
       build_command('init')
     end
 
-    def apply(target: nil)
+    def destroy(target = nil)
+      apply_destroy('destroy', target)
+    end
+
+    def apply(target = nil)
+      apply_destroy('apply', target)
+    end
+
+    def apply_destroy(command, target)
       commands = []
-      commands << @options[:command]
+      commands << command
       commands << "-target=module.#{target}" if target
       commands << '-var-file=../terraform.tfvars --auto-approve'
       build_command(commands.join(' '))

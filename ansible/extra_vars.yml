@@ -1,6 +1,7 @@
 # extra_vars.yml
 repo_name: sports-app
 infra_repo_name: sports-app-infra
+env: dev
 db_containers:
   - auth
   - football
