@@ -16,8 +16,15 @@ spec:
     spec:
       containers:
         - name: crawler
-          image: "{{ registry_name }}/crawler:dev"
+          image: "{{ registry_name }}/crawler:{{ env }}"
           ports:
             - containerPort: 5000
+          resources:
+            requests:
+              cpu: "300m"
+              memory: "768Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1.5Gi"
       imagePullSecrets:
         - name: registry-sports

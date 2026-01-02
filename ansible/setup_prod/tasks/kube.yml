@@ -31,8 +31,6 @@
   loop: "{{ k8s_templates.files | reject('search', 'client-ingress') | list }}"
   loop_control:
     label: "{{ item.path }}"
-  environment:
-    KUBECONFIG: "{{ kubeconfig }}"
 
 - name: Wait for pod to be ready
   command: kubectl wait --for=condition=ready pod -l app={{ item }} --timeout=120s
@@ -67,5 +65,6 @@
 
 - name: Apply client ingress yaml
   shell: kubectl apply -f /tmp/k8s/client-ingress.yaml
-  environment:
-    KUBECONFIG: "{{ kubeconfig }}"
+
+- name: Apply metrics server manifest
+  shell: kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml

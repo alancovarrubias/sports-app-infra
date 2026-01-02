@@ -16,9 +16,16 @@ spec:
     spec:
       containers:
         - name: client
-          image: "{{ registry_name }}/client:dev"
+          image: "{{ registry_name }}/client:{{ env }}"
           ports:
             - containerPort: 1234
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "512Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1Gi"
         - name: nginx
           image: nginx:alpine
           ports:
@@ -26,6 +33,13 @@ spec:
           volumeMounts:
             - name: nginx-conf
               mountPath: /etc/nginx/conf.d
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "512Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1Gi"
       imagePullSecrets:
         - name: registry-sports
       volumes:

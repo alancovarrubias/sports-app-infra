@@ -16,8 +16,15 @@ spec:
     spec:
       containers:
         - name: sidekiq
-          image: "{{ registry_name }}/football:dev"
+          image: "{{ registry_name }}/football:{{ env }}"
           command: ["bundle", "exec", "sidekiq"]
+          resources:
+            requests:
+              cpu: "300m"
+              memory: "768Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1Gi"
           env:
             - name: RAILS_ENV
               value: "production"
@@ -38,5 +45,9 @@ spec:
                 secretKeyRef:
                   name: cache-url
                   key: CACHE_URL
+            - name: SIDEKIQ_CONCURRENCY
+              value: "8"
+            - name: RAILS_MAX_THREADS
+              value: "10"
       imagePullSecrets:
         - name: registry-sports

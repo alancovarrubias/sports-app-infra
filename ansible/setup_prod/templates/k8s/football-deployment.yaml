@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: football
-          image: "{{ registry_name }}/football:dev"
+          image: "{{ registry_name }}/football:{{ env }}"
           env:
             - name: RAILS_ENV
               value: "production"

@@ -1,10 +1,10 @@
 ---
-- name: Infra tasks (registry, images)
-  import_tasks: infra.yml
+- name: Registry tasks (registry)
+  import_tasks: registry.yml
   tags:
-    - infra
+    - registry
 
 - name: Kubernetes tasks (manifests, migrations)
-  import_tasks: k8s.yml
+  import_tasks: kube.yml
   tags:
-    - k8s
+    - kube

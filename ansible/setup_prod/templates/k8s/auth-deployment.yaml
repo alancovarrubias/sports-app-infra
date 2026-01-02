@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: auth
-          image: "{{ registry_name }}/auth:dev"
+          image: "{{ registry_name }}/auth:{{ env }}"
           ports:
             - containerPort: 3000
           env:

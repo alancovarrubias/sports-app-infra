@@ -12,7 +12,7 @@ module Runners
     def apply(target: nil)
       commands = []
       commands << @options[:command]
-      commands << "-target=#{target}" if target
+      commands << "-target=module.#{target}" if target
       commands << '-var-file=../terraform.tfvars --auto-approve'
       build_command(commands.join(' '))
     end
