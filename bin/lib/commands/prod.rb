@@ -19,7 +19,7 @@ module Commands
       run_terraform(
         @terraform_runner.apply('registry')
       )
-      run_ansible(ansible_command('registry'))
+      ansible_options('registry')
     end
 
     def kube
@@ -29,7 +29,7 @@ module Commands
       run_terraform(
         @terraform_runner.apply('dns')
       )
-      run_ansible(ansible_command('kube'))
+      ansible_options('kube')
     end
 
     def destroy
@@ -51,8 +51,8 @@ module Commands
 
     private
 
-    def ansible_command(tags)
-      @ansible_runner.command(
+    def ansible_options(tags)
+      run_ansible(
         playbook: 'setup_prod',
         variables: variables,
         tags: tags,

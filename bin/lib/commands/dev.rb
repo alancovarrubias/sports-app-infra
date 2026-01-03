@@ -6,7 +6,7 @@ module Commands
         @terraform_runner.apply,
         @terraform_runner.output
       )
-      run_ansible(ansible_commands)
+      ansible_options
     end
 
     def destroy
@@ -18,13 +18,13 @@ module Commands
     end
 
     def run
-      run_ansible(ansible_commands)
+      ansible_options
     end
 
     private
 
-    def ansible_commands
-      @ansible_runner.command(
+    def ansible_options
+      run_ansible(
         playbook: 'setup_dev',
         inventory: @outputs['web_ip']['value'],
         tags: @options[:tags] || %w[setup server docker create client dev],

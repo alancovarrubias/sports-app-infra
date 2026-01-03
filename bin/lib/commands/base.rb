@@ -13,7 +13,8 @@ module Commands
       @outputs ||= load_outputs
     end
 
-    def run_ansible(commands)
+    def run_ansible(options)
+      commands = @ansible_runner.command(options)
       run_commands(ANSIBLE, commands)
     end
 
