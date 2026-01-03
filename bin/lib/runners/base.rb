@@ -1,21 +1,21 @@
-module Commands
+module Runners
   class Base
     include Constants
     def initialize(options)
       @options = options
       @options[:tags] = @options[:tags]&.split(',')
       @options[:output_file] = generate_output_file
-      @terraform_runner = Runners::Terraform.new(@options)
-      @ansible_runner = Runners::Ansible.new
+      @terraform_command = Commands::Terraform.new(@options)
+      @ansible_command = Commands::Ansible.new
     end
 
     def run_ansible(options)
-      ansible_commands = @ansible_runner.run(options)
-      run_commands(ANSIBLE, ansible_commands)
+      ansible_command = @ansible_command.build(options)
+      run_commands(ANSIBLE, ansible_command)
     end
 
     def run_terraform(*commands)
-      terraform_commands = commands.map { |command| @terraform_runner.run(command) }
+      terraform_commands = commands.map { |command| @terraform_command.build(command) }
       run_commands(TERRAFORM, terraform_commands)
 
       reload_outputs!

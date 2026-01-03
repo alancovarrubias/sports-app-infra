@@ -1,11 +1,11 @@
-module Runners
+module Commands
   class Terraform
     include Constants
     def initialize(options)
       @options = options
     end
 
-    def run(command)
+    def build(command)
       if command.start_with?('apply', 'destroy')
         action, target = command.split('_', 2)
         action_command(action, target)

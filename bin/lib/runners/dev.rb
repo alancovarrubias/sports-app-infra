@@ -1,4 +1,4 @@
-module Commands
+module Runners
   class Dev < Base
     def apply
       run_terraform(

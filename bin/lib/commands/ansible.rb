@@ -1,7 +1,7 @@
 require 'json'
-module Runners
+module Commands
   class Ansible
-    def run(playbook:, variables: {}, inventory: nil, tags: nil, env: nil)
+    def build(playbook:, variables: {}, inventory: nil, tags: nil, env: nil)
       command = []
       command << 'ansible-playbook -e @extra_vars.yml -e @custom_vars.yml'
       command << "--inventory #{inventory}," if inventory

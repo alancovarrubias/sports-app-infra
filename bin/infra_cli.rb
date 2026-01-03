@@ -15,7 +15,7 @@ module InfraCLI
 
   def run
     options = parse_options
-    command = Commands.const_get(options[:module].capitalize).new(options)
+    command = Runners.const_get(options[:module].capitalize).new(options)
     command.send(options[:command])
   end
 

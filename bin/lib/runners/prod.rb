@@ -1,4 +1,4 @@
-module Commands
+module Runners
   class Prod < Base
     def apply
       infra
