@@ -2,28 +2,28 @@ module Commands
   class Dev < Base
     def apply
       run_terraform(
-        @terraform_runner.init,
-        @terraform_runner.apply,
-        @terraform_runner.output
+        'init',
+        'apply',
+        'output'
       )
-      ansible_options
+      ansible_command
     end
 
     def destroy
       run_terraform(
-        @terraform_runner.init,
-        @terraform_runner.destroy,
-        @terraform_runner.output
+        'init',
+        'destroy',
+        'output'
       )
     end
 
     def run
-      ansible_options
+      ansible_command
     end
 
     private
 
-    def ansible_options
+    def ansible_command
       run_ansible(
         playbook: 'setup_dev',
         inventory: @outputs['web_ip']['value'],

@@ -9,19 +9,22 @@ module Commands
       @ansible_runner = Runners::Ansible.new
     end
 
-    def outputs
-      @outputs ||= load_outputs
-    end
-
     def run_ansible(options)
-      commands = @ansible_runner.command(options)
-      run_commands(ANSIBLE, commands)
+      ansible_commands = @ansible_runner.run(options)
+      run_commands(ANSIBLE, ansible_commands)
     end
 
     def run_terraform(*commands)
-      run_commands(TERRAFORM, commands)
+      terraform_commands = commands.map { |command| @terraform_runner.run(command) }
+      run_commands(TERRAFORM, terraform_commands)
 
       reload_outputs!
+    end
+
+    protected
+
+    def outputs
+      @outputs ||= load_outputs
     end
 
     private

@@ -5,35 +5,38 @@ module Runners
       @options = options
     end
 
+    def run(command)
+      if command.start_with?('apply', 'destroy')
+        action, target = command.split('_', 2)
+        action_command(action, target)
+      else
+        send(command)
+      end
+    end
+
+    private
+
     def init
-      build_command('init')
+      terraform_command('init')
     end
 
-    def destroy(target = nil)
-      apply_destroy('destroy', target)
+    def output
+      terraform_command("output -json > #{@options[:output_file]}")
     end
 
-    def apply(target = nil)
-      apply_destroy('apply', target)
+    def kubeconfig
+      terraform_command("output -raw kubeconfig > #{KUBECONFIG}")
     end
 
-    def apply_destroy(command, target)
+    def action_command(command, target)
       commands = []
       commands << command
       commands << "-target=module.#{target}" if target
       commands << '-var-file=../terraform.tfvars --auto-approve'
-      build_command(commands.join(' '))
+      terraform_command(commands.join(' '))
     end
 
-    def output
-      build_command("output -json > #{@options[:output_file]}")
-    end
-
-    def output_raw
-      build_command("output -raw kubeconfig > #{KUBECONFIG}")
-    end
-
-    def build_command(command)
+    def terraform_command(command)
       "terraform -chdir=#{@options[:module]} #{command}"
     end
   end

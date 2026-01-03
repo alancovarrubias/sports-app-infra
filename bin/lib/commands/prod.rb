@@ -3,75 +3,87 @@ module Commands
     def apply
       infra
       registry
+      ingress
+      dns
+      kube
+    end
+
+    def apply_base
+      infra
+      registry
+      ingress
       kube
     end
 
     def infra
       run_terraform(
-        @terraform_runner.init,
-        @terraform_runner.apply('infra'),
-        @terraform_runner.output_raw,
-        @terraform_runner.output
+        'init',
+        'apply_infra',
+        'kubeconfig',
+        'output'
       )
     end
 
     def registry
       run_terraform(
-        @terraform_runner.apply('registry')
+        'apply_registry'
       )
-      ansible_options('registry')
+      ansible_command('registry')
+    end
+
+    def ingress
+      run_terraform(
+        'apply_ingress'
+      )
+    end
+
+    def dns
+      run_terraform(
+        'apply_dns'
+      )
     end
 
     def kube
-      run_terraform(
-        @terraform_runner.apply('ingress')
-      )
-      run_terraform(
-        @terraform_runner.apply('dns')
-      )
-      ansible_options('kube')
+      ansible_command('kube')
     end
 
     def destroy
       run_terraform(
-        @terraform_runner.destroy('dns'),
-        @terraform_runner.destroy('ingress'),
-        @terraform_runner.destroy('registry'),
-        @terraform_runner.destroy('infra')
+        'destroy_dns',
+        'destroy_ingress',
+        'destroy_registry',
+        'destroy_infra',
+        'output'
       )
     end
 
-    def destroy_infra
+    def destroy_base
       run_terraform(
-        @terraform_runner.destroy('dns'),
-        @terraform_runner.destroy('ingress'),
-        @terraform_runner.destroy('infra')
+        'destroy_ingress',
+        'destroy_infra',
+        'output'
       )
     end
 
     private
 
-    def ansible_options(tags)
+    def ansible_command(tags)
       run_ansible(
         playbook: 'setup_prod',
-        variables: variables,
+        variables: ansible_variables,
         tags: tags,
         env: @options[:module]
       )
     end
 
-    def variables
+    def ansible_variables
       {
-        secret_key_base: secret_key_base,
+        secret_key_base: `ruby -rsecurerandom -e 'puts SecureRandom.hex(64)'`.chomp,
         cache_url: outputs['cache_uri']['value'],
         database_url: outputs['database_uri']['value'],
         registry_name: outputs['registry_name']['value'],
         kubeconfig: KUBECONFIG
       }
-    end
-
-    def secret_key_base
-      `ruby -rsecurerandom -e 'puts SecureRandom.hex(64)'`.chomp
     end
   end
 end
