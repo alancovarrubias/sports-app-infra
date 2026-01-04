@@ -1,0 +1,50 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app-ingress
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/enable-websocket: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - "{{ domain_name }}"
+      secretName: app-tls
+  rules:
+    - host: "{{ domain_name }}"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: client
+                port:
+                  number: 80
+
+          - path: /graphql
+            pathType: Prefix
+            backend:
+              service:
+                name: server
+                port:
+                  number: 4000
+
+          - path: /subscriptions
+            pathType: Prefix
+            backend:
+              service:
+                name: server
+                port:
+                  number: 4000
+
+          - path: /sidekiq
+            pathType: Prefix
+            backend:
+              service:
+                name: football
+                port:
+                  number: 3003
