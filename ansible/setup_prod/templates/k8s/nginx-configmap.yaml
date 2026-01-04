@@ -1,4 +1,7 @@
 apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
 data:
   nginx.conf: |-
     server {
@@ -32,6 +35,3 @@ data:
             proxy_pass http://football:3003;
         }
     }
-kind: ConfigMap
-metadata:
-  name: nginx-config
