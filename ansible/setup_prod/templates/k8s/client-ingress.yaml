@@ -2,10 +2,17 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: client-ingress
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
   ingressClassName: nginx
+  tls:
+    - hosts:
+        - "{{ domain_name }}"
+      secretName: client-tls
   rules:
-    - http:
+    - host: "{{ domain_name }}"
+      http:
         paths:
           - path: /
             pathType: Prefix
