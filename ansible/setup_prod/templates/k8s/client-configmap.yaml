@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: client-config
+data:
+  config.json: |
+    {
+      "HOST": "{{ domain_name }}",
+      "PROTOCOL": "https",
+      "WS_PROTOCOL": "wss"
+    }
