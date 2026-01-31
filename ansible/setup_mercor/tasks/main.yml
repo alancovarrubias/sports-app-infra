@@ -1,15 +1,3 @@
 ---
 # tasks file for setup_web
-- include_tasks: setup_git_repo.yml
-  tags:
-    - mercor
-
-- include_tasks: setup_tunnel.yml
-  tags:
-    - nercor
-
-- include_tasks: start_server.yml
-  vars:
-    root: "~/chatwoot"
-  tags:
-    - mercor
+- include_tasks: setup_working_repo.yml

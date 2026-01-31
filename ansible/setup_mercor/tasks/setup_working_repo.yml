@@ -1,0 +1,111 @@
+- name: Copy .git-credentials
+  copy:
+    src: .git-credentials
+    dest: "~"
+    mode: 0600
+
+- name: Copy gitconfig
+  copy:
+    src: ~/.gitconfig
+    dest: "~"
+
+- name: Install pyenv build dependencies
+  become: yes
+  apt:
+    name:
+      - make
+      - build-essential
+      - libssl-dev
+      - zlib1g-dev
+      - libbz2-dev
+      - libreadline-dev
+      - libsqlite3-dev
+      - wget
+      - curl
+      - llvm
+      - libncursesw5-dev
+      - xz-utils
+      - tk-dev
+      - libxml2-dev
+      - libxmlsec1-dev
+      - libffi-dev
+      - liblzma-dev
+      - python3.10-venv
+    state: present
+    update_cache: yes
+
+- name: Install pyenv
+  become: yes
+  become_user: "{{ user_name }}"
+  git:
+    repo: https://github.com/pyenv/pyenv.git
+    dest: "/home/{{ user_name }}/.pyenv"
+    version: master
+
+- name: Set python to point to python3
+  become: yes
+  alternatives:
+    name: python
+    link: /usr/bin/python
+    path: /usr/bin/python3
+    priority: 10
+
+- name: Download init.py
+  get_url:
+    url: "https://sdippjgffrptdvlmlurv.supabase.co/storage/v1/object/sign/code-preferences-setup-files-v2/init.py?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8yZmM0ZGJhMS1jNzY0LTQ3NjctOTg2NC00NTRkY2NhZGViYTgiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJjb2RlLXByZWZlcmVuY2VzLXNldHVwLWZpbGVzLXYyL2luaXQucHkiLCJpYXQiOjE3NjkyMTI5ODcsImV4cCI6MTgwMDc0ODk4N30.MEon8tgXVeWT0whD-m5FP2puyezmNVxd7u8Ey-eRmRw"
+    dest: /home/{{ user_name }}/init.py
+    mode: "0755"
+
+- name: Wait for apt lock to be released
+  become: yes
+  shell: |
+    while fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; do
+      echo "Waiting for other apt process to finish..."
+      sleep 5
+    done
+  args:
+    executable: /bin/bash
+
+- name: Install Node.js 20 (NodeSource)
+  become: yes
+  apt:
+    update_cache: yes
+    force_apt_get: yes
+    name: curl, gnupg
+    state: present
+
+- name: Add NodeSource Node.js 20 repo
+  become: yes
+  shell: |
+    curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+  args:
+    executable: /bin/bash
+
+- name: Wait for apt lock to be released
+  become: yes
+  shell: |
+    while fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; do
+      echo "Waiting for other apt process to finish..."
+      sleep 5
+    done
+  args:
+    executable: /bin/bash
+
+- name: Install Node.js 20 and npm
+  become: yes
+  apt:
+    name:
+      - nodejs
+    state: present
+    update_cache: yes
+
+- name: Install Claude Code CLI
+  become: yes
+  npm:
+    name: "@anthropic-ai/claude-code"
+    global: yes
+
+- name: Copy local file to remote
+  copy:
+    src: /Users/{{ user_name }}/.ssh/id_rsa
+    dest: /home/{{ user_name }}/.ssh/id_rsa

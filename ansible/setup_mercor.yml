@@ -13,6 +13,5 @@
   hosts: all
   gather_facts: no
   become: yes
-  become_user: "{{ user_name }}"
   roles:
     - setup_mercor
