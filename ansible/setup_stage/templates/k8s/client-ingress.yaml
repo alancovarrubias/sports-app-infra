@@ -1,0 +1,46 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: client-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/enable-websocket: "true"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: "{{ domain_name }}"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: client
+                port:
+                  number: 80
+
+          - path: /graphql
+            pathType: Prefix
+            backend:
+              service:
+                name: server
+                port:
+                  number: 4000
+
+          - path: /subscriptions
+            pathType: Prefix
+            backend:
+              service:
+                name: server
+                port:
+                  number: 4000
+
+          - path: /sidekiq
+            pathType: Prefix
+            backend:
+              service:
+                name: football
+                port:
+                  number: 3003

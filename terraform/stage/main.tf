@@ -1,18 +1,11 @@
-terraform {
-  required_version = ">= 0.12"
-  backend "s3" {
-    bucket = "sports-app-buck"
-    key    = "stage/state.tfstate"
-    region = "us-west-1"
-  }
-  required_providers {
-    digitalocean = {
-      source  = "digitalocean/digitalocean"
-      version = "~> 2.0"
-    }
-  }
+module "registry" {
+  source = "./modules/registry"
 }
 
-provider "digitalocean" {
-  token = var.do_token
+module "infra" {
+  source = "./modules/infra"
+}
+
+module "ingress" {
+  source = "./modules/ingress"
 }
