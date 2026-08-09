@@ -1,0 +1,59 @@
+---
+# tasks file for setup_kube
+- name: Update apt cache
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600 # keep cache valid for an hour
+  environment:
+    DEBIAN_FRONTEND: noninteractive # Disable interactive prompts
+  tags:
+    - kube
+
+- name: Upgrade all packages
+  apt:
+    upgrade: dist
+    update_cache: yes
+    force: yes
+    autoremove: yes
+    autoclean: yes
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+  tags:
+    - kube
+
+- name: Install necessary packages
+  apt:
+    name:
+      - curl
+      - wget
+      - apt-transport-https
+      - ca-certificates
+      - conntrack
+    state: present
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+  tags:
+    - kube
+
+- name: Download Minikube binary
+  get_url:
+    url: https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+    dest: /tmp/minikube-linux-amd64
+    mode: "0755"
+  tags:
+    - kube
+
+- name: Install Minikube
+  command:
+    cmd: mv /tmp/minikube-linux-amd64 /usr/local/bin/minikube
+    creates: /usr/local/bin/minikube
+  tags:
+    - kube
+
+- name: Install kubectl snap package with --classic
+  snap:
+    name: kubectl
+    state: present
+    classic: yes # Equivalent to --classic flag
+  tags:
+    - kube

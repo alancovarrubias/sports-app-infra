@@ -1,0 +1,14 @@
+---
+- name: Create DOCR Kubernetes secret
+  shell: doctl registry kubernetes-manifest | kubectl apply -f -
+
+- name: Login to registry
+  shell: doctl registry login
+
+- name: Tag images for DOCR (using prod images for stage)
+  shell: docker tag {{ item }}:prod {{ registry_name }}/{{ item }}:{{ env }}
+  loop: "{{ registry_containers }}"
+
+- name: Push images
+  shell: docker push {{ registry_name }}/{{ item }}:{{ env }}
+  loop: "{{ registry_containers }}"
