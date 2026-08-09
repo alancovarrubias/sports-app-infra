@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: client
+  labels:
+    app: client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: client
+  template:
+    metadata:
+      labels:
+        app: client
+    spec:
+      containers:
+        - name: client
+          image: "{{ registry_name }}/client:{{ env }}"
+          volumeMounts:
+            - name: client-config
+              mountPath: /usr/share/nginx/html/config.json
+              subPath: config.json
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "512Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1Gi"
+      volumes:
+        - name: client-config
+          configMap:
+            name: client-config
+      imagePullSecrets:
+        - name: registry-sports
