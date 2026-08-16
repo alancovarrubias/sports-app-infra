@@ -3,7 +3,11 @@ kind: Ingress
 metadata:
   name: client-ingress
   annotations:
+{% if env == 'prod' %}
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+{% else %}
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
+{% endif %}
     nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
     nginx.ingress.kubernetes.io/enable-websocket: "true"
@@ -44,3 +48,9 @@ spec:
                 name: football
                 port:
                   number: 3003
+{% if env == 'prod' %}
+  tls:
+    - hosts:
+        - "{{ domain_name }}"
+      secretName: client-tls
+{% endif %}

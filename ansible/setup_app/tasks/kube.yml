@@ -26,11 +26,15 @@
   loop_control:
     label: "{{ item.path }}"
 
-- name: Apply all rendered Kubernetes manifests except client ingress
+- name: Apply all rendered Kubernetes manifests except client ingress and cluster issuer
   shell: kubectl apply -f /tmp/k8s/{{ item.path | basename }}
-  loop: "{{ k8s_templates.files | reject('search', 'client-ingress') | list }}"
+  loop: "{{ k8s_templates.files | reject('search', 'client-ingress') | reject('search', 'cluster-issuer') | list }}"
   loop_control:
     label: "{{ item.path }}"
+
+- name: Apply cluster issuer
+  shell: kubectl apply -f /tmp/k8s/cluster-issuer.yaml
+  when: env == 'prod'
 
 - name: Wait for pod to be ready
   command: kubectl wait --for=condition=ready pod -l app={{ item }} --timeout=120s
@@ -68,3 +72,18 @@
 
 - name: Apply metrics server manifest
   shell: kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+
+- name: Get ingress IP
+  shell: kubectl get svc -n ingress-nginx ingress-nginx-controller -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
+  register: ingress_ip
+  when: env == 'stage'
+
+- name: Update /etc/hosts with sports-app.test
+  become: yes
+  become_user: root
+  lineinfile:
+    path: /etc/hosts
+    regexp: 'sports-app\.test'
+    line: "{{ ingress_ip.stdout }} sports-app.test"
+    state: present
+  when: env == 'stage'

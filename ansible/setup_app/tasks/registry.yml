@@ -5,8 +5,8 @@
 - name: Login to registry
   shell: doctl registry login
 
-- name: Tag images for DOCR (using prod images for stage)
-  shell: docker tag {{ item }}:prod {{ registry_name }}/{{ item }}:{{ env }}
+- name: Tag images for DOCR
+  shell: docker tag {{ item }}:{{ local_image_tag | default(env) }} {{ registry_name }}/{{ item }}:{{ env }}
   loop: "{{ registry_containers }}"
 
 - name: Push images

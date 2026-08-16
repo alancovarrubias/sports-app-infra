@@ -2,4 +2,4 @@
   hosts: localhost
   gather_facts: no
   roles:
-    - setup_stage
+    - setup_app

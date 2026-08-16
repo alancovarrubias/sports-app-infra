@@ -62,7 +62,8 @@ module Runners
         database_url: outputs['database_uri']['value'],
         registry_name: outputs['registry_name']['value'],
         kubeconfig: KUBECONFIG,
-        domain_name: 'sports-app.test'
+        domain_name: 'sports-app.test',
+        local_image_tag: 'prod'
       }
     end
   end
