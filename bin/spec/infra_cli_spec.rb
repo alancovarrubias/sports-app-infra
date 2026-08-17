@@ -1,36 +1,30 @@
-require 'rspec'
+require_relative '../infra_cli'
 
-RSpec.describe 'ansible.rb' do
-  let(:script_path) { File.expand_path('../infra_cli.rb', __dir__) }
-  let(:ip_address) { '134.209.123.421' }
-
-  before do
-    allow_any_instance_of(Object).to receive(:system).with('bundle install')
-    allow_any_instance_of(Object).to receive(:system).with('sudo bundle install')
-  end
-
-  describe 'terraform commands' do
-    let(:mod) { 'dev' }
-    let(:command) { 'apply' }
-    let(:run_command) do
-      "terraform -chdir=#{mod} #{command} -var-file=../terraform.tfvars --auto-approve"
-    end
-    let(:init_command) { "terraform -chdir=#{mod} init" }
-    it 'sends the correct command to system for "apply"' do
-      ARGV.replace(['-c', command, '-m', mod])
-      expect_any_instance_of(Object).to receive(:system).with(init_command)
-      expect_any_instance_of(Object).to receive(:system).with(run_command)
-      load script_path
+RSpec.describe InfraCLI do
+  describe '.parse_options' do
+    it 'parses command, environment, and tags into a hash' do
+      ARGV.replace(['-c', 'apply', '-e', 'dev', '--tags', 'setup,server'])
+      expect(InfraCLI.parse_options).to eq(command: 'apply', env: 'dev', tags: 'setup,server')
     end
   end
 
-  describe 'ansible commands' do
-    it 'sends the correct command to system for dumping a database' do
-      ENV['WEB_IP'] = ip_address
-      ARGV.replace(['-c', 'run', '-m', 'dump', '-e', 'dev', '--tags', 'dump'])
-      command = "ansible-playbook --extra-vars @extra_vars.yml --inventory #{ip_address}, --tags dump -e env=dev database_cmd.yml"
-      expect_any_instance_of(Object).to receive(:system).with(command)
-      load script_path
+  describe '.run' do
+    it 'instantiates the Runner named by --env and sends it the --command' do
+      ARGV.replace(['-c', 'apply', '-e', 'dev'])
+      runner = instance_double(Runners::Dev)
+      allow(Runners::Dev).to receive(:new).with(hash_including(command: 'apply', env: 'dev')).and_return(runner)
+      expect(runner).to receive(:apply)
+
+      InfraCLI.run
+    end
+
+    it 'resolves --env to the matching Runners:: class, capitalized' do
+      ARGV.replace(['-c', 'destroy', '-e', 'prod'])
+      runner = instance_double(Runners::Prod)
+      allow(Runners::Prod).to receive(:new).and_return(runner)
+      expect(runner).to receive(:destroy)
+
+      InfraCLI.run
     end
   end
 end

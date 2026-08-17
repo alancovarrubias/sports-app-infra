@@ -6,7 +6,6 @@ require_relative 'config/bundler'
 module InfraCLI
   module_function
 
-  ROOT_DIR = File.expand_path('..', __dir__)
   OPTIONS = {
     command: ['-c', '--command COMMAND', 'Specify command'],
     env: ['-e', '--env ENV', 'Specify environment'],
@@ -32,4 +31,7 @@ module InfraCLI
   end
 end
 
-InfraCLI.run
+if $PROGRAM_NAME == __FILE__
+  Bootstrap.ensure_gems_installed!
+  InfraCLI.run
+end
