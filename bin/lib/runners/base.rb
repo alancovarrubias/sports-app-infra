@@ -4,7 +4,7 @@ module Runners
     def initialize(options)
       @options = options
       @options[:tags] = @options[:tags]&.split(',')
-      @options[:output_file] = generate_output_file
+      @options[:output_file] ||= generate_output_file
       @terraform_command = Commands::Terraform.new(@options)
       @ansible_command = Commands::Ansible.new
     end
@@ -30,7 +30,7 @@ module Runners
     private
 
     def run_commands(dir_name, commands)
-      dir = File.join(InfraCLI::ROOT_DIR, dir_name)
+      dir = File.join(ROOT_DIR, dir_name)
       Dir.chdir(dir) do
         Array(commands).each do |command|
           puts command
