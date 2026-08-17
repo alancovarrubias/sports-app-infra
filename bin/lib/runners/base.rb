@@ -34,7 +34,7 @@ module Runners
       Dir.chdir(dir) do
         Array(commands).each do |command|
           puts command
-          system(command)
+          abort("Command failed, stopping: #{command}") unless system(command)
         end
       end
     end
@@ -45,7 +45,7 @@ module Runners
 
     def generate_output_file
       Dir.mkdir(OUTPUTS_DIR) unless Dir.exist?(OUTPUTS_DIR)
-      File.join(OUTPUTS_DIR, "#{@options[:module]}.json")
+      File.join(OUTPUTS_DIR, "#{@options[:env]}.json")
     end
 
     def load_outputs
