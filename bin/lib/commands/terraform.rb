@@ -37,7 +37,7 @@ module Commands
     end
 
     def terraform_command(command)
-      "terraform -chdir=#{@options[:module]} #{command}"
+      "terraform -chdir=#{@options[:env]} #{command}"
     end
   end
 end

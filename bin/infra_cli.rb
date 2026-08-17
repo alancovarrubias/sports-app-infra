@@ -9,13 +9,13 @@ module InfraCLI
   ROOT_DIR = File.expand_path('..', __dir__)
   OPTIONS = {
     command: ['-c', '--command COMMAND', 'Specify command'],
-    module: ['-m', '--module MODULE', 'Specify module'],
+    env: ['-e', '--env ENV', 'Specify environment'],
     tags: ['--tags TAGS', 'Specify tags']
   }.freeze
 
   def run
     options = parse_options
-    command = Runners.const_get(options[:module].capitalize).new(options)
+    command = Runners.const_get(options[:env].capitalize).new(options)
     command.send(options[:command])
   end
 
