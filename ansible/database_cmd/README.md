@@ -1,38 +1,20 @@
-Role Name
-=========
+# database_cmd
 
-A brief description of the role goes here.
+Database operations against a droplet's own Dockerized Postgres (`docker run --network host postgres:15 ...`), selected by tag:
 
-Requirements
-------------
+- **`dump`** — `pg_dump` each service's database, fetch the `.sql` files back to the control machine.
+- **`restore`** — stop the app containers, drop and recreate each service's database, copy dump files up, `psql` them back in, restart.
+- **`create`** — create + migrate + seed fresh databases (used for a first-time setup).
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+`env` (`dev`/`stage`/`prod`) is mapped to a database-name suffix via `value_map` (`dev` → `development`, `stage`/`prod` → `production`) — this role only makes sense against a `Droplet`-family environment (`dev`/`mercor`), since `stage`/`prod` use managed Kubernetes Postgres, not a Docker container.
 
-Role Variables
---------------
+## Variables
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+- `env` — which environment's databases to operate on.
+- `services`, `db_containers` — which app services have databases (see `extra_vars.yml`).
+- `user_name`, `repo_name` — for locating the Docker Compose project on the droplet.
+- `postgres_password` — for the `restore` tag's `psql` connection.
 
-Dependencies
-------------
+## Used by
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
-
-Example Playbook
-----------------
-
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
-
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
-
-License
--------
-
-BSD
-
-Author Information
-------------------
-
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+`database_cmd.yml`, invoked via `Runners::Droplet#database` (ticket 001) — e.g. `ruby bin/infra_cli.rb -c database -e dev --tags dump`. Previously only reachable by hand-running `ansible-playbook`; now a real CLI command like everything else.

@@ -1,38 +1,14 @@
-Role Name
-=========
+# setup_ansible
 
-A brief description of the role goes here.
+Sets up a droplet as an Ansible control node: installs Ansible/pip/AWS CLI, copies AWS credentials, an SSH private key, and the vault password file, then deploys `monitor_website.py` as a systemd service (a small uptime-check script that emails on failure, per `email_address`/`email_password`).
 
-Requirements
-------------
+**Likely dead**: part of the same pre-Kubernetes single-droplet architecture as `setup_worker` and the deleted `legacy_stage`/`legacy_prod` Terraform stacks (matches the Jenkinsfile's stale `ANSIBLE_IP`/`-m ansible` references). No current `Runners` class invokes `setup_ansible.yml`. Flagged for the same triage ticket as `setup_worker`.
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+## Variables
 
-Role Variables
---------------
+- `email_address`, `email_password` — for the monitor service's failure alerts.
+- `user_name` — deploy user.
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+## Used by
 
-Dependencies
-------------
-
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
-
-Example Playbook
-----------------
-
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
-
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
-
-License
--------
-
-BSD
-
-Author Information
-------------------
-
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+`setup_ansible.yml`, tag `setup`. Not invoked by the Ruby CLI.

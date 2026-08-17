@@ -1,38 +1,12 @@
-Role Name
-=========
+# setup_jenkins
 
-A brief description of the role goes here.
+Builds and runs the custom Jenkins image on its droplet: copies the Dockerfile, `plugins.txt`, Jenkins Configuration-as-Code (`jenkins.yaml`), AWS credentials, and an SSH private key, builds the `custom-jenkins` image (only rebuilding when the Dockerfile or plugin list changed), and starts it via Docker Compose. Also has a `plugins` tag that queries a running Jenkins instance's installed plugin versions (for regenerating `plugins.txt` — the task that writes the file back out is currently commented out).
 
-Requirements
-------------
+## Variables
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+- `jenkins_user`, `jenkins_password`, `jenkins_port` — for the `plugins` tag's API call.
+- `ansible_host` — the target droplet (from inventory).
 
-Role Variables
---------------
+## Used by
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
-
-Dependencies
-------------
-
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
-
-Example Playbook
-----------------
-
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
-
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
-
-License
--------
-
-BSD
-
-Author Information
-------------------
-
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+`setup_jenkins.yml`, tag `jenkins`. Not invoked by the Ruby CLI — no `Runners` class targets a `jenkins` environment; run directly with `ansible-playbook`.

@@ -1,38 +1,13 @@
-Role Name
-=========
+# setup_mercor
 
-A brief description of the role goes here.
+Sets up the `mercor` droplet as a development environment: copies git credentials, clones the working repo, and installs a Python/Node toolchain (pyenv, Node 20, Claude Code CLI) via apt/npm. Distinct from the app-hosting environments — this droplet is for interactive development work, not for running the sports-app itself.
 
-Requirements
-------------
+**Flagged, not fixed here**: `setup_working_repo.yml` downloads a setup script from a signed third-party storage URL with an embedded access token committed in plaintext. Worth a look for the sibling "DevOps Learning Journey" map's Security & Reliability domain — out of scope for this documentation-only ticket.
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+## Variables
 
-Role Variables
---------------
+- `user_name` — SSH/deploy user.
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+## Used by
 
-Dependencies
-------------
-
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
-
-Example Playbook
-----------------
-
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
-
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
-
-License
--------
-
-BSD
-
-Author Information
-------------------
-
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+`setup_mercor.yml`, invoked by `Runners::Mercor` (`-c apply`/`-c run`).

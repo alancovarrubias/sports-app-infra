@@ -1,38 +1,13 @@
-Role Name
-=========
+# setup_app
 
-A brief description of the role goes here.
+Deploys the sports-app to a Kubernetes cluster: logs into the DigitalOcean Container Registry, tags and pushes the app's Docker images (`registry` tag), then renders and applies every Kubernetes manifest under `templates/k8s/` — Deployments, Services, Secrets, the client Ingress, and (prod only) the cert-manager `ClusterIssuer` (`kube` tag) — waits for the database pods, runs `rake db:migrate` per service, and (stage only) updates local `/etc/hosts` so `sports-app.test` resolves to the ingress IP.
 
-Requirements
-------------
+This role is what `terraform/{stage,prod}/modules/{infra,registry,ingress}` — the deduplicated Terraform modules from ticket 003 — get configured *by*, once they exist. It's environment-agnostic by design: `stage`/`prod`-specific behavior (the `ClusterIssuer`, the `/etc/hosts` hack, TLS on the Ingress) is driven by Jinja `{% if env == 'prod' %}`/`{% if env == 'stage' %}` conditionals in the templates, not by two copies of the role — this is the role `setup_stage`/`setup_prod` were merged into (commit `b24a84b`, "Remove duplicate logic between stage and prod").
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+## Variables
 
-Role Variables
---------------
+Supplied by `Runners::Cluster#ansible_variables` (`bin/lib/runners/cluster.rb`): `env`, `registry_containers`, `registry_name`, `secret_key_base`, `cache_url`, `database_url`, `kubeconfig`, plus (`stage` only) `domain_name`, `local_image_tag`.
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+## Used by
 
-Dependencies
-------------
-
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
-
-Example Playbook
-----------------
-
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
-
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
-
-License
--------
-
-BSD
-
-Author Information
-------------------
-
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+`setup_stage.yml` and `setup_prod.yml`, invoked by `Runners::Stage`/`Runners::Prod` (`-c registry`/`-c kube`/`-c apply`, etc. — see `bin/lib/runners/cluster.rb`).

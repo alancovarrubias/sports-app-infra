@@ -1,38 +1,16 @@
-Role Name
-=========
+# setup_dev
 
-A brief description of the role goes here.
+Sets up the sports-app on a single droplet running Docker Compose: logs into ECR, clones the app repo, sets up a local SSH tunnel (dev only), renders nginx/Docker Compose/cert config from templates, and brings the stack up with `docker-compose`.
 
-Requirements
-------------
+**Note on its tags**: several tasks here also carry `stage`/`prod` tags (`login_ecr.yml`, `setup_git_repo.yml`, `start_server.yml`), suggesting this role once served stage/prod too. Neither `setup_stage.yml` nor `setup_prod.yml` reference this role today — they use `setup_app` (a Kubernetes deployment, not Docker Compose on a droplet) instead. These tags currently go unexercised; likely a leftover from the same pre-Kubernetes single-droplet architecture as `legacy_stage`/`legacy_prod` (deleted in ticket 004) and `setup_worker`/`setup_ansible` (see their READMEs).
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+## Variables
 
-Role Variables
---------------
+- `repo_name` — the app repo to clone.
+- `user_name` — SSH/deploy user.
+- `aws_region`, `ecr_repo_url` — for the ECR login step.
+- `env` — written into `.bashrc` and used by several templates.
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+## Used by
 
-Dependencies
-------------
-
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
-
-Example Playbook
-----------------
-
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
-
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
-
-License
--------
-
-BSD
-
-Author Information
-------------------
-
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+`setup_dev.yml`, tag `dev`, invoked by `Runners::Dev` (`-c apply`/`-c run`).
