@@ -1,38 +1,13 @@
-Role Name
-=========
+# setup_monitoring
 
-A brief description of the role goes here.
+Deploys Prometheus + Alertmanager + Grafana (`server` tag) or just a metrics exporter (`client` tag) via Docker Compose, then (server only) provisions Grafana over its HTTP API: adds the Prometheus datasource if missing, deletes any existing dashboards, and re-imports the CPU/memory dashboards from `templates/*.j2`.
 
-Requirements
-------------
+**Likely dead**: `vars/main.yml`'s `servers` list is hardcoded to "Web Server"/"Worker Server"/"Ansible Server" — the pre-Kubernetes single-droplet trio (see `setup_worker`'s README). Only invoked by `setup_worker.yml` and `setup_ansible.yml`, both themselves likely dead. Flagged for the same triage ticket.
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+## Variables
 
-Role Variables
---------------
+All in `vars/main.yml` (not `defaults/`): `monitoring_home`, `prometheus_endpoint`, `grafana_endpoint`, `grafana_admin_user`/`grafana_admin_password` (both literally `admin` — worth rotating if this role is kept), `webhook_url`, `servers`.
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+## Used by
 
-Dependencies
-------------
-
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
-
-Example Playbook
-----------------
-
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
-
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
-
-License
--------
-
-BSD
-
-Author Information
-------------------
-
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+`setup_worker.yml` (`server` tag) and `setup_ansible.yml` (`server` tag). Not invoked by the Ruby CLI.

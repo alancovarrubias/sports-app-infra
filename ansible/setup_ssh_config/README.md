@@ -1,38 +1,14 @@
-Role Name
-=========
+# setup_ssh_config
 
-A brief description of the role goes here.
+Runs on the *local* machine (every task is `delegate_to: localhost`), not the remote droplet: writes an SSH config snippet for the droplet under `~/.ssh/<server_name>` and makes sure `~/.ssh/config` `Include`s it, so `ssh <server_name>` works without remembering the droplet's IP.
 
-Requirements
-------------
+## Variables
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+- `server_name` — the `Host` alias to write (e.g. `dev`, `jenkins`, `mercor`, `worker`, `ansible`). No default; must be supplied by the caller.
+- `inventory_hostname` — supplied by Ansible's inventory (the droplet's IP), used as the `HostName`.
+- `user_name` — the SSH user.
+- `env_var` — passed by several callers (e.g. `JENKINS_IP`, `MERCOR_IP`, `WORKER_IP`, `ANSIBLE_IP`) but not currently referenced anywhere in this role's tasks or its `ssh_config` template — dead input as of this writing.
 
-Role Variables
---------------
+## Used by
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
-
-Dependencies
-------------
-
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
-
-Example Playbook
-----------------
-
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
-
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
-
-License
--------
-
-BSD
-
-Author Information
-------------------
-
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+Every droplet-based playbook, right after `setup_server`/`setup_docker`, each with its own `server_name`: `setup_dev.yml` (`dev`), `setup_jenkins.yml` (`jenkins`), `setup_mercor.yml` (`mercor`), `setup_worker.yml` (`worker`), `setup_ansible.yml` (`ansible`).

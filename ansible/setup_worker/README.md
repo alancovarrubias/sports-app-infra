@@ -1,38 +1,15 @@
-Role Name
-=========
+# setup_worker
 
-A brief description of the role goes here.
+Sets up a background-job worker droplet: clones the app repo, logs into ECR, and starts the worker's Docker Compose stack (after waiting for the web droplet's Redis to be reachable).
 
-Requirements
-------------
+**Likely dead**: this targets the pre-Kubernetes single-droplet architecture — the same one `legacy_stage`/`legacy_prod` (deleted in ticket 004) and the Jenkinsfile's stale `-i $WORKER_IP -m worker -e $ENV` call belong to. No current `Runners` class invokes `setup_worker.yml`, and the Terraform stacks that would have provisioned this droplet no longer exist. Flagged as a candidate for the same triage ticket 004 gave `legacy_stage`/`legacy_prod` — see the map's newly-added ticket for this.
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+## Variables
 
-Role Variables
---------------
+- `repo_name`, `user_name` — repo to clone, deploy user.
+- `aws_region`, `ecr_repo_url` — for the ECR login step.
+- `web_ip` — the web droplet's IP, to wait on its Redis before starting.
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+## Used by
 
-Dependencies
-------------
-
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
-
-Example Playbook
-----------------
-
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
-
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
-
-License
--------
-
-BSD
-
-Author Information
-------------------
-
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+`setup_worker.yml`, tag `setup`. Not invoked by the Ruby CLI.
