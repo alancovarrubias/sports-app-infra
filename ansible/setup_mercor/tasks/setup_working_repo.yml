@@ -1,14 +1,3 @@
-- name: Copy .git-credentials
-  copy:
-    src: .git-credentials
-    dest: "~"
-    mode: 0600
-
-- name: Copy gitconfig
-  copy:
-    src: ~/.gitconfig
-    dest: "~"
-
 - name: Install pyenv build dependencies
   become: yes
   apt:
