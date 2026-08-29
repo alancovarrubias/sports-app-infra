@@ -1,4 +1,6 @@
 terraform {
+  required_version = ">= 1.5.0"
+
   required_providers {
     digitalocean = {
       source  = "digitalocean/digitalocean"
@@ -11,9 +13,15 @@ provider "digitalocean" {
   token = var.do_token
 }
 
-variable "do_token" {}
-variable "droplet_name" {}
-variable "droplet_size" {}
+variable "do_token" {
+  type = string
+}
+variable "droplet_name" {
+  type = string
+}
+variable "droplet_size" {
+  type = string
+}
 
 
 output "id" {

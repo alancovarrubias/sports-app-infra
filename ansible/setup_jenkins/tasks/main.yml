@@ -73,13 +73,11 @@
     - jenkins
 
 - name: Build Docker Image
-  community.general.docker_image:
+  community.docker.docker_image_build:
     name: custom-jenkins
     tag: latest
-    build:
-      path: "~"
-    source: build
-    force_source: "{{ plugins_info.changed or Dockerfile_info.changed }}"
+    path: "~"
+    rebuild: "{{ (plugins_info.changed or Dockerfile_info.changed) | ternary('always', 'never') }}"
   tags:
     - jenkins
 

@@ -1,2 +1,3 @@
-variable "do_token" {}
-variable "domain_name" {}
+variable "do_token" {
+  type = string
+}
