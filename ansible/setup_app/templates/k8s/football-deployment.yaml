@@ -17,6 +17,7 @@ spec:
       containers:
         - name: football
           image: "{{ registry_name }}/football:{{ env }}"
+          imagePullPolicy: Always
           env:
             - name: RAILS_ENV
               value: "production"

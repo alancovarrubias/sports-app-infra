@@ -17,6 +17,7 @@ spec:
       containers:
         - name: crawler
           image: "{{ registry_name }}/crawler:{{ env }}"
+          imagePullPolicy: Always
           ports:
             - containerPort: 5000
           resources:
