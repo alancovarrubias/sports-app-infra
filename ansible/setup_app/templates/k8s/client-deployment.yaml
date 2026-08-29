@@ -17,6 +17,7 @@ spec:
       containers:
         - name: client
           image: "{{ registry_name }}/client:{{ env }}"
+          imagePullPolicy: Always
           volumeMounts:
             - name: client-config
               mountPath: /usr/share/nginx/html/config.json

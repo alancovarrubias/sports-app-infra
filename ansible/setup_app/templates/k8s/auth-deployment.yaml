@@ -17,6 +17,7 @@ spec:
       containers:
         - name: auth
           image: "{{ registry_name }}/auth:{{ env }}"
+          imagePullPolicy: Always
           ports:
             - containerPort: 3000
           env:

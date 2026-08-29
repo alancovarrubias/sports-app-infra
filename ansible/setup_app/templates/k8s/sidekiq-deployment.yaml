@@ -17,6 +17,7 @@ spec:
       containers:
         - name: sidekiq
           image: "{{ registry_name }}/football:{{ env }}"
+          imagePullPolicy: Always
           command: ["bundle", "exec", "sidekiq"]
           resources:
             requests:
