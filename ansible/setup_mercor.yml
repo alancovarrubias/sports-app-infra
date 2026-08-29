@@ -14,4 +14,5 @@
   gather_facts: no
   become: yes
   roles:
+    - setup_git_credentials
     - setup_mercor

@@ -14,5 +14,6 @@
   become: yes
   become_user: "{{ user_name }}"
   roles:
+    - setup_git_credentials
     - setup_dev
     - database_cmd
