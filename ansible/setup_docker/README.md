@@ -8,4 +8,4 @@ Installs Docker and Docker Compose on a fresh Ubuntu droplet: adds the Docker ap
 
 ## Used by
 
-Every droplet-based playbook, right after `setup_server`: `setup_dev.yml`, `setup_jenkins.yml`, `setup_mercor.yml`, `setup_worker.yml`, `setup_ansible.yml`. Not used by `setup_stage.yml`/`setup_prod.yml` (Kubernetes, not a droplet with Docker installed directly on it).
+Every droplet-based playbook, right after `setup_server`: `setup_dev.yml`, `setup_jenkins.yml`, `setup_mercor.yml`. Not used by `setup_stage.yml`/`setup_prod.yml` (Kubernetes, not a droplet with Docker installed directly on it).

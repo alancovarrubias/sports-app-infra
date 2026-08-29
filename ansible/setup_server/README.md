@@ -8,4 +8,4 @@ Baseline hardening for a fresh droplet: waits for SSH to come up, creates the no
 
 ## Used by
 
-Every droplet-based playbook runs this first, before anything role-specific: `setup_dev.yml`, `setup_jenkins.yml`, `setup_mercor.yml`, `setup_worker.yml`, `setup_ansible.yml`. Not used by `setup_stage.yml`/`setup_prod.yml` — those target a Kubernetes cluster, not a droplet.
+Every droplet-based playbook runs this first, before anything role-specific: `setup_dev.yml`, `setup_jenkins.yml`, `setup_mercor.yml`. Not used by `setup_stage.yml`/`setup_prod.yml` — those target a Kubernetes cluster, not a droplet.

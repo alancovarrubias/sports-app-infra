@@ -1,4 +1,4 @@
-TF_STACKS := terraform/dev terraform/stage terraform/prod terraform/mercor terraform/jenkins terraform/ansible
+TF_STACKS := terraform/dev terraform/stage terraform/prod terraform/mercor terraform/jenkins
 
 .PHONY: lint lint-terraform lint-ansible
 
