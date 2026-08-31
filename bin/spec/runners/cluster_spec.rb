@@ -75,6 +75,32 @@ RSpec.describe 'Cluster-family Runners' do
       end
     end
 
+    describe '#console_auth' do
+      it 'execs a rails console into the running auth pod' do
+        allow(runner).to receive(:pod_name).with('auth').and_return('auth-6bf9797b6c-b4484')
+        runner.console_auth
+        expect(captured_commands).to eq([
+          "kubectl --kubeconfig=#{Constants::KUBECONFIG} exec -it auth-6bf9797b6c-b4484 -- rails console"
+        ])
+      end
+
+      it 'aborts with a clear message when no auth pod is running' do
+        allow(runner).to receive(:pod_name).with('auth').and_return('')
+        expect { runner.console_auth }.to raise_error(SystemExit)
+        expect(captured_commands).to eq([])
+      end
+    end
+
+    describe '#console_football' do
+      it 'execs a rails console into the running football pod' do
+        allow(runner).to receive(:pod_name).with('football').and_return('football-6d68fc48fd-crhzh')
+        runner.console_football
+        expect(captured_commands).to eq([
+          "kubectl --kubeconfig=#{Constants::KUBECONFIG} exec -it football-6d68fc48fd-crhzh -- rails console"
+        ])
+      end
+    end
+
     describe '#ingress' do
       it 'applies the ingress module and refreshes outputs' do
         runner.ingress
