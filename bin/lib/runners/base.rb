@@ -11,12 +11,12 @@ module Runners
 
     def run_ansible(options)
       ansible_command = @ansible_command.build(options)
-      run_commands(ANSIBLE, ansible_command)
+      run_commands(ansible_command, ANSIBLE)
     end
 
     def run_terraform(*commands)
       terraform_commands = commands.map { |command| @terraform_command.build(command) }
-      run_commands(TERRAFORM, terraform_commands)
+      run_commands(terraform_commands, TERRAFORM)
 
       reload_outputs!
     end
@@ -29,8 +29,8 @@ module Runners
 
     private
 
-    def run_commands(dir_name, commands)
-      dir = dir_name ? File.join(ROOT_DIR, dir_name) : ROOT_DIR
+    def run_commands(commands, dir_name = '')
+      dir = File.join(ROOT_DIR, dir_name)
       Dir.chdir(dir) do
         Array(commands).each do |command|
           puts command

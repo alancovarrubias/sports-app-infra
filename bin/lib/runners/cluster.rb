@@ -30,16 +30,11 @@ module Runners
       restart
     end
 
-    # Forces already-running pods to re-pull the image just pushed by
-    # #registry. imagePullPolicy: Always means kubelet WILL check the
-    # registry again, but only on pod restart -- pushing a new image
-    # under the same tag doesn't trigger that by itself. No-op on a
-    # fresh cluster, since #kube hasn't created any deployments yet.
     def restart
       running = running_deployments & DEPLOYMENTS
       return if running.empty?
 
-      run_commands(nil, @kubectl_command.restart(running))
+      run_commands(@kubectl_command.restart(running))
     end
 
     def console_auth
@@ -65,7 +60,7 @@ module Runners
     def destroy
       targets = ['destroy_ingress']
       targets << 'destroy_dns' if dns?
-      targets += ['destroy_registry', 'destroy_infra', 'output']
+      targets += %w[destroy_registry destroy_infra output]
       run_terraform(*targets)
     end
 
