@@ -16,6 +16,7 @@ RSpec.describe 'Cluster-family Runners' do
       stub_system!
       allow(SecureRandom).to receive(:hex).with(64).and_return(fake_secret)
       allow(runner).to receive(:outputs).and_return(fake_outputs)
+      allow(runner).to receive(:running_deployments).and_return([])
     end
 
     def terraform(*rest)
@@ -49,6 +50,28 @@ RSpec.describe 'Cluster-family Runners' do
           terraform("output -json > #{options[:output_file]}"),
           ansible('registry')
         ])
+      end
+
+      it 'also restarts already-running deployments so they pick up the freshly pushed image' do
+        allow(runner).to receive(:running_deployments).and_return(['client'])
+        runner.registry
+        expect(captured_commands.last).to eq("kubectl --kubeconfig=#{Constants::KUBECONFIG} rollout restart deployment/client")
+      end
+    end
+
+    describe '#restart' do
+      it 'restarts only the deployments that are both running and known to this app' do
+        allow(runner).to receive(:running_deployments).and_return(%w[client server unrelated-thing])
+        runner.restart
+        expect(captured_commands).to eq([
+          "kubectl --kubeconfig=#{Constants::KUBECONFIG} rollout restart deployment/client deployment/server"
+        ])
+      end
+
+      it 'does nothing on a fresh cluster, where no deployments exist yet' do
+        allow(runner).to receive(:running_deployments).and_return([])
+        runner.restart
+        expect(captured_commands).to eq([])
       end
     end
 

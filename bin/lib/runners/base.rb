@@ -30,7 +30,7 @@ module Runners
     private
 
     def run_commands(dir_name, commands)
-      dir = File.join(ROOT_DIR, dir_name)
+      dir = dir_name ? File.join(ROOT_DIR, dir_name) : ROOT_DIR
       Dir.chdir(dir) do
         Array(commands).each do |command|
           puts command
