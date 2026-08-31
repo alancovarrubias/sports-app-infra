@@ -39,7 +39,15 @@ module Runners
       running = running_deployments & DEPLOYMENTS
       return if running.empty?
 
-      run_commands(nil, @kubectl_command.build(running))
+      run_commands(nil, @kubectl_command.restart(running))
+    end
+
+    def console_auth
+      console('auth')
+    end
+
+    def console_football
+      console('football')
     end
 
     def ingress
@@ -62,6 +70,17 @@ module Runners
     end
 
     private
+
+    def console(app)
+      pod = pod_name(app)
+      abort("No running #{app} pod found -- is #{@options[:env]} deployed?") if pod.empty?
+
+      run_commands(nil, @kubectl_command.exec(pod, 'rails', 'console'))
+    end
+
+    def pod_name(app)
+      `kubectl --kubeconfig=#{KUBECONFIG} get pods -l app=#{app} -o jsonpath='{.items[0].metadata.name}'`.strip
+    end
 
     def running_deployments
       `kubectl --kubeconfig=#{KUBECONFIG} get deployments -o jsonpath='{.items[*].metadata.name}'`.split
