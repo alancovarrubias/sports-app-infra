@@ -78,9 +78,6 @@ module Runners
       run_commands(@kubectl_command.exec(pod, 'rails', 'console'))
     end
 
-    # Schema is (re)created by the `kube` step's `rake db:migrate`, so
-    # only data needs to round-trip here -- these dumps aren't meant to
-    # outlive a single destroy -> apply cycle for the same env.
     def dump_databases
       DB_CONTAINERS.each { |db| dump_database(db) }
     end
