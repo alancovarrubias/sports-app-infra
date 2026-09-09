@@ -6,6 +6,22 @@
     line: 'export KUBECONFIG="{{ kubeconfig }}"'
     create: yes
 
+- name: Check for locally trusted mkcert certificate
+  stat:
+    path: "{{ playbook_dir }}/certs/{{ domain_name }}.pem"
+  register: mkcert_cert_file
+  when: env == 'stage'
+
+- name: Check for locally trusted mkcert key
+  stat:
+    path: "{{ playbook_dir }}/certs/{{ domain_name }}-key.pem"
+  register: mkcert_key_file
+  when: env == 'stage'
+
+- name: Record whether a locally trusted cert is available
+  set_fact:
+    mkcert_tls_ready: "{{ env == 'stage' and mkcert_cert_file.stat.exists and mkcert_key_file.stat.exists }}"
+
 - name: Gather all Kubernetes template files
   find:
     paths: "{{ role_path }}/templates/k8s"
@@ -66,6 +82,14 @@
   loop: "{{ db_pod.results }}"
   loop_control:
     label: "{{ item.item }}"
+
+- name: Create client-tls secret from local mkcert certificate
+  shell: >
+    kubectl create secret tls client-tls
+    --cert={{ playbook_dir }}/certs/{{ domain_name }}.pem
+    --key={{ playbook_dir }}/certs/{{ domain_name }}-key.pem
+    --dry-run=client -o yaml | kubectl apply -f -
+  when: mkcert_tls_ready | bool
 
 - name: Apply client ingress yaml
   shell: kubectl apply -f /tmp/k8s/client-ingress.yaml
