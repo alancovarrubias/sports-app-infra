@@ -84,7 +84,7 @@ module Runners
 
     def dump_database(db)
       FileUtils.mkdir_p(dump_dir)
-      run_commands(%(pg_dump "#{database_uri(db)}" --data-only --no-owner -f #{dump_file(db)}))
+      run_commands(%(#{pg_bin('pg_dump')} "#{database_uri(db)}" --data-only --no-owner -f #{dump_file(db)}))
     end
 
     def restore_databases
@@ -94,7 +94,16 @@ module Runners
     def restore_database(db)
       return unless File.exist?(dump_file(db))
 
-      run_commands(%(psql "#{database_uri(db)}" -f #{dump_file(db)}))
+      run_commands(%(#{pg_bin('psql')} "#{database_uri(db)}" -f #{dump_file(db)}))
+    end
+
+    # pg_dump/psql refuse to talk to a server newer than themselves, and
+    # the DO managed cluster runs Postgres 18 (see modules/infra), which
+    # is newer than the client Homebrew links by default -- so reach for
+    # the matching versioned formula explicitly instead of a bare
+    # `pg_dump`/`psql` off PATH.
+    def pg_bin(command)
+      "$(brew --prefix postgresql@18)/bin/#{command}"
     end
 
     def database_uri(db)
