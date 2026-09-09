@@ -48,7 +48,7 @@ spec:
                 name: football
                 port:
                   number: 3003
-{% if env == 'prod' %}
+{% if env == 'prod' or (env == 'stage' and mkcert_tls_ready) %}
   tls:
     - hosts:
         - "{{ domain_name }}"
