@@ -23,12 +23,12 @@ RSpec.describe 'Cluster-family Runners' do
     end
 
     def dump(db)
-      "pg_dump \"postgres://fake-db/#{db}_production\" --data-only --no-owner " \
+      "$(brew --prefix postgresql@18)/bin/pg_dump \"postgres://fake-db/#{db}_production\" --data-only --no-owner " \
         "-f #{Constants::ROOT_DIR}/bin/outputs/dumps/#{env_name}/#{db}.sql"
     end
 
     def restore(db)
-      "psql \"postgres://fake-db/#{db}_production\" " \
+      "$(brew --prefix postgresql@18)/bin/psql \"postgres://fake-db/#{db}_production\" " \
         "-f #{Constants::ROOT_DIR}/bin/outputs/dumps/#{env_name}/#{db}.sql"
     end
 
