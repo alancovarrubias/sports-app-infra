@@ -70,7 +70,7 @@ module Runners
       pod = pod_name(app)
       abort("No running #{app} pod found -- is #{@options[:env]} deployed?") if pod.empty?
 
-      run_commands(nil, @kubectl_command.exec(pod, 'rails', 'console'))
+      run_commands(@kubectl_command.exec(pod, 'rails', 'console'))
     end
 
     def pod_name(app)
