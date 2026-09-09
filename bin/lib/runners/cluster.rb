@@ -1,4 +1,6 @@
 require 'securerandom'
+require 'uri'
+require 'fileutils'
 
 module Runners
   # Shared shape for environments backed by a DigitalOcean Kubernetes
@@ -6,6 +8,7 @@ module Runners
   # (optionally) DNS, then the app itself via Ansible.
   class Cluster < Base
     DEPLOYMENTS = %w[client server auth football crawler sidekiq].freeze
+    DB_CONTAINERS = %w[auth football].freeze
 
     def initialize(options)
       super
@@ -18,6 +21,7 @@ module Runners
       ingress
       dns if dns?
       kube
+      restore_databases
     end
 
     def infra
@@ -58,6 +62,7 @@ module Runners
     end
 
     def destroy
+      dump_databases
       targets = ['destroy_ingress']
       targets << 'destroy_dns' if dns?
       targets += %w[destroy_registry destroy_infra output]
@@ -70,7 +75,40 @@ module Runners
       pod = pod_name(app)
       abort("No running #{app} pod found -- is #{@options[:env]} deployed?") if pod.empty?
 
-      run_commands(nil, @kubectl_command.exec(pod, 'rails', 'console'))
+      run_commands(@kubectl_command.exec(pod, 'rails', 'console'))
+    end
+
+    def dump_databases
+      DB_CONTAINERS.each { |db| dump_database(db) }
+    end
+
+    def dump_database(db)
+      FileUtils.mkdir_p(dump_dir)
+      run_commands(%(pg_dump "#{database_uri(db)}" --data-only --no-owner -f #{dump_file(db)}))
+    end
+
+    def restore_databases
+      DB_CONTAINERS.each { |db| restore_database(db) }
+    end
+
+    def restore_database(db)
+      return unless File.exist?(dump_file(db))
+
+      run_commands(%(psql "#{database_uri(db)}" -f #{dump_file(db)}))
+    end
+
+    def database_uri(db)
+      uri = URI.parse(outputs['database_uri']['value'])
+      uri.path = "/#{db}_production"
+      uri.to_s
+    end
+
+    def dump_dir
+      File.join(ROOT_DIR, 'bin/outputs/dumps', @options[:env])
+    end
+
+    def dump_file(db)
+      File.join(dump_dir, "#{db}.sql")
     end
 
     def pod_name(app)
