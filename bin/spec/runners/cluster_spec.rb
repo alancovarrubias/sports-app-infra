@@ -17,6 +17,19 @@ RSpec.describe 'Cluster-family Runners' do
       allow(SecureRandom).to receive(:hex).with(64).and_return(fake_secret)
       allow(runner).to receive(:outputs).and_return(fake_outputs)
       allow(runner).to receive(:running_deployments).and_return([])
+      allow(FileUtils).to receive(:mkdir_p)
+      allow(File).to receive(:exist?).and_call_original
+      allow(File).to receive(:exist?).with(/bin\/outputs\/dumps/).and_return(false)
+    end
+
+    def dump(db)
+      "pg_dump \"postgres://fake-db/#{db}_production\" --data-only --no-owner " \
+        "-f #{Constants::ROOT_DIR}/bin/outputs/dumps/#{env_name}/#{db}.sql"
+    end
+
+    def restore(db)
+      "psql \"postgres://fake-db/#{db}_production\" " \
+        "-f #{Constants::ROOT_DIR}/bin/outputs/dumps/#{env_name}/#{db}.sql"
     end
 
     def terraform(*rest)
@@ -117,6 +130,31 @@ RSpec.describe 'Cluster-family Runners' do
         expect(captured_commands).to eq([ansible('kube')])
       end
     end
+
+    describe '#destroy' do
+      it 'dumps each app database before tearing anything down' do
+        runner.destroy
+        expect(captured_commands.first(2)).to eq([dump('auth'), dump('football')])
+      end
+    end
+
+    describe '#apply' do
+      it 'restores whichever database dumps exist locally, after kube' do
+        allow(File).to receive(:exist?)
+          .with("#{Constants::ROOT_DIR}/bin/outputs/dumps/#{env_name}/auth.sql").and_return(true)
+        allow(File).to receive(:exist?)
+          .with("#{Constants::ROOT_DIR}/bin/outputs/dumps/#{env_name}/football.sql").and_return(false)
+
+        runner.apply
+
+        expect(captured_commands.last).to eq(restore('auth'))
+      end
+
+      it 'restores nothing when no dump is present' do
+        runner.apply
+        expect(captured_commands.join(' ')).not_to include('psql')
+      end
+    end
   end
 
   describe Runners::Stage do
@@ -136,6 +174,8 @@ RSpec.describe 'Cluster-family Runners' do
       it 'tears down ingress, registry, and infra, skipping DNS' do
         runner.destroy
         expect(captured_commands).to eq([
+          dump('auth'),
+          dump('football'),
           terraform('destroy -target=module.ingress -var-file=../terraform.tfvars --auto-approve'),
           terraform('destroy -target=module.registry -var-file=../terraform.tfvars --auto-approve'),
           terraform('destroy -target=module.infra -var-file=../terraform.tfvars --auto-approve'),
