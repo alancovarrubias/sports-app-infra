@@ -1,7 +1,7 @@
 resource "digitalocean_kubernetes_cluster" "app" {
   name    = "sports-app-cluster"
-  region  = "sfo3"
-  version = "latest"
+  region  = "nyc3"
+  version = "1.36.3-do.4"
 
   node_pool {
     name       = "app-pool"
@@ -18,7 +18,7 @@ resource "digitalocean_database_cluster" "db" {
   engine     = "pg"
   version    = "18"
   size       = "db-s-1vcpu-1gb"
-  region     = "sfo3"
+  region     = "nyc3"
   node_count = 1
 }
 
@@ -27,6 +27,6 @@ resource "digitalocean_database_cluster" "cache" {
   engine     = "valkey"
   version    = "8"
   size       = "db-s-1vcpu-1gb"
-  region     = "sfo3"
+  region     = "nyc3"
   node_count = 1
 }
