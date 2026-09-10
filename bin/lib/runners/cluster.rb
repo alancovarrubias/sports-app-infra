@@ -1,6 +1,4 @@
 require 'securerandom'
-require 'uri'
-require 'fileutils'
 
 module Runners
   # Shared shape for environments backed by a DigitalOcean Kubernetes
@@ -8,11 +6,11 @@ module Runners
   # (optionally) DNS, then the app itself via Ansible.
   class Cluster < Base
     DEPLOYMENTS = %w[client server auth football crawler sidekiq].freeze
-    DB_CONTAINERS = %w[auth football].freeze
 
     def initialize(options)
       super
       @kubectl_command = Commands::Kubectl.new
+      @database_command = Commands::Database.new(options)
     end
 
     def apply
@@ -21,7 +19,7 @@ module Runners
       ingress
       dns if dns?
       kube
-      restore_databases
+      @database_command.restore_all(outputs['database_uri']['value'])
     end
 
     def infra
@@ -42,7 +40,7 @@ module Runners
     end
 
     def console
-      db = validate_database!
+      db = @database_command.validate!(@options[:database])
       pod = pod_name(db)
       abort("No running #{db} pod found -- is #{@options[:env]} deployed?") if pod.empty?
 
@@ -50,11 +48,11 @@ module Runners
     end
 
     def dump
-      dump_database(validate_database!)
+      @database_command.dump(outputs['database_uri']['value'], @options[:database])
     end
 
     def restore
-      restore_database(validate_database!)
+      @database_command.restore(outputs['database_uri']['value'], @options[:database])
     end
 
     def ingress
@@ -70,7 +68,7 @@ module Runners
     end
 
     def destroy
-      dump_databases
+      @database_command.dump_all(outputs['database_uri']['value'])
       targets = ['destroy_ingress']
       targets << 'destroy_dns' if dns?
       targets += %w[destroy_registry destroy_infra output]
@@ -78,53 +76,6 @@ module Runners
     end
 
     private
-
-    def validate_database!
-      db = @options[:database]
-      abort("No database specified -- pass -d <#{DB_CONTAINERS.join('|')}>") if db.nil?
-      unless DB_CONTAINERS.include?(db)
-        abort("Unknown database '#{db}' -- expected one of #{DB_CONTAINERS.join(', ')}")
-      end
-
-      db
-    end
-
-    def dump_databases
-      DB_CONTAINERS.each { |db| dump_database(db) }
-    end
-
-    def dump_database(db)
-      FileUtils.mkdir_p(dump_dir)
-      run_commands(%(#{pg_bin('pg_dump')} "#{database_uri(db)}" --data-only --no-owner -f #{dump_file(db)}))
-    end
-
-    def restore_databases
-      DB_CONTAINERS.each { |db| restore_database(db) }
-    end
-
-    def restore_database(db)
-      return unless File.exist?(dump_file(db))
-
-      run_commands(%(#{pg_bin('psql')} "#{database_uri(db)}" -f #{dump_file(db)}))
-    end
-
-    def pg_bin(command)
-      "$(brew --prefix postgresql@18)/bin/#{command}"
-    end
-
-    def database_uri(db)
-      uri = URI.parse(outputs['database_uri']['value'])
-      uri.path = "/#{db}_production"
-      uri.to_s
-    end
-
-    def dump_dir
-      File.join(ROOT_DIR, 'bin/outputs/dumps', @options[:env])
-    end
-
-    def dump_file(db)
-      File.join(dump_dir, "#{db}.sql")
-    end
 
     def pod_name(app)
       `kubectl --kubeconfig=#{KUBECONFIG} get pods -l app=#{app} -o jsonpath='{.items[0].metadata.name}'`.strip
@@ -155,9 +106,9 @@ module Runners
       {
         secret_key_base: SecureRandom.hex(64),
         cache_url: outputs['cache_uri']['value'],
-        database_url: outputs['database_uri']['value'],
-        auth_database_url: database_uri('auth'),
-        football_database_url: database_uri('football'),
+        database_url: base_uri,
+        auth_database_url: @database_command.uri(base_uri, 'auth'),
+        football_database_url: @database_command.uri(base_uri, 'football'),
         registry_name: outputs['registry_name']['value'],
         kubeconfig: KUBECONFIG
       }
