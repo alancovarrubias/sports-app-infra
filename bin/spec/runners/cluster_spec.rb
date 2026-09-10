@@ -128,6 +128,52 @@ RSpec.describe 'Cluster-family Runners' do
       end
     end
 
+    describe '#dump' do
+      it 'dumps the given database' do
+        options[:database] = 'auth'
+        runner.dump
+        expect(captured_commands).to eq([dump('auth')])
+      end
+
+      it 'aborts with a clear message when no database is specified' do
+        expect { runner.dump }.to raise_error(SystemExit)
+        expect(captured_commands).to eq([])
+      end
+
+      it 'aborts with a clear message when the database is unknown' do
+        options[:database] = 'nonsense'
+        expect { runner.dump }.to raise_error(SystemExit)
+        expect(captured_commands).to eq([])
+      end
+    end
+
+    describe '#restore' do
+      it 'restores the given database when a dump is present locally' do
+        allow(File).to receive(:exist?)
+          .with("#{Constants::ROOT_DIR}/bin/outputs/dumps/#{env_name}/auth.sql").and_return(true)
+        options[:database] = 'auth'
+        runner.restore
+        expect(captured_commands).to eq([restore('auth')])
+      end
+
+      it 'does nothing when no dump is present locally' do
+        options[:database] = 'auth'
+        runner.restore
+        expect(captured_commands).to eq([])
+      end
+
+      it 'aborts with a clear message when no database is specified' do
+        expect { runner.restore }.to raise_error(SystemExit)
+        expect(captured_commands).to eq([])
+      end
+
+      it 'aborts with a clear message when the database is unknown' do
+        options[:database] = 'nonsense'
+        expect { runner.restore }.to raise_error(SystemExit)
+        expect(captured_commands).to eq([])
+      end
+    end
+
     describe '#ingress' do
       it 'applies the ingress module and refreshes outputs' do
         runner.ingress

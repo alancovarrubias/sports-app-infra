@@ -42,16 +42,19 @@ module Runners
     end
 
     def console
-      db = @options[:database]
-      abort("No database specified -- pass -d <#{DB_CONTAINERS.join('|')}>") if db.nil?
-      unless DB_CONTAINERS.include?(db)
-        abort("Unknown database '#{db}' -- expected one of #{DB_CONTAINERS.join(', ')}")
-      end
-
+      db = validate_database!
       pod = pod_name(db)
       abort("No running #{db} pod found -- is #{@options[:env]} deployed?") if pod.empty?
 
       run_commands(@kubectl_command.exec(pod, 'rails', 'console'))
+    end
+
+    def dump
+      dump_database(validate_database!)
+    end
+
+    def restore
+      restore_database(validate_database!)
     end
 
     def ingress
@@ -75,6 +78,16 @@ module Runners
     end
 
     private
+
+    def validate_database!
+      db = @options[:database]
+      abort("No database specified -- pass -d <#{DB_CONTAINERS.join('|')}>") if db.nil?
+      unless DB_CONTAINERS.include?(db)
+        abort("Unknown database '#{db}' -- expected one of #{DB_CONTAINERS.join(', ')}")
+      end
+
+      db
+    end
 
     def dump_databases
       DB_CONTAINERS.each { |db| dump_database(db) }

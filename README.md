@@ -18,10 +18,10 @@ This repo's core concepts — Environment, Runner, Command, Terraform module —
 ruby bin/infra_cli.rb -c <command> -e <environment> [--tags <tags>] [-d <database>]
 ```
 
-- **`-c`/`--command`** — the method to call on the environment's Runner. What's available depends on the environment's family (`Runners::Cluster` for `stage`/`prod`, `Runners::Droplet` for `dev`/`mercor`) — see `bin/lib/runners/` for the full set (`apply`, `destroy`, `run`, `database`, `stage`/`prod`-specific steps like `infra`/`registry`/`ingress`/`kube`/`restart`, and `console` for a live Rails console).
+- **`-c`/`--command`** — the method to call on the environment's Runner. What's available depends on the environment's family (`Runners::Cluster` for `stage`/`prod`, `Runners::Droplet` for `dev`/`mercor`) — see `bin/lib/runners/` for the full set (`apply`, `destroy`, `run`, `database`, `stage`/`prod`-specific steps like `infra`/`registry`/`ingress`/`kube`/`restart`, and `console`/`dump`/`restore` for a single app's database).
 - **`-e`/`--env`** — which environment: `dev`, `stage`, `prod`, or `mercor`.
 - **`--tags`** — optional, comma-separated Ansible tags to scope a run to part of a playbook.
-- **`-d`/`--database`** — required by `-c console` to pick which app's pod to console into (`auth` or `football`).
+- **`-d`/`--database`** — required by `-c console`/`-c dump`/`-c restore` to pick which app's database to target (`auth` or `football`).
 
 Examples:
 
@@ -29,6 +29,8 @@ Examples:
 ruby bin/infra_cli.rb -c apply -e stage           # bring up the staging Kubernetes cluster + app
 ruby bin/infra_cli.rb -c database -e dev --tags dump   # dump dev's databases
 ruby bin/infra_cli.rb -c console -e stage -d auth      # rails console into the running auth pod
+ruby bin/infra_cli.rb -c dump -e stage -d auth         # dump stage's auth database to a local file
+ruby bin/infra_cli.rb -c restore -e stage -d auth      # restore stage's auth database from that local file
 ```
 
 ## Tests
