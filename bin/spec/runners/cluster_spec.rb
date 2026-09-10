@@ -39,6 +39,8 @@ RSpec.describe 'Cluster-family Runners' do
     def ansible(tags)
       base = "ansible-playbook -e @extra_vars.yml -e @custom_vars.yml --tags #{tags} -e env=#{env_name} " \
              "-e secret_key_base=#{fake_secret} -e cache_url=redis://fake-cache -e database_url=postgres://fake-db " \
+             "-e auth_database_url=postgres://fake-db/auth_production " \
+             "-e football_database_url=postgres://fake-db/football_production " \
              "-e registry_name=registry.digitalocean.com/fake -e kubeconfig=#{Constants::KUBECONFIG}"
       "#{base}#{extra_ansible_variables} setup_#{env_name}.yml"
     end
@@ -88,29 +90,41 @@ RSpec.describe 'Cluster-family Runners' do
       end
     end
 
-    describe '#console_auth' do
+    describe '#console' do
       it 'execs a rails console into the running auth pod' do
         allow(runner).to receive(:pod_name).with('auth').and_return('auth-6bf9797b6c-b4484')
-        runner.console_auth
+        options[:database] = 'auth'
+        runner.console
         expect(captured_commands).to eq([
           "kubectl --kubeconfig=#{Constants::KUBECONFIG} exec -it auth-6bf9797b6c-b4484 -- rails console"
         ])
       end
 
-      it 'aborts with a clear message when no auth pod is running' do
-        allow(runner).to receive(:pod_name).with('auth').and_return('')
-        expect { runner.console_auth }.to raise_error(SystemExit)
-        expect(captured_commands).to eq([])
-      end
-    end
-
-    describe '#console_football' do
       it 'execs a rails console into the running football pod' do
         allow(runner).to receive(:pod_name).with('football').and_return('football-6d68fc48fd-crhzh')
-        runner.console_football
+        options[:database] = 'football'
+        runner.console
         expect(captured_commands).to eq([
           "kubectl --kubeconfig=#{Constants::KUBECONFIG} exec -it football-6d68fc48fd-crhzh -- rails console"
         ])
+      end
+
+      it 'aborts with a clear message when no pod is running for that database' do
+        allow(runner).to receive(:pod_name).with('auth').and_return('')
+        options[:database] = 'auth'
+        expect { runner.console }.to raise_error(SystemExit)
+        expect(captured_commands).to eq([])
+      end
+
+      it 'aborts with a clear message when no database is specified' do
+        expect { runner.console }.to raise_error(SystemExit)
+        expect(captured_commands).to eq([])
+      end
+
+      it 'aborts with a clear message when the database is unknown' do
+        options[:database] = 'nonsense'
+        expect { runner.console }.to raise_error(SystemExit)
+        expect(captured_commands).to eq([])
       end
     end
 

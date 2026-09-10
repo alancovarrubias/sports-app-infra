@@ -12,3 +12,7 @@
 - name: Push images
   shell: docker push {{ registry_name }}/{{ item }}:{{ env }}
   loop: "{{ registry_containers }}"
+  register: push_result
+  until: push_result.rc == 0
+  retries: 3
+  delay: 5

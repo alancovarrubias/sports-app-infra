@@ -41,12 +41,17 @@ module Runners
       run_commands(@kubectl_command.restart(running))
     end
 
-    def console_auth
-      console('auth')
-    end
+    def console
+      db = @options[:database]
+      abort("No database specified -- pass -d <#{DB_CONTAINERS.join('|')}>") if db.nil?
+      unless DB_CONTAINERS.include?(db)
+        abort("Unknown database '#{db}' -- expected one of #{DB_CONTAINERS.join(', ')}")
+      end
 
-    def console_football
-      console('football')
+      pod = pod_name(db)
+      abort("No running #{db} pod found -- is #{@options[:env]} deployed?") if pod.empty?
+
+      run_commands(@kubectl_command.exec(pod, 'rails', 'console'))
     end
 
     def ingress
@@ -70,13 +75,6 @@ module Runners
     end
 
     private
-
-    def console(app)
-      pod = pod_name(app)
-      abort("No running #{app} pod found -- is #{@options[:env]} deployed?") if pod.empty?
-
-      run_commands(@kubectl_command.exec(pod, 'rails', 'console'))
-    end
 
     def dump_databases
       DB_CONTAINERS.each { |db| dump_database(db) }
@@ -145,6 +143,8 @@ module Runners
         secret_key_base: SecureRandom.hex(64),
         cache_url: outputs['cache_uri']['value'],
         database_url: outputs['database_uri']['value'],
+        auth_database_url: database_uri('auth'),
+        football_database_url: database_uri('football'),
         registry_name: outputs['registry_name']['value'],
         kubeconfig: KUBECONFIG
       }

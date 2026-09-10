@@ -9,7 +9,8 @@ module InfraCLI
   OPTIONS = {
     command: ['-c', '--command COMMAND', 'Specify command'],
     env: ['-e', '--env ENV', 'Specify environment'],
-    tags: ['--tags TAGS', 'Specify tags']
+    tags: ['--tags TAGS', 'Specify tags'],
+    database: ['-d', '--database DATABASE', 'Specify database']
   }.freeze
 
   def run

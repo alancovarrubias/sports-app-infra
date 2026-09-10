@@ -40,7 +40,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: database-url
-                  key: DATABASE_URL
+                  key: FOOTBALL_DATABASE_URL
             - name: REDIS_URL_SIDEKIQ
               valueFrom:
                 secretKeyRef:
