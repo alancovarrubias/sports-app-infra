@@ -1,4 +1,4 @@
-RSpec.describe 'Droplet-family Runners' do
+RSpec.describe Runners::Droplet do
   shared_examples 'a Droplet Runner' do
     subject(:runner) { described_class.new(options) }
 
@@ -55,7 +55,7 @@ RSpec.describe 'Droplet-family Runners' do
     end
   end
 
-  describe Runners::Dev do
+  context 'for dev' do
     let(:env_name) { 'dev' }
     let(:expected_ansible_command) do
       'ansible-playbook -e @extra_vars.yml -e @custom_vars.yml --inventory 1.2.3.4, ' \
@@ -71,7 +71,7 @@ RSpec.describe 'Droplet-family Runners' do
     end
   end
 
-  describe Runners::Mercor do
+  context 'for mercor' do
     let(:env_name) { 'mercor' }
     let(:expected_ansible_command) do
       'ansible-playbook -e @extra_vars.yml -e @custom_vars.yml --inventory 1.2.3.4, -e env=mercor setup_mercor.yml'

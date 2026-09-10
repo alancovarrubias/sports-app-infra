@@ -13,10 +13,20 @@ module InfraCLI
     database: ['-d', '--database DATABASE', 'Specify database']
   }.freeze
 
+  RUNNERS = {
+    'stage' => Runners::Cluster,
+    'prod' => Runners::Cluster,
+    'dev' => Runners::Droplet,
+    'mercor' => Runners::Droplet
+  }.freeze
+
   def run
     options = parse_options
-    command = Runners.const_get(options[:env].capitalize).new(options)
-    command.send(options[:command])
+    runner_class = RUNNERS.fetch(options[:env]) do
+      abort("Unknown environment '#{options[:env]}' -- expected one of #{RUNNERS.keys.join(', ')}")
+    end
+
+    runner_class.new(options).send(options[:command])
   end
 
   def parse_options

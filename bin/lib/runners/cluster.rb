@@ -1,11 +1,14 @@
 require 'securerandom'
 
 module Runners
-  # Shared shape for environments backed by a DigitalOcean Kubernetes
-  # cluster (Stage, Prod): infra, then registry, then ingress, then
-  # (optionally) DNS, then the app itself via Ansible.
+  # Environments backed by a DigitalOcean Kubernetes cluster (stage, prod):
+  # infra, then registry, then ingress, then (prod only) DNS, then the app
+  # itself via Ansible. Prod is the only environment with its own domain, so
+  # it's the only one that touches DNS or needs apply_base/destroy_base to
+  # rebuild everything except it.
   class Cluster < Base
     DEPLOYMENTS = %w[client server auth football crawler sidekiq].freeze
+    STAGE_DOMAIN_NAME = 'sports-app.test'.freeze
 
     def initialize(options)
       super
@@ -17,9 +20,28 @@ module Runners
       infra
       registry
       ingress
-      dns if dns?
+      dns if prod?
       kube
       @database_command.restore_all(outputs['database_uri']['value'])
+    end
+
+    def apply_base
+      infra
+      registry
+      ingress
+      kube
+    end
+
+    def destroy
+      @database_command.dump_all(outputs['database_uri']['value'])
+      targets = ['destroy_ingress']
+      targets << 'destroy_dns' if prod?
+      targets += %w[destroy_registry destroy_infra output]
+      run_terraform(*targets)
+    end
+
+    def destroy_base
+      run_terraform('destroy_ingress', 'destroy_infra', 'output')
     end
 
     def infra
@@ -67,15 +89,11 @@ module Runners
       ansible_command('kube')
     end
 
-    def destroy
-      @database_command.dump_all(outputs['database_uri']['value'])
-      targets = ['destroy_ingress']
-      targets << 'destroy_dns' if dns?
-      targets += %w[destroy_registry destroy_infra output]
-      run_terraform(*targets)
-    end
-
     private
+
+    def prod?
+      @options[:env] == 'prod'
+    end
 
     def pod_name(app)
       `kubectl --kubeconfig=#{KUBECONFIG} get pods -l app=#{app} -o jsonpath='{.items[0].metadata.name}'`.strip
@@ -83,10 +101,6 @@ module Runners
 
     def running_deployments
       `kubectl --kubeconfig=#{KUBECONFIG} get deployments -o jsonpath='{.items[*].metadata.name}'`.split
-    end
-
-    def dns?
-      false
     end
 
     def playbook
@@ -103,7 +117,9 @@ module Runners
     end
 
     def ansible_variables
-      {
+      base_uri = outputs['database_uri']['value']
+
+      variables = {
         secret_key_base: SecureRandom.hex(64),
         cache_url: outputs['cache_uri']['value'],
         database_url: base_uri,
@@ -112,6 +128,9 @@ module Runners
         registry_name: outputs['registry_name']['value'],
         kubeconfig: KUBECONFIG
       }
+      return variables if prod?
+
+      variables.merge(domain_name: STAGE_DOMAIN_NAME, local_image_tag: 'prod')
     end
   end
 end

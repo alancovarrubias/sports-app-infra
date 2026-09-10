@@ -1,4 +1,4 @@
-RSpec.describe 'Cluster-family Runners' do
+RSpec.describe Runners::Cluster do
   shared_examples 'a Cluster Runner' do
     subject(:runner) { described_class.new(options) }
 
@@ -217,14 +217,14 @@ RSpec.describe 'Cluster-family Runners' do
     end
   end
 
-  describe Runners::Stage do
+  context 'for stage' do
     let(:env_name) { 'stage' }
     let(:extra_ansible_variables) { ' -e domain_name=sports-app.test -e local_image_tag=prod' }
 
     include_examples 'a Cluster Runner'
 
     describe '#apply' do
-      it 'never applies DNS, since Stage has no domain of its own' do
+      it 'never applies DNS, since stage has no domain of its own' do
         runner.apply
         expect(captured_commands.join(' ')).not_to include('module.dns')
       end
@@ -245,14 +245,14 @@ RSpec.describe 'Cluster-family Runners' do
     end
   end
 
-  describe Runners::Prod do
+  context 'for prod' do
     let(:env_name) { 'prod' }
     let(:extra_ansible_variables) { '' }
 
     include_examples 'a Cluster Runner'
 
     describe '#apply' do
-      it 'applies DNS between ingress and kube, since Prod owns the real domain' do
+      it 'applies DNS between ingress and kube, since prod owns the real domain' do
         runner.apply
         dns_index = captured_commands.index { |c| c.include?('module.dns') }
         kube_index = captured_commands.index { |c| c.include?('--tags kube') }
