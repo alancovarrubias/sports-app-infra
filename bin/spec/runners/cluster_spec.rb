@@ -20,6 +20,7 @@ RSpec.describe Runners::Cluster do
       allow(FileUtils).to receive(:mkdir_p)
       allow(File).to receive(:exist?).and_call_original
       allow(File).to receive(:exist?).with(/bin\/outputs\/dumps/).and_return(false)
+      allow_any_instance_of(Commands::Database).to receive(:database_exists?).and_return(true)
     end
 
     def dump(db)
@@ -46,13 +47,15 @@ RSpec.describe Runners::Cluster do
     end
 
     describe '#infra' do
-      it 'applies the infra Terraform module, pulls kubeconfig, then refreshes outputs' do
+      it 'applies the infra Terraform module, pulls kubeconfig, refreshes outputs, ' \
+         'then waits for the API server to be reachable' do
         runner.infra
         expect(captured_commands).to eq([
           terraform('init'),
           terraform('apply -target=module.infra -var-file=../terraform.tfvars --auto-approve'),
           terraform("output -raw kubeconfig > #{Constants::KUBECONFIG}"),
-          terraform("output -json > #{options[:output_file]}")
+          terraform("output -json > #{options[:output_file]}"),
+          "kubectl --kubeconfig=#{Constants::KUBECONFIG} wait --for=condition=Ready nodes --all --timeout=180s"
         ])
       end
     end
@@ -128,6 +131,36 @@ RSpec.describe Runners::Cluster do
       end
     end
 
+    describe '#seed' do
+      it 'runs seeds.rb in the running football pod' do
+        allow(runner).to receive(:pod_name).with('football').and_return('football-6d68fc48fd-crhzh')
+        options[:database] = 'football'
+        runner.seed
+        expect(captured_commands).to eq([
+          "kubectl --kubeconfig=#{Constants::KUBECONFIG} exec -it football-6d68fc48fd-crhzh -- " +
+            %(rails runner "load Rails.root.join('db/seeds.rb')")
+        ])
+      end
+
+      it 'aborts with a clear message when no pod is running for that database' do
+        allow(runner).to receive(:pod_name).with('football').and_return('')
+        options[:database] = 'football'
+        expect { runner.seed }.to raise_error(SystemExit)
+        expect(captured_commands).to eq([])
+      end
+
+      it 'aborts with a clear message when no database is specified' do
+        expect { runner.seed }.to raise_error(SystemExit)
+        expect(captured_commands).to eq([])
+      end
+
+      it 'aborts with a clear message when the database is unknown' do
+        options[:database] = 'nonsense'
+        expect { runner.seed }.to raise_error(SystemExit)
+        expect(captured_commands).to eq([])
+      end
+    end
+
     describe '#dump' do
       it 'dumps the given database' do
         options[:database] = 'auth'
@@ -175,12 +208,37 @@ RSpec.describe Runners::Cluster do
     end
 
     describe '#ingress' do
+      let(:apply_ingress) { terraform('apply -target=module.ingress -var-file=../terraform.tfvars --auto-approve') }
+
       it 'applies the ingress module and refreshes outputs' do
         runner.ingress
         expect(captured_commands).to eq([
-          terraform('apply -target=module.ingress -var-file=../terraform.tfvars --auto-approve'),
+          apply_ingress,
           terraform("output -json > #{options[:output_file]}")
         ])
+      end
+
+      it 'retries after a transient failure, then succeeds' do
+        fail_next_system_calls(1)
+        allow(runner).to receive(:sleep)
+
+        runner.ingress
+
+        expect(captured_commands).to eq([
+          apply_ingress,
+          apply_ingress,
+          terraform("output -json > #{options[:output_file]}")
+        ])
+        expect(runner).to have_received(:sleep).once
+      end
+
+      it 'gives up after exhausting its retries on a persistent failure' do
+        fail_next_system_calls(10)
+        allow(runner).to receive(:sleep)
+
+        expect { runner.ingress }.to raise_error(SystemExit)
+        expect(captured_commands).to eq([apply_ingress, apply_ingress, apply_ingress])
+        expect(runner).to have_received(:sleep).twice
       end
     end
 

@@ -18,6 +18,17 @@ spec:
         - name: server
           image: "{{ registry_name }}/server:{{ env }}"
           imagePullPolicy: Always
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: database-url
+                  key: DATABASE_URL
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: cache-url
+                  key: CACHE_URL
           ports:
             - containerPort: 4000
       imagePullSecrets:

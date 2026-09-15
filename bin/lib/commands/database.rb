@@ -44,7 +44,19 @@ module Commands
 
     def dump_command(base_uri, db)
       FileUtils.mkdir_p(dump_dir)
+      unless database_exists?(base_uri, db)
+        puts "Skipping dump of #{db}_production -- database does not exist"
+        return nil
+      end
+
       "#{pg_bin('pg_dump')} \"#{uri(base_uri, db)}\" --data-only --no-owner -f #{dump_file(db)}"
+    end
+
+    # dump_all runs ahead of `destroy`, and a database that was never created
+    # (e.g. stage torn down before its app was ever deployed) shouldn't block
+    # tearing down the rest of the infra.
+    def database_exists?(base_uri, db)
+      `#{pg_bin('psql')} "#{base_uri}" -tAc "SELECT 1 FROM pg_database WHERE datname = '#{db}_production'"`.strip == '1'
     end
 
     def restore_command(base_uri, db)

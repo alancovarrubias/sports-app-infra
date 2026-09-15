@@ -9,6 +9,8 @@ module Runners
   class Cluster < Base
     DEPLOYMENTS = %w[client server auth football crawler sidekiq].freeze
     STAGE_DOMAIN_NAME = 'sports-app.test'.freeze
+    INGRESS_APPLY_ATTEMPTS = 3
+    INGRESS_APPLY_RETRY_DELAY = 15
 
     def initialize(options)
       super
@@ -46,6 +48,7 @@ module Runners
 
     def infra
       run_terraform('init', 'apply_infra', 'kubeconfig', 'output')
+      run_commands(@kubectl_command.wait_for_nodes)
     end
 
     def registry
@@ -62,11 +65,11 @@ module Runners
     end
 
     def console
-      db = @database_command.validate!(@options[:database])
-      pod = pod_name(db)
-      abort("No running #{db} pod found -- is #{@options[:env]} deployed?") if pod.empty?
+      run_commands(@kubectl_command.exec(target_pod, 'rails', 'console'))
+    end
 
-      run_commands(@kubectl_command.exec(pod, 'rails', 'console'))
+    def seed
+      run_commands(@kubectl_command.exec(target_pod, 'rails', 'runner', %("load Rails.root.join('db/seeds.rb')")))
     end
 
     def dump
@@ -78,7 +81,7 @@ module Runners
     end
 
     def ingress
-      run_terraform('apply_ingress', 'output')
+      with_retries(INGRESS_APPLY_ATTEMPTS) { run_terraform('apply_ingress', 'output') }
     end
 
     def dns
@@ -90,6 +93,29 @@ module Runners
     end
 
     private
+
+    # The Helm/Kubernetes Terraform providers make one connection attempt and
+    # give up on it, unlike kubectl's own built-in watch/retry loop -- so a
+    # freshly created cluster's API server can still be intermittently
+    # unreachable (EOF) for a short window after `infra` returns, even though
+    # its nodes are already Ready. Retrying the apply rides out that window.
+    def with_retries(attempts)
+      yield
+    rescue SystemExit
+      raise if attempts <= 1
+
+      puts "Transient failure -- retrying (#{attempts - 1} attempt(s) left)..."
+      sleep INGRESS_APPLY_RETRY_DELAY
+      with_retries(attempts - 1) { yield }
+    end
+
+    def target_pod
+      db = @database_command.validate!(@options[:database])
+      pod = pod_name(db)
+      abort("No running #{db} pod found -- is #{@options[:env]} deployed?") if pod.empty?
+
+      pod
+    end
 
     def prod?
       @options[:env] == 'prod'

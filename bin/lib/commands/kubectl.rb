@@ -3,11 +3,19 @@ module Commands
     include Constants
 
     def restart(deployments)
-      "kubectl --kubeconfig=#{KUBECONFIG} rollout restart #{deployments.map { |d| "deployment/#{d}" }.join(' ')}"
+      build_command("rollout restart #{deployments.map { |d| "deployment/#{d}" }.join(' ')}")
     end
 
     def exec(pod, *command)
-      "kubectl --kubeconfig=#{KUBECONFIG} exec -it #{pod} -- #{command.join(' ')}"
+      build_command("exec -it #{pod} -- #{command.join(' ')}")
+    end
+
+    def wait_for_nodes
+      build_command('wait --for=condition=Ready nodes --all --timeout=180s')
+    end
+
+    def build_command(command)
+      "kubectl --kubeconfig=#{KUBECONFIG} #{command}"
     end
   end
 end

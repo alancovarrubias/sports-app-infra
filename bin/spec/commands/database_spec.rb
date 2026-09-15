@@ -8,6 +8,7 @@ RSpec.describe Commands::Database do
     allow(FileUtils).to receive(:mkdir_p)
     allow(File).to receive(:exist?).and_call_original
     allow(File).to receive(:exist?).with(/bin\/outputs\/dumps/).and_return(true)
+    allow(command).to receive(:database_exists?).and_return(true)
   end
 
   def dump_file(db)
@@ -54,12 +55,24 @@ RSpec.describe Commands::Database do
       expect { command.dump(base_uri, 'nonsense') }.to raise_error(SystemExit)
       expect(captured_commands).to eq([])
     end
+
+    it 'skips the dump when the database does not exist yet' do
+      allow(command).to receive(:database_exists?).with(base_uri, 'auth').and_return(false)
+      command.dump(base_uri, 'auth')
+      expect(captured_commands).to eq([])
+    end
   end
 
   describe '#dump_all' do
     it 'dumps every known database' do
       command.dump_all(base_uri)
       expect(captured_commands).to eq([dump_command('auth'), dump_command('football')])
+    end
+
+    it 'skips databases that do not exist and still dumps the rest' do
+      allow(command).to receive(:database_exists?).with(base_uri, 'auth').and_return(false)
+      command.dump_all(base_uri)
+      expect(captured_commands).to eq([dump_command('football')])
     end
   end
 
