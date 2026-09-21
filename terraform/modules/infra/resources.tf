@@ -1,7 +1,11 @@
+data "digitalocean_kubernetes_versions" "app" {
+  version_prefix = "1.36."
+}
+
 resource "digitalocean_kubernetes_cluster" "app" {
   name    = "sports-app-cluster"
   region  = "nyc3"
-  version = "1.36.3-do.4"
+  version = data.digitalocean_kubernetes_versions.app.latest_version
 
   node_pool {
     name       = "app-pool"
