@@ -34,3 +34,12 @@ resource "digitalocean_database_cluster" "cache" {
   region     = "nyc3"
   node_count = 1
 }
+
+resource "digitalocean_database_cluster" "mongo" {
+  name       = "sports-mongo"
+  engine     = "mongodb"
+  version    = "8.0"
+  size       = "db-s-1vcpu-1gb"
+  region     = "nyc3"
+  node_count = 1
+}

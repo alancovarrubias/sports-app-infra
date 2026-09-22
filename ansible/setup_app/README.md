@@ -6,7 +6,7 @@ This role is what `terraform/{stage,prod}/modules/{infra,registry,ingress}` — 
 
 ## Variables
 
-Supplied by `Runners::Cluster#ansible_variables` (`bin/lib/runners/cluster.rb`): `env`, `registry_containers`, `registry_name`, `secret_key_base`, `cache_url`, `database_url`, `kubeconfig`, plus (`stage` only) `domain_name`, `local_image_tag`.
+Supplied by `Runners::Cluster#ansible_variables` (`bin/lib/runners/cluster.rb`): `env`, `registry_containers`, `registry_name`, `secret_key_base`, `cache_url`, `mongo_url`, `database_url`, `kubeconfig`, plus (`stage` only) `domain_name`, `local_image_tag`.
 
 ## Used by
 

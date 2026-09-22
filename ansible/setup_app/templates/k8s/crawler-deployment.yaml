@@ -27,5 +27,11 @@ spec:
             limits:
               cpu: "1000m"
               memory: "1.5Gi"
+          env:
+            - name: MONGO_URI
+              valueFrom:
+                secretKeyRef:
+                  name: mongo-url
+                  key: MONGO_URI
       imagePullSecrets:
         - name: registry-sports
