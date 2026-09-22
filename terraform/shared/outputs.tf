@@ -21,6 +21,11 @@ output "cache_uri" {
   sensitive = true
 }
 
+output "mongo_uri" {
+  value     = module.infra.mongo_uri
+  sensitive = true
+}
+
 output "ingress_ip" {
   value = module.ingress.ingress_ip
 }

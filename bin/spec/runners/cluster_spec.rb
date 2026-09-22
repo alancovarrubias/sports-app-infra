@@ -7,6 +7,7 @@ RSpec.describe Runners::Cluster do
     let(:fake_outputs) do
       {
         'cache_uri' => { 'value' => 'redis://fake-cache' },
+        'mongo_uri' => { 'value' => 'mongodb://fake-mongo' },
         'database_uri' => { 'value' => 'postgres://fake-db' },
         'registry_name' => { 'value' => 'registry.digitalocean.com/fake' }
       }
@@ -39,7 +40,8 @@ RSpec.describe Runners::Cluster do
 
     def ansible(tags)
       base = "ansible-playbook -e @extra_vars.yml -e @custom_vars.yml --tags #{tags} -e env=#{env_name} " \
-             "-e secret_key_base=#{fake_secret} -e cache_url=redis://fake-cache -e database_url=postgres://fake-db " \
+             "-e secret_key_base=#{fake_secret} -e cache_url=redis://fake-cache -e mongo_url=mongodb://fake-mongo " \
+             "-e database_url=postgres://fake-db " \
              "-e auth_database_url=postgres://fake-db/auth_production " \
              "-e football_database_url=postgres://fake-db/football_production " \
              "-e registry_name=registry.digitalocean.com/fake -e kubeconfig=#{Constants::KUBECONFIG}"

@@ -11,3 +11,7 @@ output "cache_uri" {
   value     = digitalocean_database_cluster.cache.uri
   sensitive = true
 }
+output "mongo_uri" {
+  value     = digitalocean_database_cluster.mongo.uri
+  sensitive = true
+}

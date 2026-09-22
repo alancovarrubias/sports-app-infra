@@ -148,6 +148,7 @@ module Runners
       variables = {
         secret_key_base: SecureRandom.hex(64),
         cache_url: outputs['cache_uri']['value'],
+        mongo_url: outputs['mongo_uri']['value'],
         database_url: base_uri,
         auth_database_url: @database_command.uri(base_uri, 'auth'),
         football_database_url: @database_command.uri(base_uri, 'football'),
