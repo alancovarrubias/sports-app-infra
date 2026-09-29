@@ -8,6 +8,8 @@ module Runners
   # rebuild everything except it.
   class Cluster < Base
     DEPLOYMENTS = %w[client server auth football crawler sidekiq].freeze
+    # sidekiq has no image of its own -- it runs football's, so it's never pushed.
+    REGISTRY_CONTAINERS = (DEPLOYMENTS - %w[sidekiq]).freeze
     STAGE_DOMAIN_NAME = 'sports-app.test'.freeze
     INGRESS_APPLY_ATTEMPTS = 3
     INGRESS_APPLY_RETRY_DELAY = 15
@@ -52,13 +54,16 @@ module Runners
     end
 
     def registry
+      validate_service!
       run_terraform('apply_registry', 'output')
       ansible_command('registry')
       restart
     end
 
     def restart
+      validate_service!
       running = running_deployments & DEPLOYMENTS
+      running &= [@options[:service]] if @options[:service]
       return if running.empty?
 
       run_commands(@kubectl_command.restart(running))
@@ -121,6 +126,17 @@ module Runners
       @options[:env] == 'prod'
     end
 
+    def validate_service!
+      return unless @options[:service]
+      return if DEPLOYMENTS.include?(@options[:service])
+
+      abort("Unknown service '#{@options[:service]}' -- expected one of #{DEPLOYMENTS.join(', ')}")
+    end
+
+    def registry_containers
+      REGISTRY_CONTAINERS.include?(@options[:service]) ? [@options[:service]] : []
+    end
+
     def pod_name(app)
       `kubectl --kubeconfig=#{KUBECONFIG} get pods -l app=#{app} -o jsonpath='{.items[0].metadata.name}'`.strip
     end
@@ -155,6 +171,7 @@ module Runners
         registry_name: outputs['registry_name']['value'],
         kubeconfig: KUBECONFIG
       }
+      variables[:registry_containers] = registry_containers if @options[:service]
       return variables if prod?
 
       variables.merge(domain_name: STAGE_DOMAIN_NAME, local_image_tag: 'prod')

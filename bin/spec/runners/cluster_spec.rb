@@ -38,13 +38,13 @@ RSpec.describe Runners::Cluster do
       "terraform -chdir=#{env_name} #{rest.join(' ')}"
     end
 
-    def ansible(tags)
+    def ansible(tags, extra = '')
       base = "ansible-playbook -e @extra_vars.yml -e @custom_vars.yml --tags #{tags} -e env=#{env_name} " \
              "-e secret_key_base=#{fake_secret} -e cache_url=redis://fake-cache -e mongo_url=mongodb://fake-mongo " \
              "-e database_url=postgres://fake-db " \
              "-e auth_database_url=postgres://fake-db/auth_production " \
              "-e football_database_url=postgres://fake-db/football_production " \
-             "-e registry_name=registry.digitalocean.com/fake -e kubeconfig=#{Constants::KUBECONFIG}"
+             "-e registry_name=registry.digitalocean.com/fake -e kubeconfig=#{Constants::KUBECONFIG}#{extra}"
       "#{base}#{extra_ansible_variables} setup_#{env_name}.yml"
     end
 
@@ -77,6 +77,36 @@ RSpec.describe Runners::Cluster do
         runner.registry
         expect(captured_commands.last).to eq("kubectl --kubeconfig=#{Constants::KUBECONFIG} rollout restart deployment/client")
       end
+
+      it 'scopes the pushed image and the restart to a single service when -s is given' do
+        options[:service] = 'crawler'
+        allow(runner).to receive(:running_deployments).and_return(%w[client crawler])
+        runner.registry
+        expect(captured_commands).to eq([
+          terraform('apply -target=module.registry -var-file=../terraform.tfvars --auto-approve'),
+          terraform("output -json > #{options[:output_file]}"),
+          ansible('registry', ' -e registry_containers=\[\"crawler\"\]'),
+          "kubectl --kubeconfig=#{Constants::KUBECONFIG} rollout restart deployment/crawler"
+        ])
+      end
+
+      it 'pushes no image for sidekiq (it runs football\'s) but still restarts it' do
+        options[:service] = 'sidekiq'
+        allow(runner).to receive(:running_deployments).and_return(%w[sidekiq football])
+        runner.registry
+        expect(captured_commands).to eq([
+          terraform('apply -target=module.registry -var-file=../terraform.tfvars --auto-approve'),
+          terraform("output -json > #{options[:output_file]}"),
+          ansible('registry', ' -e registry_containers=\[\]'),
+          "kubectl --kubeconfig=#{Constants::KUBECONFIG} rollout restart deployment/sidekiq"
+        ])
+      end
+
+      it 'aborts before touching anything when given an unknown service' do
+        options[:service] = 'nonsense'
+        expect { runner.registry }.to raise_error(SystemExit)
+        expect(captured_commands).to eq([])
+      end
     end
 
     describe '#restart' do
@@ -91,6 +121,28 @@ RSpec.describe Runners::Cluster do
       it 'does nothing on a fresh cluster, where no deployments exist yet' do
         allow(runner).to receive(:running_deployments).and_return([])
         runner.restart
+        expect(captured_commands).to eq([])
+      end
+
+      it 'scopes to just the given service when -s is passed' do
+        options[:service] = 'crawler'
+        allow(runner).to receive(:running_deployments).and_return(%w[client crawler])
+        runner.restart
+        expect(captured_commands).to eq([
+          "kubectl --kubeconfig=#{Constants::KUBECONFIG} rollout restart deployment/crawler"
+        ])
+      end
+
+      it 'does nothing when the given service is not currently running' do
+        options[:service] = 'crawler'
+        allow(runner).to receive(:running_deployments).and_return(%w[client])
+        runner.restart
+        expect(captured_commands).to eq([])
+      end
+
+      it 'aborts with a clear message for an unknown service' do
+        options[:service] = 'nonsense'
+        expect { runner.restart }.to raise_error(SystemExit)
         expect(captured_commands).to eq([])
       end
     end

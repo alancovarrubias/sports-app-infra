@@ -22,6 +22,7 @@ ruby bin/infra_cli.rb -c <command> -e <environment> [--tags <tags>] [-d <databas
 - **`-e`/`--env`** — which environment: `dev`, `stage`, `prod`, or `mercor`.
 - **`--tags`** — optional, comma-separated Ansible tags to scope a run to part of a playbook.
 - **`-d`/`--database`** — required by `-c console`/`-c seed`/`-c dump`/`-c restore` to pick which app's database to target (`auth` or `football`).
+- **`-s`/`--service`** — optional, for `-c registry`/`-c restart` on `stage`/`prod`, to scope the run to one service instead of every deployment. One of `client`, `server`, `auth`, `football`, `crawler`, `sidekiq` (see `Runners::Cluster::DEPLOYMENTS`).
 
 Examples:
 
@@ -32,7 +33,33 @@ ruby bin/infra_cli.rb -c console -e stage -d auth      # rails console into the 
 ruby bin/infra_cli.rb -c seed -e stage -d football     # run db/seeds.rb in the running football pod
 ruby bin/infra_cli.rb -c dump -e stage -d auth         # dump stage's auth database to a local file
 ruby bin/infra_cli.rb -c restore -e stage -d auth      # restore stage's auth database from that local file
+ruby bin/infra_cli.rb -c registry -e stage -s crawler  # rebuild+push+restart just the crawler (see below)
 ```
+
+## Redeploying a single service
+
+To ship a code change to one service on `stage`/`prod` without rebuilding and restarting everything:
+
+1. **Build the image locally**, tagged the way that environment expects it. `stage` uses `local_image_tag: prod` (see `Runners::Cluster#ansible_variables`), so even though you're deploying to stage, you build with `ENV=prod`:
+   ```
+   cd sports-app
+   ENV=prod docker compose -f docker-compose.build.yml build crawler
+   ```
+   `prod` really does build with `ENV=prod` — `local_image_tag` only exists to give `stage` its own separate local tag.
+
+2. **Push it and restart just that deployment**, with `-s`/`--service`:
+   ```
+   cd sports-app-infra/bin
+   ruby infra_cli.rb -c registry -e stage -s crawler
+   ```
+   This tags and pushes only `crawler`'s image (skipping `client`/`server`/`auth`/`football`), then runs `kubectl rollout restart` on only the `crawler` deployment — the rest of the app is untouched. `-s sidekiq` is a special case: sidekiq has no image of its own (it runs `football`'s), so `-s sidekiq` pushes nothing and only restarts the `sidekiq` deployment.
+
+   Omit `-s` to push every image in `Runners::Cluster::REGISTRY_CONTAINERS` and restart every currently-running deployment, same as before this flag existed.
+
+3. **Verify the rollout:**
+   ```
+   KUBECONFIG=~/.kube/sports-app.yaml kubectl rollout status deployment/crawler --timeout=120s
+   ```
 
 ## Tests
 

@@ -6,7 +6,7 @@ This role is what `terraform/{stage,prod}/modules/{infra,registry,ingress}` — 
 
 ## Variables
 
-Supplied by `Runners::Cluster#ansible_variables` (`bin/lib/runners/cluster.rb`): `env`, `registry_containers`, `registry_name`, `secret_key_base`, `cache_url`, `mongo_url`, `database_url`, `kubeconfig`, plus (`stage` only) `domain_name`, `local_image_tag`.
+Supplied by `Runners::Cluster#ansible_variables` (`bin/lib/runners/cluster.rb`): `secret_key_base`, `cache_url`, `mongo_url`, `database_url`, `auth_database_url`, `football_database_url`, `registry_name`, `kubeconfig`, plus (`stage` only) `domain_name`, `local_image_tag`. `env` is passed separately as `Commands::Ansible#build`'s own `env:` argument, not part of this hash. `registry_containers` defaults to the static list in `extra_vars.yml` (`client`, `server`, `auth`, `football`, `crawler`) but is overridden here — to a single-element or empty list — when the CLI's `-s`/`--service` flag scopes a `-c registry` run to one service (see the root README's "Redeploying a single service").
 
 ## Used by
 
