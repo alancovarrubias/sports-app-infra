@@ -29,6 +29,17 @@ RSpec.describe Commands::Ansible do
       )
     end
 
+    it 'shell-escapes variable values containing shell metacharacters' do
+      result = command.build(
+        playbook: 'setup_stage',
+        variables: { mongo_url: 'mongodb+srv://doadmin:pw@host/admin?replicaSet=x&tls=true&authSource=admin' }
+      )
+      expect(result).to eq(
+        'ansible-playbook -e @extra_vars.yml -e @custom_vars.yml ' \
+        '-e mongo_url=mongodb+srv://doadmin:pw@host/admin\?replicaSet\=x\&tls\=true\&authSource\=admin setup_stage.yml'
+      )
+    end
+
     it 'combines inventory, tags, env, and variables in a fixed order' do
       result = command.build(
         playbook: 'database_cmd',
