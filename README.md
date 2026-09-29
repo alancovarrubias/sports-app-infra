@@ -8,7 +8,8 @@ This repo's core concepts — Environment, Runner, Command, Terraform module —
 
 ## Layout
 
-- **`terraform/`** — one stack per environment (`dev`, `stage`, `prod`, `mercor`, plus a `jenkins` support stack), a shared `modules/` for reusable resources (`do_droplet`, and the Kubernetes-cluster pieces `infra`/`registry`/`ingress`), and `shared/` for root-level config that's identical across stacks but can't itself be a Terraform module (provider blocks, mainly).
+- **`terraform/`** — one stack per environment (`dev`, `stage`, `prod`, `mercor`, plus `jenkins` and `newrelic` support stacks), a shared `modules/` for reusable resources (`do_droplet`, the Kubernetes-cluster pieces `infra`/`registry`/`ingress`, and `newrelic` for the log-shipping Helm release), and `shared/` for root-level config that's identical across stacks but can't itself be a Terraform module (provider blocks, mainly).
+  - **`terraform/newrelic`** — account-level alerting (not tied to one cluster): an alert policy, an NRQL condition matching error-pattern log lines, and an email notification workflow. Applied on its own, like `jenkins` — not through `infra_cli.rb`.
 - **`ansible/`** — one role per task area (`setup_server`, `setup_docker`, `setup_app`, ...); the top-level `*.yml` playbooks compose roles per environment.
 - **`bin/`** — the Ruby CLI (`infra_cli.rb`) that drives both, plus its test suite (`bin/spec/`).
 
