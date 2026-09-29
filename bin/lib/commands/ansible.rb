@@ -1,4 +1,5 @@
 require 'json'
+require 'shellwords'
 module Commands
   class Ansible
     def build(playbook:, variables: {}, inventory: nil, tags: nil, env: nil)
@@ -8,7 +9,7 @@ module Commands
       command << "--tags #{Array(tags).join(',')}" if tags
       command << "-e env=#{env}" if env
       variables.each do |key, value|
-        command << "-e #{key}=#{value}"
+        command << "-e #{key}=#{Shellwords.escape(value.to_s)}"
       end
       command << "#{playbook}.yml"
       command.join(' ')

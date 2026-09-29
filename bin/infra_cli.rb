@@ -10,7 +10,8 @@ module InfraCLI
     command: ['-c', '--command COMMAND', 'Specify command'],
     env: ['-e', '--env ENV', 'Specify environment'],
     tags: ['--tags TAGS', 'Specify tags'],
-    database: ['-d', '--database DATABASE', 'Specify database']
+    database: ['-d', '--database DATABASE', 'Specify database'],
+    service: ['-s', '--service SERVICE', 'Specify service']
   }.freeze
 
   RUNNERS = {
