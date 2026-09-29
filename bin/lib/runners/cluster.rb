@@ -63,7 +63,7 @@ module Runners
     def restart
       validate_service!
       running = running_deployments & DEPLOYMENTS
-      running &= [@options[:service]] if @options[:service]
+      running &= restart_targets if @options[:service]
       return if running.empty?
 
       run_commands(@kubectl_command.restart(running))
@@ -135,6 +135,14 @@ module Runners
 
     def registry_containers
       REGISTRY_CONTAINERS.include?(@options[:service]) ? [@options[:service]] : []
+    end
+
+    # sidekiq runs football's image rather than its own, so a football
+    # restart must carry sidekiq along or it keeps running the old code.
+    def restart_targets
+      return %w[football sidekiq] if @options[:service] == 'football'
+
+      [@options[:service]]
     end
 
     def pod_name(app)

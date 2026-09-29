@@ -90,6 +90,18 @@ RSpec.describe Runners::Cluster do
         ])
       end
 
+      it 'restarts sidekiq alongside football, since sidekiq runs football\'s image' do
+        options[:service] = 'football'
+        allow(runner).to receive(:running_deployments).and_return(%w[client football sidekiq])
+        runner.registry
+        expect(captured_commands).to eq([
+          terraform('apply -target=module.registry -var-file=../terraform.tfvars --auto-approve'),
+          terraform("output -json > #{options[:output_file]}"),
+          ansible('registry', ' -e registry_containers=\[\"football\"\]'),
+          "kubectl --kubeconfig=#{Constants::KUBECONFIG} rollout restart deployment/football deployment/sidekiq"
+        ])
+      end
+
       it 'pushes no image for sidekiq (it runs football\'s) but still restarts it' do
         options[:service] = 'sidekiq'
         allow(runner).to receive(:running_deployments).and_return(%w[sidekiq football])
@@ -138,6 +150,15 @@ RSpec.describe Runners::Cluster do
         allow(runner).to receive(:running_deployments).and_return(%w[client])
         runner.restart
         expect(captured_commands).to eq([])
+      end
+
+      it 'also restarts sidekiq when scoped to football, since sidekiq runs football\'s image' do
+        options[:service] = 'football'
+        allow(runner).to receive(:running_deployments).and_return(%w[football sidekiq client])
+        runner.restart
+        expect(captured_commands).to eq([
+          "kubectl --kubeconfig=#{Constants::KUBECONFIG} rollout restart deployment/football deployment/sidekiq"
+        ])
       end
 
       it 'aborts with a clear message for an unknown service' do
