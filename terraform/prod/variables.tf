@@ -2,7 +2,7 @@ variable "do_token" {
   type = string
 }
 
-variable "newrelic_license_key" {
+variable "datadog_api_key" {
   type      = string
   sensitive = true
 }

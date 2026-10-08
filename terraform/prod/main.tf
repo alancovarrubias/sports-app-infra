@@ -10,9 +10,9 @@ module "ingress" {
   source = "../modules/ingress"
 }
 
-module "newrelic" {
-  source       = "../modules/newrelic"
-  license_key  = var.newrelic_license_key
+module "datadog" {
+  source       = "../modules/datadog"
+  api_key      = var.datadog_api_key
   cluster_name = "sports-app-prod"
 }
 

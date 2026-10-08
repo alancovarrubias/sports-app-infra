@@ -2,10 +2,10 @@ require 'securerandom'
 
 module Runners
   # Environments backed by a DigitalOcean Kubernetes cluster (stage, prod):
-  # infra, then registry, then ingress, then (prod only) DNS, then the app
-  # itself via Ansible. Prod is the only environment with its own domain, so
-  # it's the only one that touches DNS or needs apply_base/destroy_base to
-  # rebuild everything except it.
+  # infra, then registry, then ingress, then Datadog log shipping, then
+  # (prod only) DNS, then the app itself via Ansible. Prod is the only
+  # environment with its own domain, so it's the only one that touches DNS
+  # or needs apply_base/destroy_base to rebuild everything except it.
   class Cluster < Base
     DEPLOYMENTS = %w[client server auth football crawler sidekiq].freeze
     # sidekiq has no image of its own -- it runs football's, so it's never pushed.
@@ -24,6 +24,7 @@ module Runners
       infra
       registry
       ingress
+      datadog
       dns if prod?
       kube
       @database_command.restore_all(outputs['database_uri']['value'])
@@ -33,6 +34,7 @@ module Runners
       infra
       registry
       ingress
+      datadog
       kube
     end
 
@@ -40,7 +42,7 @@ module Runners
       @database_command.dump_all(outputs['database_uri']['value'])
       targets = ['destroy_ingress']
       targets << 'destroy_dns' if prod?
-      targets += %w[destroy_registry destroy_infra output]
+      targets += %w[destroy_datadog destroy_registry destroy_infra output]
       run_terraform(*targets)
     end
 
@@ -87,6 +89,10 @@ module Runners
 
     def ingress
       with_retries(INGRESS_APPLY_ATTEMPTS) { run_terraform('apply_ingress', 'output') }
+    end
+
+    def datadog
+      run_terraform('apply_datadog', 'output')
     end
 
     def dns

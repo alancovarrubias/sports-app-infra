@@ -317,6 +317,16 @@ RSpec.describe Runners::Cluster do
       end
     end
 
+    describe '#datadog' do
+      it 'applies the datadog module and refreshes outputs' do
+        runner.datadog
+        expect(captured_commands).to eq([
+          terraform('apply -target=module.datadog -var-file=../terraform.tfvars --auto-approve'),
+          terraform("output -json > #{options[:output_file]}")
+        ])
+      end
+    end
+
     describe '#kube' do
       it 'configures the app over Ansible without touching terraform' do
         runner.kube
@@ -347,6 +357,11 @@ RSpec.describe Runners::Cluster do
         runner.apply
         expect(captured_commands.join(' ')).not_to include('psql')
       end
+
+      it 'brings up Datadog log shipping' do
+        runner.apply
+        expect(captured_commands.join(' ')).to include('module.datadog')
+      end
     end
   end
 
@@ -364,12 +379,13 @@ RSpec.describe Runners::Cluster do
     end
 
     describe '#destroy' do
-      it 'tears down ingress, registry, and infra, skipping DNS' do
+      it 'tears down ingress, datadog, registry, and infra, skipping DNS' do
         runner.destroy
         expect(captured_commands).to eq([
           dump('auth'),
           dump('football'),
           terraform('destroy -target=module.ingress -var-file=../terraform.tfvars --auto-approve'),
+          terraform('destroy -target=module.datadog -var-file=../terraform.tfvars --auto-approve'),
           terraform('destroy -target=module.registry -var-file=../terraform.tfvars --auto-approve'),
           terraform('destroy -target=module.infra -var-file=../terraform.tfvars --auto-approve'),
           terraform("output -json > #{options[:output_file]}")
@@ -399,6 +415,7 @@ RSpec.describe Runners::Cluster do
         runner.apply_base
         expect(captured_commands.join(' ')).not_to include('module.dns')
         expect(captured_commands.join(' ')).to include('--tags kube')
+        expect(captured_commands.join(' ')).to include('module.datadog')
       end
     end
 

@@ -8,8 +8,8 @@ This repo's core concepts — Environment, Runner, Command, Terraform module —
 
 ## Layout
 
-- **`terraform/`** — one stack per environment (`dev`, `stage`, `prod`, `mercor`, plus `jenkins` and `newrelic` support stacks), a shared `modules/` for reusable resources (`do_droplet`, the Kubernetes-cluster pieces `infra`/`registry`/`ingress`, and `newrelic` for the log-shipping Helm release), and `shared/` for root-level config that's identical across stacks but can't itself be a Terraform module (provider blocks, mainly).
-  - **`terraform/newrelic`** — account-level alerting (not tied to one cluster): an alert policy, an NRQL condition matching error-pattern log lines, and an email notification workflow. Applied on its own, like `jenkins` — not through `infra_cli.rb`.
+- **`terraform/`** — one stack per environment (`dev`, `stage`, `prod`, `mercor`, plus `jenkins` and `datadog` support stacks), a shared `modules/` for reusable resources (`do_droplet`, the Kubernetes-cluster pieces `infra`/`registry`/`ingress`, and `datadog` for the log-shipping Helm release), and `shared/` for root-level config that's identical across stacks but can't itself be a Terraform module (provider blocks, mainly).
+  - **`terraform/datadog`** — account-level alerting (not tied to one cluster): a log-based monitor matching error-pattern log lines, emailing on trigger. Applied on its own, like `jenkins` — not through `infra_cli.rb`.
 - **`ansible/`** — one role per task area (`setup_server`, `setup_docker`, `setup_app`, ...); the top-level `*.yml` playbooks compose roles per environment.
 - **`bin/`** — the Ruby CLI (`infra_cli.rb`) that drives both, plus its test suite (`bin/spec/`).
 
@@ -19,7 +19,7 @@ This repo's core concepts — Environment, Runner, Command, Terraform module —
 ruby bin/infra_cli.rb -c <command> -e <environment> [--tags <tags>] [-d <database>]
 ```
 
-- **`-c`/`--command`** — the method to call on the environment's Runner. What's available depends on the environment's family (`Runners::Cluster` for `stage`/`prod`, `Runners::Droplet` for `dev`/`mercor`) — see `bin/lib/runners/` for the full set (`apply`, `destroy`, `run`, `database`, `stage`/`prod`-specific steps like `infra`/`registry`/`ingress`/`kube`/`restart`, and `console`/`seed`/`dump`/`restore` for a single app's database).
+- **`-c`/`--command`** — the method to call on the environment's Runner. What's available depends on the environment's family (`Runners::Cluster` for `stage`/`prod`, `Runners::Droplet` for `dev`/`mercor`) — see `bin/lib/runners/` for the full set (`apply`, `destroy`, `run`, `database`, `stage`/`prod`-specific steps like `infra`/`registry`/`ingress`/`datadog`/`kube`/`restart`, and `console`/`seed`/`dump`/`restore` for a single app's database).
 - **`-e`/`--env`** — which environment: `dev`, `stage`, `prod`, or `mercor`.
 - **`--tags`** — optional, comma-separated Ansible tags to scope a run to part of a playbook.
 - **`-d`/`--database`** — required by `-c console`/`-c seed`/`-c dump`/`-c restore` to pick which app's database to target (`auth` or `football`).
