@@ -22,6 +22,10 @@ _Avoid_: module, command; avoid inventing a subclass per Environment — that's 
 An object (`Commands::Terraform`, `Commands::Ansible`, `Commands::Kubectl`, `Commands::Database`) that turns a Runner's request into the literal shell command line for one tool. `Terraform`/`Ansible`/`Kubectl` are pure string-builders with no orchestration logic — the Runner still runs what they build. `Database` is the deliberate exception: it also validates the `-d` database argument and executes its own `pg_dump`/`psql` commands, since dump/restore is a self-contained operation a Runner shouldn't need to know the shape of.
 _Avoid_: runner, task.
 
+**Support stack**:
+A Terraform stack that provisions account-level resources rather than one Environment's infrastructure (`terraform/jenkins`, `terraform/datadog`) — it has no `dev`/`stage`/`prod`/`mercor` identity, so it sits outside the Runner/Environment lifecycle entirely. Provisioned via `ruby bin/infra_cli.rb -c support` (`Runners::Support`, not keyed by `-e`), run once to create its resources and again only when its own config changes — never as part of a regular Environment `apply`/`destroy`.
+_Avoid_: calling this an Environment, or routing it through `Runners::Cluster`/`Runners::Droplet` — that would wrongly tie an account-level resource (e.g. an alert that should survive a disposable staging cluster being torn down) to one Environment's teardown/rebuild cycle.
+
 **Terraform module**:
 Terraform's own native concept — a reusable unit of resources (`terraform/modules/do_droplet`, `terraform/modules/do_network`) or one of the named pieces of a stack targeted via `-target=module.<name>` (e.g. `infra`, `registry`, `ingress`, `dns`). Unrelated to Environment, despite the shared word "module" that appeared in the CLI's flag before it was renamed to `--env`/`-e`.
 _Avoid_: using bare "module" for Environment — always say "Terraform module" for this concept, "Environment" for that one.

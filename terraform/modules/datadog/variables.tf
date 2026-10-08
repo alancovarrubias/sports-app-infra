@@ -1,0 +1,8 @@
+variable "api_key" {
+  type      = string
+  sensitive = true
+}
+
+variable "cluster_name" {
+  type = string
+}
