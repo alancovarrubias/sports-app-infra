@@ -21,8 +21,14 @@ module InfraCLI
     'mercor' => Runners::Droplet
   }.freeze
 
+  # Not keyed by Environment -- `support` provisions account-level Terraform
+  # support stacks (see Runners::Support), so it skips the -e lookup below.
+  SUPPORT_COMMAND = 'support'.freeze
+
   def run
     options = parse_options
+    return Runners::Support.new.apply if options[:command] == SUPPORT_COMMAND
+
     runner_class = RUNNERS.fetch(options[:env]) do
       abort("Unknown environment '#{options[:env]}' -- expected one of #{RUNNERS.keys.join(', ')}")
     end

@@ -19,7 +19,7 @@ This repo's core concepts — Environment, Runner, Command, Terraform module —
 ruby bin/infra_cli.rb -c <command> -e <environment> [--tags <tags>] [-d <database>]
 ```
 
-- **`-c`/`--command`** — the method to call on the environment's Runner. What's available depends on the environment's family (`Runners::Cluster` for `stage`/`prod`, `Runners::Droplet` for `dev`/`mercor`) — see `bin/lib/runners/` for the full set (`apply`, `destroy`, `run`, `database`, `stage`/`prod`-specific steps like `infra`/`registry`/`ingress`/`datadog`/`kube`/`restart`, and `console`/`seed`/`dump`/`restore` for a single app's database).
+- **`-c`/`--command`** — the method to call on the environment's Runner. What's available depends on the environment's family (`Runners::Cluster` for `stage`/`prod`, `Runners::Droplet` for `dev`/`mercor`) — see `bin/lib/runners/` for the full set (`apply`, `destroy`, `run`, `database`, `stage`/`prod`-specific steps like `infra`/`registry`/`ingress`/`datadog`/`kube`/`restart`, and `console`/`seed`/`dump`/`restore` for a single app's database). One exception: `-c support` (below) isn't an Environment command and doesn't take `-e`.
 - **`-e`/`--env`** — which environment: `dev`, `stage`, `prod`, or `mercor`.
 - **`--tags`** — optional, comma-separated Ansible tags to scope a run to part of a playbook.
 - **`-d`/`--database`** — required by `-c console`/`-c seed`/`-c dump`/`-c restore` to pick which app's database to target (`auth` or `football`).
@@ -35,7 +35,18 @@ ruby bin/infra_cli.rb -c seed -e stage -d football     # run db/seeds.rb in the 
 ruby bin/infra_cli.rb -c dump -e stage -d auth         # dump stage's auth database to a local file
 ruby bin/infra_cli.rb -c restore -e stage -d auth      # restore stage's auth database from that local file
 ruby bin/infra_cli.rb -c registry -e stage -s crawler  # rebuild+push+restart just the crawler (see below)
+ruby bin/infra_cli.rb -c support                       # provision the support stacks (see below)
 ```
+
+## Provisioning support stacks
+
+`-c support` runs `Runners::Support`, which `init`s and `apply`s each Terraform **support stack** — an account-level stack (`terraform/datadog` today) that isn't tied to any Environment, so it falls outside `apply`/`destroy`'s per-Environment lifecycle entirely (same reason `terraform/jenkins` has always been applied by hand). It's not a per-deploy step: run it once to create the stack's resources (e.g. the Datadog error-log monitor), and again only when that stack's own config changes — never as part of a regular `-c apply -e <env>`.
+
+```
+ruby bin/infra_cli.rb -c support
+```
+
+Unlike every other command, this one takes no `-e` — "which Environment" doesn't apply to an account-level resource. `Runners::Support::STACKS` lists which stacks it covers; add a new one there (and the stack's own `terraform/<name>/` directory with its own gitignored `terraform.tfvars`) as new one-time, non-Environment setup comes up.
 
 ## Redeploying a single service
 
