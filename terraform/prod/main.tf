@@ -10,6 +10,12 @@ module "ingress" {
   source = "../modules/ingress"
 }
 
+module "datadog" {
+  source       = "../modules/datadog"
+  api_key      = var.datadog_api_key
+  cluster_name = "sports-app-prod"
+}
+
 module "dns" {
   source      = "./modules/dns"
   domain_name = var.domain_name

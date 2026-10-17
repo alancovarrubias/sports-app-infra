@@ -4,7 +4,7 @@ data "digitalocean_kubernetes_versions" "app" {
 
 resource "digitalocean_kubernetes_cluster" "app" {
   name    = "sports-app-cluster"
-  region  = "nyc3"
+  region  = "sfo2"
   version = data.digitalocean_kubernetes_versions.app.latest_version
 
   node_pool {
@@ -22,7 +22,7 @@ resource "digitalocean_database_cluster" "db" {
   engine     = "pg"
   version    = "18"
   size       = "db-s-1vcpu-1gb"
-  region     = "nyc3"
+  region     = "sfo2"
   node_count = 1
 }
 
@@ -31,7 +31,7 @@ resource "digitalocean_database_cluster" "cache" {
   engine     = "valkey"
   version    = "8"
   size       = "db-s-1vcpu-1gb"
-  region     = "nyc3"
+  region     = "sfo2"
   node_count = 1
 }
 
@@ -40,6 +40,6 @@ resource "digitalocean_database_cluster" "mongo" {
   engine     = "mongodb"
   version    = "8.0"
   size       = "db-s-1vcpu-1gb"
-  region     = "nyc3"
+  region     = "sfo2"
   node_count = 1
 }

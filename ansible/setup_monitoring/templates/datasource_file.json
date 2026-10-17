@@ -1,6 +1,0 @@
-{
-    "name": "{{ datasource_name }}",
-    "type":"prometheus",
-    "url":"{{ prometheus_endpoint }}",
-    "access":"proxy"
-}

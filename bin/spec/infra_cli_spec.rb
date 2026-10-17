@@ -31,5 +31,14 @@ RSpec.describe InfraCLI do
       ARGV.replace(['-c', 'apply', '-e', 'nonsense'])
       expect { InfraCLI.run }.to raise_error(SystemExit)
     end
+
+    it 'dispatches support to Runners::Support without requiring -e' do
+      ARGV.replace(['-c', 'support'])
+      runner = instance_double(Runners::Support)
+      allow(Runners::Support).to receive(:new).and_return(runner)
+      expect(runner).to receive(:apply)
+
+      InfraCLI.run
+    end
   end
 end
