@@ -2,6 +2,11 @@ data "digitalocean_kubernetes_versions" "app" {
   version_prefix = "1.36."
 }
 
+# Auth for the Prometheus metrics_endpoints on digitalocean_database_cluster
+# below -- account-wide, not the per-cluster DB admin user/password (that
+# gets a 401 against the metrics endpoint; confirmed empirically).
+data "digitalocean_database_metrics_credentials" "this" {}
+
 resource "digitalocean_kubernetes_cluster" "app" {
   name    = "sports-app-cluster"
   region  = "sfo2"
