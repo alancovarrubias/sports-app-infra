@@ -26,7 +26,7 @@ resource "datadog_logs_custom_pipeline" "ruby_severity" {
 
       grok {
         match_rules   = <<-EOT
-          ruby_logger %%{WORD:letter}, \[%%{NOTSPACE:ruby_ts} #%%{NUMBER:pid}\]\s+%%{WORD:severity}\s+--\s+:
+          ruby_logger %%{word:letter}, \[%%{notSpace:ruby_ts} #%%{number:pid}\]\s+%%{word:severity}\s+--\s+:
         EOT
         support_rules = ""
       }
