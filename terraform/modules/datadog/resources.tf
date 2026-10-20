@@ -4,12 +4,13 @@ resource "kubernetes_namespace" "datadog" {
   }
 }
 
-# Scoped to the Logs pillar only (wayfinder ticket 008/010) -- APM and
-# process collection are explicitly disabled; that's the Metrics pillar's
-# concern and deliberately left undesigned until later. Note the Datadog
-# Agent's core function always reports some baseline host/container metrics
-# (unlike nri-bundle's optional subcharts, this isn't cleanly separable) --
-# that's an accepted side effect, not a deliberate Metrics-pillar decision.
+# Logs pillar (wayfinder ticket 008/010) plus a first pass at the Metrics
+# pillar (ticket 008/datadog-infra-metrics branch): process + network
+# telemetry turned on. APM stays off -- enabling the trace-receiving port
+# alone is a no-op without actual tracing instrumentation in each service,
+# a bigger, separate decision. The Agent's core infra/container metrics
+# (CPU, memory, pod health) were never behind a flag here -- that's always
+# been on by default since the Agent was first deployed.
 resource "helm_release" "datadog" {
   name       = "datadog"
   repository = "https://helm.datadoghq.com"
@@ -54,11 +55,11 @@ resource "helm_release" "datadog" {
 
   set {
     name  = "datadog.processAgent.enabled"
-    value = "false"
+    value = "true"
   }
 
   set {
     name  = "datadog.networkMonitoring.enabled"
-    value = "false"
+    value = "true"
   }
 }
