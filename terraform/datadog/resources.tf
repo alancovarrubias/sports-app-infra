@@ -29,9 +29,18 @@ resource "datadog_logs_custom_pipeline" "ruby_severity" {
       source     = "message"
       is_enabled = true
 
+      # Datadog's grok parser requires matching the ENTIRE message, not a
+      # leading substring -- confirmed directly in Datadog's live grok
+      # tester: a rule covering only "F, [...] FATAL -- :" reported NO MATCH
+      # despite being correct as far as it went, and only matched once a
+      # trailing %{data:error_message} was added to consume the rest of the
+      # line (the actual exception/backtrace). `data` explicitly handles
+      # newlines, so this also covers full multi-line Rails backtraces.
+      # Also: `number` doesn't match a bare integer like a pid ("9") --
+      # Datadog's own AI rule-generator used `integer` for the same field.
       grok {
         match_rules   = <<-EOT
-          ruby_logger %%{word:letter}, \[%%{notSpace:ruby_ts} #%%{number:pid}\]\s+%%{word:severity}\s+--\s+:
+          ruby_logger %%{word:letter}, \[%%{notSpace:ruby_ts} #%%{integer:pid}\] %%{word:severity} -- : %%{data:error_message}
         EOT
         support_rules = ""
       }
