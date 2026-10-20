@@ -103,3 +103,281 @@ resource "datadog_monitor" "error_logs" {
   include_tags        = true
   require_full_window = false
 }
+
+# Account-level overview dashboard: Kubernetes cluster health (via the
+# Agent's built-in metrics) plus the DO-managed Postgres/Valkey host metrics
+# enabled in modules/datadog. DO's metrics_endpoints exporter only reports
+# host-level stats (CPU/mem/disk/network/load) for the DB's underlying
+# machine, not engine-internal stats (connections, cache hit ratio,
+# replication lag) -- that would need the native postgres/redis Agent
+# checks with DB credentials instead, a separate decision.
+resource "datadog_dashboard" "overview" {
+  title       = "sports-app infra overview"
+  description = "Kubernetes cluster health plus DO-managed Postgres/Valkey host metrics"
+  layout_type = "ordered"
+
+  template_variable {
+    name     = "cluster_name"
+    prefix   = "cluster_name"
+    defaults = ["*"]
+  }
+
+  widget {
+    group_definition {
+      title       = "Kubernetes Cluster"
+      layout_type = "ordered"
+
+      widget {
+        timeseries_definition {
+          title       = "CPU Usage"
+          show_legend = false
+          request {
+            q            = "avg:kubernetes.cpu.usage.total{$cluster_name}"
+            display_type = "line"
+            style {
+              palette = "blue"
+            }
+          }
+        }
+      }
+
+      widget {
+        timeseries_definition {
+          title       = "Memory Usage %"
+          show_legend = false
+          request {
+            q            = "avg:kubernetes.memory.usage_pct{$cluster_name}"
+            display_type = "line"
+            style {
+              palette = "orange"
+            }
+          }
+        }
+      }
+
+      widget {
+        timeseries_definition {
+          title       = "Node Count"
+          show_legend = false
+          request {
+            q            = "avg:kubernetes_state.node.count{$cluster_name}"
+            display_type = "line"
+            style {
+              palette = "grey"
+            }
+          }
+        }
+      }
+
+      widget {
+        timeseries_definition {
+          title       = "Container Restarts"
+          show_legend = false
+          request {
+            q            = "sum:kubernetes_state.container.restarts{$cluster_name}.as_count()"
+            display_type = "bars"
+            style {
+              palette = "purple"
+            }
+          }
+        }
+      }
+    }
+  }
+
+  widget {
+    group_definition {
+      title       = "Postgres (DO managed)"
+      layout_type = "ordered"
+
+      widget {
+        timeseries_definition {
+          title       = "CPU Breakdown"
+          show_legend = true
+          request {
+            q            = "avg:do_postgres.cpu_usage_user{*}"
+            display_type = "area"
+            style {
+              palette = "blue"
+            }
+          }
+          request {
+            q            = "avg:do_postgres.cpu_usage_system{*}"
+            display_type = "area"
+            style {
+              palette = "orange"
+            }
+          }
+          request {
+            q            = "avg:do_postgres.cpu_usage_iowait{*}"
+            display_type = "area"
+            style {
+              palette = "purple"
+            }
+          }
+        }
+      }
+
+      widget {
+        timeseries_definition {
+          title       = "Memory Used %"
+          show_legend = false
+          request {
+            q            = "avg:do_postgres.mem_used_percent{*}"
+            display_type = "line"
+            style {
+              palette = "orange"
+            }
+          }
+        }
+      }
+
+      widget {
+        timeseries_definition {
+          title       = "Disk Used %"
+          show_legend = false
+          request {
+            q            = "avg:do_postgres.disk_used_percent{*}"
+            display_type = "line"
+            style {
+              palette = "grey"
+            }
+          }
+        }
+      }
+
+      widget {
+        timeseries_definition {
+          title       = "System Load (1m)"
+          show_legend = false
+          request {
+            q            = "avg:do_postgres.system_load1{*}"
+            display_type = "line"
+            style {
+              palette = "red"
+            }
+          }
+        }
+      }
+
+      widget {
+        timeseries_definition {
+          title       = "Network I/O"
+          show_legend = true
+          request {
+            q            = "avg:do_postgres.net_bytes_recv.count{*}.as_rate()"
+            display_type = "line"
+            style {
+              palette = "blue"
+            }
+          }
+          request {
+            q            = "avg:do_postgres.net_bytes_sent.count{*}.as_rate()"
+            display_type = "line"
+            style {
+              palette = "orange"
+            }
+          }
+        }
+      }
+    }
+  }
+
+  widget {
+    group_definition {
+      title       = "Valkey (DO managed)"
+      layout_type = "ordered"
+
+      widget {
+        timeseries_definition {
+          title       = "CPU Breakdown"
+          show_legend = true
+          request {
+            q            = "avg:do_valkey.cpu_usage_user{*}"
+            display_type = "area"
+            style {
+              palette = "blue"
+            }
+          }
+          request {
+            q            = "avg:do_valkey.cpu_usage_system{*}"
+            display_type = "area"
+            style {
+              palette = "orange"
+            }
+          }
+          request {
+            q            = "avg:do_valkey.cpu_usage_iowait{*}"
+            display_type = "area"
+            style {
+              palette = "purple"
+            }
+          }
+        }
+      }
+
+      widget {
+        timeseries_definition {
+          title       = "Memory Used %"
+          show_legend = false
+          request {
+            q            = "avg:do_valkey.mem_used_percent{*}"
+            display_type = "line"
+            style {
+              palette = "orange"
+            }
+          }
+        }
+      }
+
+      widget {
+        timeseries_definition {
+          title       = "Disk Used %"
+          show_legend = false
+          request {
+            q            = "avg:do_valkey.disk_used_percent{*}"
+            display_type = "line"
+            style {
+              palette = "grey"
+            }
+          }
+        }
+      }
+
+      widget {
+        timeseries_definition {
+          title       = "System Load (1m)"
+          show_legend = false
+          request {
+            q            = "avg:do_valkey.system_load1{*}"
+            display_type = "line"
+            style {
+              palette = "red"
+            }
+          }
+        }
+      }
+
+      widget {
+        timeseries_definition {
+          title       = "Network I/O"
+          show_legend = true
+          request {
+            q            = "avg:do_valkey.net_bytes_recv.count{*}.as_rate()"
+            display_type = "line"
+            style {
+              palette = "blue"
+            }
+          }
+          request {
+            q            = "avg:do_valkey.net_bytes_sent.count{*}.as_rate()"
+            display_type = "line"
+            style {
+              palette = "orange"
+            }
+          }
+        }
+      }
+    }
+  }
+}
