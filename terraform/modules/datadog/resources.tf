@@ -4,6 +4,48 @@ resource "kubernetes_namespace" "datadog" {
   }
 }
 
+# DO's managed Postgres/Valkey each expose a Prometheus-format metrics
+# endpoint (metrics_endpoints on digitalocean_database_cluster) over a
+# self-signed cert (tls_verify off -- that cert isn't signed by a public CA)
+# gated by an account-wide metrics credential (digitalocean_database_metrics_
+# credentials) -- NOT the per-cluster DB admin user/password, which 401s
+# against this endpoint (confirmed empirically). MongoDB has no such
+# endpoint, so it isn't covered here.
+#
+# datadog.confd keys land as flat files directly under /conf.d (no "/" --
+# Kubernetes ConfigMap data keys can't contain one, and the chart's
+# advancedConfd nesting only exists for clusterAgent, not the node Agent),
+# so both instances live in one openmetrics.yaml, matching the check name
+# the Agent looks for.
+locals {
+  confd_values = yamlencode({
+    datadog = {
+      confd = {
+        "openmetrics.yaml" = yamlencode({
+          instances = [
+            {
+              openmetrics_endpoint = var.database_metrics_endpoint
+              namespace            = "do_postgres"
+              metrics              = [".*"]
+              username             = var.metrics_credentials_username
+              password             = var.metrics_credentials_password
+              tls_verify           = false
+            },
+            {
+              openmetrics_endpoint = var.cache_metrics_endpoint
+              namespace            = "do_valkey"
+              metrics              = [".*"]
+              username             = var.metrics_credentials_username
+              password             = var.metrics_credentials_password
+              tls_verify           = false
+            }
+          ]
+        })
+      }
+    }
+  })
+}
+
 # Logs pillar (wayfinder ticket 008/010) plus a first pass at the Metrics
 # pillar (ticket 008/datadog-infra-metrics branch): process + network
 # telemetry turned on. APM stays off -- enabling the trace-receiving port
@@ -16,6 +58,7 @@ resource "helm_release" "datadog" {
   repository = "https://helm.datadoghq.com"
   chart      = "datadog"
   namespace  = kubernetes_namespace.datadog.metadata[0].name
+  values     = [local.confd_values]
 
   set_sensitive {
     name  = "datadog.apiKey"
