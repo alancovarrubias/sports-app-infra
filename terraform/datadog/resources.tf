@@ -60,15 +60,25 @@ resource "datadog_monitor" "error_logs" {
     @${var.alert_email}
   EOT
 
-  # status:emergency/status:error now work reliably for auth/football/sidekiq
-  # thanks to datadog_logs_custom_pipeline.ruby_severity above (FATAL maps to
-  # "emergency", Datadog's highest severity, not "error" -- see that
-  # resource's comment for why). The message:* clauses stay as a fallback for
-  # crawler/server, which aren't covered by that pipeline and still rely on
-  # best-effort keyword matching over unstructured logs (structured logging
-  # there was explicitly deferred -- see 008's Decisions section).
+  # Scoped to our 6 app services explicitly -- an unscoped status:error
+  # matched system noise (DOKS's own konnectivity-agent logs its routine
+  # "write to remote"/"received DATA" chatter as status:error despite the
+  # message itself being klog-INFO-prefixed) and, surprisingly, our own
+  # `server`: Node's ExperimentalWarning and npm update notices on stdout
+  # also come through as status:error with no pipeline to correct them.
+  # Confirmed by inspecting real ingested events, not assumed.
+  #
+  # status:emergency/status:error is further scoped to only
+  # auth/football/sidekiq -- the three services datadog_logs_custom_pipeline
+  # .ruby_severity above actually makes that facet meaningful for (FATAL maps
+  # to "emergency", Datadog's highest severity, not "error" -- see that
+  # resource's comment for why). server/crawler have no such pipeline, so for
+  # them this monitor still relies on best-effort keyword matching over
+  # unstructured logs (structured logging there was explicitly deferred --
+  # see 008's Decisions section) rather than status, which would just be
+  # more of the same false-positive noise for those two.
   query = <<-EOT
-    logs("status:emergency OR status:error OR message:*Exception* OR message:*Traceback* OR message:*FATAL*").index("*").rollup("count").last("5m") > 0
+    logs("((status:emergency OR status:error) service:(auth OR football OR sidekiq)) OR ((message:*Exception* OR message:*Traceback* OR message:*FATAL*) service:(auth OR football OR sidekiq OR server OR client OR crawler))").index("*").rollup("count").last("5m") > 0
   EOT
 
   monitor_thresholds {
