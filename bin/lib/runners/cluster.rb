@@ -11,8 +11,8 @@ module Runners
     # sidekiq has no image of its own -- it runs football's, so it's never pushed.
     REGISTRY_CONTAINERS = (DEPLOYMENTS - %w[sidekiq]).freeze
     STAGE_DOMAIN_NAME = 'sports-app.test'.freeze
-    HELM_APPLY_ATTEMPTS = 3
-    HELM_APPLY_RETRY_DELAY = 15
+    INGRESS_APPLY_ATTEMPTS = 3
+    INGRESS_APPLY_RETRY_DELAY = 15
 
     def initialize(options)
       super
@@ -88,11 +88,11 @@ module Runners
     end
 
     def ingress
-      with_retries(HELM_APPLY_ATTEMPTS) { run_terraform('apply_ingress', 'output') }
+      with_retries(INGRESS_APPLY_ATTEMPTS) { run_terraform('apply_ingress', 'output') }
     end
 
     def datadog
-      with_retries(HELM_APPLY_ATTEMPTS) { run_terraform('apply_datadog', 'output') }
+      run_terraform('apply_datadog', 'output')
     end
 
     def dns
@@ -110,14 +110,13 @@ module Runners
     # freshly created cluster's API server can still be intermittently
     # unreachable (EOF) for a short window after `infra` returns, even though
     # its nodes are already Ready. Retrying the apply rides out that window.
-    # Wraps every helm_release-backed step (ingress, datadog) for this reason.
     def with_retries(attempts)
       yield
     rescue SystemExit
       raise if attempts <= 1
 
       puts "Transient failure -- retrying (#{attempts - 1} attempt(s) left)..."
-      sleep HELM_APPLY_RETRY_DELAY
+      sleep INGRESS_APPLY_RETRY_DELAY
       with_retries(attempts - 1) { yield }
     end
 
