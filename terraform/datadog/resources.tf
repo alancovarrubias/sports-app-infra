@@ -14,8 +14,13 @@ resource "datadog_logs_custom_pipeline" "ruby_severity" {
   name       = "sports-app Ruby log severity"
   is_enabled = true
 
+  # Pipeline filters match against source, not service -- confirmed
+  # empirically: with a service:-based filter, real logs from these pods
+  # still carried the datadog.pipelines:false tag (Datadog's own documented
+  # signal for "no pipeline matched this log"), meaning the filter wasn't
+  # matching at all, not that the grok pattern failed to parse.
   filter {
-    query = "service:auth OR service:football OR service:sidekiq"
+    query = "source:auth OR source:football OR source:sidekiq"
   }
 
   processor {
