@@ -14,8 +14,13 @@ resource "datadog_logs_custom_pipeline" "ruby_severity" {
   name       = "sports-app Ruby log severity"
   is_enabled = true
 
+  # Pipeline filters match against source, not service -- confirmed
+  # empirically: with a service:-based filter, real logs from these pods
+  # still carried the datadog.pipelines:false tag (Datadog's own documented
+  # signal for "no pipeline matched this log"), meaning the filter wasn't
+  # matching at all, not that the grok pattern failed to parse.
   filter {
-    query = "service:auth OR service:football OR service:sidekiq"
+    query = "source:auth OR source:football OR source:sidekiq"
   }
 
   processor {
@@ -24,9 +29,18 @@ resource "datadog_logs_custom_pipeline" "ruby_severity" {
       source     = "message"
       is_enabled = true
 
+      # Datadog's grok parser requires matching the ENTIRE message, not a
+      # leading substring -- confirmed directly in Datadog's live grok
+      # tester: a rule covering only "F, [...] FATAL -- :" reported NO MATCH
+      # despite being correct as far as it went, and only matched once a
+      # trailing %{data:error_message} was added to consume the rest of the
+      # line (the actual exception/backtrace). `data` explicitly handles
+      # newlines, so this also covers full multi-line Rails backtraces.
+      # Also: `number` doesn't match a bare integer like a pid ("9") --
+      # Datadog's own AI rule-generator used `integer` for the same field.
       grok {
         match_rules   = <<-EOT
-          ruby_logger %%{WORD:letter}, \[%%{NOTSPACE:ruby_ts} #%%{NUMBER:pid}\]\s+%%{WORD:severity}\s+--\s+:
+          ruby_logger %%{word:letter}, \[%%{notSpace:ruby_ts} #%%{integer:pid}\] %%{word:severity} -- : %%{data:error_message}
         EOT
         support_rules = ""
       }
@@ -60,15 +74,25 @@ resource "datadog_monitor" "error_logs" {
     @${var.alert_email}
   EOT
 
-  # status:emergency/status:error now work reliably for auth/football/sidekiq
-  # thanks to datadog_logs_custom_pipeline.ruby_severity above (FATAL maps to
-  # "emergency", Datadog's highest severity, not "error" -- see that
-  # resource's comment for why). The message:* clauses stay as a fallback for
-  # crawler/server, which aren't covered by that pipeline and still rely on
-  # best-effort keyword matching over unstructured logs (structured logging
-  # there was explicitly deferred -- see 008's Decisions section).
+  # Scoped to our 6 app services explicitly -- an unscoped status:error
+  # matched system noise (DOKS's own konnectivity-agent logs its routine
+  # "write to remote"/"received DATA" chatter as status:error despite the
+  # message itself being klog-INFO-prefixed) and, surprisingly, our own
+  # `server`: Node's ExperimentalWarning and npm update notices on stdout
+  # also come through as status:error with no pipeline to correct them.
+  # Confirmed by inspecting real ingested events, not assumed.
+  #
+  # status:emergency/status:error is further scoped to only
+  # auth/football/sidekiq -- the three services datadog_logs_custom_pipeline
+  # .ruby_severity above actually makes that facet meaningful for (FATAL maps
+  # to "emergency", Datadog's highest severity, not "error" -- see that
+  # resource's comment for why). server/crawler have no such pipeline, so for
+  # them this monitor still relies on best-effort keyword matching over
+  # unstructured logs (structured logging there was explicitly deferred --
+  # see 008's Decisions section) rather than status, which would just be
+  # more of the same false-positive noise for those two.
   query = <<-EOT
-    logs("status:emergency OR status:error OR message:*Exception* OR message:*Traceback* OR message:*FATAL*").index("*").rollup("count").last("5m") > 0
+    logs("((status:emergency OR status:error) service:(auth OR football OR sidekiq)) OR ((message:*Exception* OR message:*Traceback* OR message:*FATAL*) service:(auth OR football OR sidekiq OR server OR client OR crawler))").index("*").rollup("count").last("5m") > 0
   EOT
 
   monitor_thresholds {

@@ -318,12 +318,28 @@ RSpec.describe Runners::Cluster do
     end
 
     describe '#datadog' do
+      let(:apply_datadog) { terraform('apply -target=module.datadog -var-file=../terraform.tfvars --auto-approve') }
+
       it 'applies the datadog module and refreshes outputs' do
         runner.datadog
         expect(captured_commands).to eq([
-          terraform('apply -target=module.datadog -var-file=../terraform.tfvars --auto-approve'),
+          apply_datadog,
           terraform("output -json > #{options[:output_file]}")
         ])
+      end
+
+      it 'retries after a transient failure, then succeeds' do
+        fail_next_system_calls(1)
+        allow(runner).to receive(:sleep)
+
+        runner.datadog
+
+        expect(captured_commands).to eq([
+          apply_datadog,
+          apply_datadog,
+          terraform("output -json > #{options[:output_file]}")
+        ])
+        expect(runner).to have_received(:sleep).once
       end
     end
 
