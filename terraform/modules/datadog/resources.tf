@@ -36,14 +36,15 @@ resource "helm_release" "datadog" {
     value = "true"
   }
 
-  # kube-system noise (confirmed concretely: konnectivity-agent's routine
-  # tunnel chatter was showing up status:error with no actual problem --
-  # see the monitor's own comment) was cluttering the Logs UI. Excluding it
-  # at the Agent means it's never collected in the first place, so it's not
-  # just filtered out of search -- it's not ingested or billed for either.
+  # konnectivity-agent's routine tunnel chatter was showing up status:error
+  # with no actual problem (see the monitor's own comment), cluttering the
+  # Logs UI. Scoped to this one component, not all of kube-system -- CoreDNS
+  # also lives there and DNS failures are a real thing worth being able to
+  # debug; konnectivity-agent's own logs matter too if the tunnel it
+  # provides ever breaks (kubectl exec/logs/port-forward all depend on it).
   set {
     name  = "datadog.containerExcludeLogs"
-    value = "kube_namespace:kube-system"
+    value = "kube_container_name:konnectivity-agent"
   }
 
   set {
