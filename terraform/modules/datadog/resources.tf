@@ -36,6 +36,16 @@ resource "helm_release" "datadog" {
     value = "true"
   }
 
+  # kube-system noise (confirmed concretely: konnectivity-agent's routine
+  # tunnel chatter was showing up status:error with no actual problem --
+  # see the monitor's own comment) was cluttering the Logs UI. Excluding it
+  # at the Agent means it's never collected in the first place, so it's not
+  # just filtered out of search -- it's not ingested or billed for either.
+  set {
+    name  = "datadog.containerExcludeLogs"
+    value = "kube_namespace:kube-system"
+  }
+
   set {
     name  = "datadog.apm.portEnabled"
     value = "false"
