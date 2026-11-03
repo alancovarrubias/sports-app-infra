@@ -79,6 +79,15 @@ module Runners
       run_commands(@kubectl_command.exec(target_pod, 'rails', 'runner', %("load Rails.root.join('db/seeds.rb')")))
     end
 
+    # Seeds the first Backfill Task for every independent starting point in
+    # the target backend (-d football/nba/mlb) -- each job then fans out the
+    # rest of its own chain, so this is the only dispatch step that needs
+    # driving from outside the cluster. See the sports-backfill wayfinder
+    # map (sports-app repo, ticket 08) for the full design.
+    def backfill_seed
+      run_commands(@kubectl_command.exec(target_pod, 'bundle', 'exec', 'rake', 'backfill:seed'))
+    end
+
     def dump
       @database_command.dump(outputs['database_uri']['value'], @options[:database])
     end
