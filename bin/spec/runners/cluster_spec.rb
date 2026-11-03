@@ -236,6 +236,36 @@ RSpec.describe Runners::Cluster do
       end
     end
 
+    describe '#backfill_seed' do
+      it 'runs the backfill:seed rake task in the running football pod' do
+        allow(runner).to receive(:pod_name).with('football').and_return('football-6d68fc48fd-crhzh')
+        options[:database] = 'football'
+        runner.backfill_seed
+        expect(captured_commands).to eq([
+          "kubectl --kubeconfig=#{Constants::KUBECONFIG} exec -it football-6d68fc48fd-crhzh -- " +
+            'bundle exec rake backfill:seed'
+        ])
+      end
+
+      it 'aborts with a clear message when no pod is running for that database' do
+        allow(runner).to receive(:pod_name).with('football').and_return('')
+        options[:database] = 'football'
+        expect { runner.backfill_seed }.to raise_error(SystemExit)
+        expect(captured_commands).to eq([])
+      end
+
+      it 'aborts with a clear message when no database is specified' do
+        expect { runner.backfill_seed }.to raise_error(SystemExit)
+        expect(captured_commands).to eq([])
+      end
+
+      it 'aborts with a clear message when the database is unknown' do
+        options[:database] = 'nonsense'
+        expect { runner.backfill_seed }.to raise_error(SystemExit)
+        expect(captured_commands).to eq([])
+      end
+    end
+
     describe '#dump' do
       it 'dumps the given database' do
         options[:database] = 'auth'
