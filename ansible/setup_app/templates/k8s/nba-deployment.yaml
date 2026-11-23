@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: nba
+  name: nba
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nba
+  template:
+    metadata:
+      labels:
+        app: nba
+    spec:
+      containers:
+        - name: nba
+          image: "{{ registry_name }}/nba:{{ env }}"
+          imagePullPolicy: Always
+          env:
+            - name: RAILS_ENV
+              value: "production"
+            - name: RAILS_LOG_TO_STDOUT
+              value: "true"
+            - name: SECRET_KEY_BASE
+              valueFrom:
+                secretKeyRef:
+                  name: rails-secrets
+                  key: secret_key_base
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: database-url
+                  key: NBA_DATABASE_URL
+            - name: REDIS_URL_SIDEKIQ
+              valueFrom:
+                secretKeyRef:
+                  name: cache-url
+                  key: NBA_REDIS_URL
+          ports:
+            - containerPort: 3001
+      imagePullSecrets:
+        - name: registry-sports

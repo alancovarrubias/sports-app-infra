@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: mlb
+  name: mlb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mlb
+  template:
+    metadata:
+      labels:
+        app: mlb
+    spec:
+      containers:
+        - name: mlb
+          image: "{{ registry_name }}/mlb:{{ env }}"
+          imagePullPolicy: Always
+          env:
+            - name: RAILS_ENV
+              value: "production"
+            - name: RAILS_LOG_TO_STDOUT
+              value: "true"
+            - name: SECRET_KEY_BASE
+              valueFrom:
+                secretKeyRef:
+                  name: rails-secrets
+                  key: secret_key_base
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: database-url
+                  key: MLB_DATABASE_URL
+            - name: REDIS_URL_SIDEKIQ
+              valueFrom:
+                secretKeyRef:
+                  name: cache-url
+                  key: MLB_REDIS_URL
+          ports:
+            - containerPort: 3002
+      imagePullSecrets:
+        - name: registry-sports

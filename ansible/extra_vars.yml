@@ -5,9 +5,13 @@ env: dev
 db_containers:
   - auth
   - football
+  - nba
+  - mlb
 registry_containers:
   - client
   - server
   - auth
   - football
   - crawler
+  - nba
+  - mlb

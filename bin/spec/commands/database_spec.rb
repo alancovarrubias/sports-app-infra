@@ -66,13 +66,15 @@ RSpec.describe Commands::Database do
   describe '#dump_all' do
     it 'dumps every known database' do
       command.dump_all(base_uri)
-      expect(captured_commands).to eq([dump_command('auth'), dump_command('football')])
+      expect(captured_commands).to eq([
+        dump_command('auth'), dump_command('football'), dump_command('nba'), dump_command('mlb')
+      ])
     end
 
     it 'skips databases that do not exist and still dumps the rest' do
       allow(command).to receive(:database_exists?).with(base_uri, 'auth').and_return(false)
       command.dump_all(base_uri)
-      expect(captured_commands).to eq([dump_command('football')])
+      expect(captured_commands).to eq([dump_command('football'), dump_command('nba'), dump_command('mlb')])
     end
   end
 
@@ -97,11 +99,15 @@ RSpec.describe Commands::Database do
   describe '#restore_all' do
     it 'restores every known database that has a local dump' do
       command.restore_all(base_uri)
-      expect(captured_commands).to eq([restore_command('auth'), restore_command('football')])
+      expect(captured_commands).to eq([
+        restore_command('auth'), restore_command('football'), restore_command('nba'), restore_command('mlb')
+      ])
     end
 
     it 'skips databases with no local dump' do
       allow(File).to receive(:exist?).with(dump_file('football')).and_return(false)
+      allow(File).to receive(:exist?).with(dump_file('nba')).and_return(false)
+      allow(File).to receive(:exist?).with(dump_file('mlb')).and_return(false)
       command.restore_all(base_uri)
       expect(captured_commands).to eq([restore_command('auth')])
     end

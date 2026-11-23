@@ -44,6 +44,10 @@ RSpec.describe Runners::Cluster do
              "-e database_url=postgres://fake-db " \
              "-e auth_database_url=postgres://fake-db/auth_production " \
              "-e football_database_url=postgres://fake-db/football_production " \
+             "-e nba_database_url=postgres://fake-db/nba_production " \
+             "-e mlb_database_url=postgres://fake-db/mlb_production " \
+             "-e nba_redis_url=redis://fake-cache/1 " \
+             "-e mlb_redis_url=redis://fake-cache/2 " \
              "-e registry_name=registry.digitalocean.com/fake -e kubeconfig=#{Constants::KUBECONFIG}#{extra}"
       "#{base}#{extra_ansible_variables} setup_#{env_name}.yml"
     end
@@ -383,7 +387,7 @@ RSpec.describe Runners::Cluster do
     describe '#destroy' do
       it 'dumps each app database before tearing anything down' do
         runner.destroy
-        expect(captured_commands.first(2)).to eq([dump('auth'), dump('football')])
+        expect(captured_commands.first(4)).to eq([dump('auth'), dump('football'), dump('nba'), dump('mlb')])
       end
     end
 
@@ -430,6 +434,8 @@ RSpec.describe Runners::Cluster do
         expect(captured_commands).to eq([
           dump('auth'),
           dump('football'),
+          dump('nba'),
+          dump('mlb'),
           terraform('destroy -target=module.ingress -var-file=../terraform.tfvars --auto-approve'),
           terraform('destroy -target=module.datadog -var-file=../terraform.tfvars --auto-approve'),
           terraform('destroy -target=module.registry -var-file=../terraform.tfvars --auto-approve'),
