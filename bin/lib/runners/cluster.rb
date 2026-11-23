@@ -1,4 +1,5 @@
 require 'securerandom'
+require 'uri'
 
 module Runners
   # Environments backed by a DigitalOcean Kubernetes cluster (stage, prod):
@@ -7,9 +8,15 @@ module Runners
   # environment with its own domain, so it's the only one that touches DNS
   # or needs apply_base/destroy_base to rebuild everything except it.
   class Cluster < Base
-    DEPLOYMENTS = %w[client server auth football crawler sidekiq].freeze
-    # sidekiq has no image of its own -- it runs football's, so it's never pushed.
-    REGISTRY_CONTAINERS = (DEPLOYMENTS - %w[sidekiq]).freeze
+    DEPLOYMENTS = %w[client server auth football crawler sidekiq nba nba-sidekiq mlb mlb-sidekiq].freeze
+    # sidekiq/nba-sidekiq/mlb-sidekiq have no image of their own -- each runs
+    # its web counterpart's image, so none of them is ever pushed.
+    REGISTRY_CONTAINERS = (DEPLOYMENTS - %w[sidekiq nba-sidekiq mlb-sidekiq]).freeze
+    # nba and mlb's Sidekiq workers share the same Valkey cluster as football
+    # (and each other) via DO-managed Redis/Valkey's 16 logical databases --
+    # football is grandfathered on the unindexed default (db 0).
+    NBA_REDIS_DB = 1
+    MLB_REDIS_DB = 2
     STAGE_DOMAIN_NAME = 'sports-app.test'.freeze
     HELM_APPLY_ATTEMPTS = 3
     HELM_APPLY_RETRY_DELAY = 15
@@ -153,10 +160,13 @@ module Runners
       REGISTRY_CONTAINERS.include?(@options[:service]) ? [@options[:service]] : []
     end
 
-    # sidekiq runs football's image rather than its own, so a football
-    # restart must carry sidekiq along or it keeps running the old code.
+    # Each web service's Sidekiq worker runs its web counterpart's image
+    # rather than its own, so restarting the web service must carry its
+    # worker along or it keeps running the old code.
     def restart_targets
       return %w[football sidekiq] if @options[:service] == 'football'
+      return %w[nba nba-sidekiq] if @options[:service] == 'nba'
+      return %w[mlb mlb-sidekiq] if @options[:service] == 'mlb'
 
       [@options[:service]]
     end
@@ -184,14 +194,19 @@ module Runners
 
     def ansible_variables
       base_uri = outputs['database_uri']['value']
+      cache_uri = outputs['cache_uri']['value']
 
       variables = {
         secret_key_base: SecureRandom.hex(64),
-        cache_url: outputs['cache_uri']['value'],
+        cache_url: cache_uri,
         mongo_url: outputs['mongo_uri']['value'],
         database_url: base_uri,
         auth_database_url: @database_command.uri(base_uri, 'auth'),
         football_database_url: @database_command.uri(base_uri, 'football'),
+        nba_database_url: @database_command.uri(base_uri, 'nba'),
+        mlb_database_url: @database_command.uri(base_uri, 'mlb'),
+        nba_redis_url: redis_uri(cache_uri, NBA_REDIS_DB),
+        mlb_redis_url: redis_uri(cache_uri, MLB_REDIS_DB),
         registry_name: outputs['registry_name']['value'],
         kubeconfig: KUBECONFIG
       }
@@ -199,6 +214,15 @@ module Runners
       return variables if prod?
 
       variables.merge(domain_name: STAGE_DOMAIN_NAME, local_image_tag: 'prod')
+    end
+
+    # Points a Valkey URI at a specific logical database (DO-managed
+    # Redis/Valkey supports the same 16-database SELECT every Redis does),
+    # mirroring how each backend already gets its own dedicated database.
+    def redis_uri(base_uri, index)
+      parsed = URI.parse(base_uri)
+      parsed.path = "/#{index}"
+      parsed.to_s
     end
   end
 end

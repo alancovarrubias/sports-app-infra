@@ -5,7 +5,7 @@ module Commands
   class Database
     include Constants
 
-    CONTAINERS = %w[auth football].freeze
+    CONTAINERS = %w[auth football nba mlb].freeze
 
     def initialize(options)
       @options = options

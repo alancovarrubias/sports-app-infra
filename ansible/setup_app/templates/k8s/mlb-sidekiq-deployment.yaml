@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mlb-sidekiq
+  labels:
+    app: mlb-sidekiq
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mlb-sidekiq
+  template:
+    metadata:
+      labels:
+        app: mlb-sidekiq
+    spec:
+      containers:
+        - name: mlb-sidekiq
+          image: "{{ registry_name }}/mlb:{{ env }}"
+          imagePullPolicy: Always
+          command: ["bundle", "exec", "sidekiq"]
+          resources:
+            requests:
+              cpu: "150m"
+              memory: "512Mi"
+            limits:
+              cpu: "500m"
+              memory: "768Mi"
+          env:
+            - name: RAILS_ENV
+              value: "production"
+            - name: RAILS_LOG_TO_STDOUT
+              value: "true"
+            - name: SECRET_KEY_BASE
+              valueFrom:
+                secretKeyRef:
+                  name: rails-secrets
+                  key: secret_key_base
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: database-url
+                  key: MLB_DATABASE_URL
+            - name: REDIS_URL_SIDEKIQ
+              valueFrom:
+                secretKeyRef:
+                  name: cache-url
+                  key: MLB_REDIS_URL
+            - name: SIDEKIQ_CONCURRENCY
+              value: "2"
+            - name: RAILS_MAX_THREADS
+              value: "10"
+      imagePullSecrets:
+        - name: registry-sports
