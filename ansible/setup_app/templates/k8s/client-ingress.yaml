@@ -41,13 +41,29 @@ spec:
                 port:
                   number: 4000
 
-          - path: /sidekiq
+          - path: /football/sidekiq
             pathType: Prefix
             backend:
               service:
                 name: football
                 port:
                   number: 3003
+
+          - path: /nba/sidekiq
+            pathType: Prefix
+            backend:
+              service:
+                name: nba
+                port:
+                  number: 3001
+
+          - path: /mlb/sidekiq
+            pathType: Prefix
+            backend:
+              service:
+                name: mlb
+                port:
+                  number: 3002
 {% if env == 'prod' or (env == 'stage' and mkcert_tls_ready) %}
   tls:
     - hosts:
