@@ -1,4 +1,4 @@
-RSpec.describe Commands::Database do
+RSpec.describe Commands::Postgres do
   subject(:command) { described_class.new(env: 'stage') }
 
   let(:base_uri) { 'postgres://fake-db' }

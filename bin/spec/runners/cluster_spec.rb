@@ -21,7 +21,7 @@ RSpec.describe Runners::Cluster do
       allow(FileUtils).to receive(:mkdir_p)
       allow(File).to receive(:exist?).and_call_original
       allow(File).to receive(:exist?).with(/bin\/outputs\/dumps/).and_return(false)
-      allow_any_instance_of(Commands::Database).to receive(:database_exists?).and_return(true)
+      allow_any_instance_of(Commands::Postgres).to receive(:database_exists?).and_return(true)
       allow_any_instance_of(Commands::Mongo).to receive(:app_databases).and_return([])
       allow(Dir).to receive(:exist?).and_call_original
       allow(Dir).to receive(:exist?).with(/bin\/outputs\/dumps/).and_return(false)

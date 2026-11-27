@@ -2,7 +2,7 @@ require 'uri'
 require 'fileutils'
 
 module Commands
-  class Database
+  class Postgres
     include Constants
 
     CONTAINERS = %w[auth football nba mlb].freeze
