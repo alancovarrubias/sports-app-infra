@@ -25,6 +25,7 @@ module Runners
       super
       @kubectl_command = Commands::Kubectl.new
       @database_command = Commands::Database.new(options)
+      @mongo_command = Commands::Mongo.new(options)
     end
 
     def apply
@@ -35,6 +36,7 @@ module Runners
       dns if prod?
       kube
       @database_command.restore_all(outputs['database_uri']['value'])
+      @mongo_command.restore_all(outputs['mongo_uri']['value'])
     end
 
     def apply_base
@@ -47,6 +49,7 @@ module Runners
 
     def destroy
       @database_command.dump_all(outputs['database_uri']['value'])
+      @mongo_command.dump_all(outputs['mongo_uri']['value'])
       targets = ['destroy_ingress']
       targets << 'destroy_dns' if prod?
       targets += %w[destroy_datadog destroy_registry destroy_infra output]
