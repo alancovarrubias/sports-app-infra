@@ -21,7 +21,10 @@ RSpec.describe Runners::Cluster do
       allow(FileUtils).to receive(:mkdir_p)
       allow(File).to receive(:exist?).and_call_original
       allow(File).to receive(:exist?).with(/bin\/outputs\/dumps/).and_return(false)
-      allow_any_instance_of(Commands::Database).to receive(:database_exists?).and_return(true)
+      allow_any_instance_of(Commands::Postgres).to receive(:database_exists?).and_return(true)
+      allow_any_instance_of(Commands::Mongo).to receive(:app_databases).and_return([])
+      allow(Dir).to receive(:exist?).and_call_original
+      allow(Dir).to receive(:exist?).with(/bin\/outputs\/dumps/).and_return(false)
     end
 
     def dump(db)
@@ -32,6 +35,15 @@ RSpec.describe Runners::Cluster do
     def restore(db)
       "$(brew --prefix postgresql@18)/bin/psql \"postgres://fake-db/#{db}_production\" " \
         "-f #{Constants::ROOT_DIR}/bin/outputs/dumps/#{env_name}/#{db}.sql"
+    end
+
+    def mongo_dump(db)
+      "mongodump --uri=\"mongodb://fake-mongo/#{db}\" --out=#{Constants::ROOT_DIR}/bin/outputs/dumps/#{env_name}/mongo"
+    end
+
+    def mongo_restore(db)
+      "mongorestore --uri=\"mongodb://fake-mongo/#{db}\" --drop " \
+        "#{Constants::ROOT_DIR}/bin/outputs/dumps/#{env_name}/mongo/#{db}"
     end
 
     def terraform(*rest)
@@ -389,6 +401,12 @@ RSpec.describe Runners::Cluster do
         runner.destroy
         expect(captured_commands.first(4)).to eq([dump('auth'), dump('football'), dump('nba'), dump('mlb')])
       end
+
+      it 'dumps every non-system Mongo database, right after the Postgres dumps' do
+        allow_any_instance_of(Commands::Mongo).to receive(:app_databases).and_return(%w[nba mlb])
+        runner.destroy
+        expect(captured_commands[4..5]).to eq([mongo_dump('nba'), mongo_dump('mlb')])
+      end
     end
 
     describe '#apply' do
@@ -406,6 +424,16 @@ RSpec.describe Runners::Cluster do
       it 'restores nothing when no dump is present' do
         runner.apply
         expect(captured_commands.join(' ')).not_to include('psql')
+      end
+
+      it 'restores whichever Mongo databases have a local dump, after the Postgres restore' do
+        mongo_dir = "#{Constants::ROOT_DIR}/bin/outputs/dumps/#{env_name}/mongo"
+        allow(Dir).to receive(:exist?).with(mongo_dir).and_return(true)
+        allow(Dir).to receive(:children).with(mongo_dir).and_return(%w[nba mlb])
+
+        runner.apply
+
+        expect(captured_commands.last(2)).to eq([mongo_restore('nba'), mongo_restore('mlb')])
       end
 
       it 'brings up Datadog log shipping' do

@@ -24,7 +24,8 @@ module Runners
     def initialize(options)
       super
       @kubectl_command = Commands::Kubectl.new
-      @database_command = Commands::Database.new(options)
+      @postgres_command = Commands::Postgres.new(options)
+      @mongo_command = Commands::Mongo.new(options)
     end
 
     def apply
@@ -34,7 +35,8 @@ module Runners
       datadog
       dns if prod?
       kube
-      @database_command.restore_all(outputs['database_uri']['value'])
+      @postgres_command.restore_all(outputs['database_uri']['value'])
+      @mongo_command.restore_all(outputs['mongo_uri']['value'])
     end
 
     def apply_base
@@ -46,7 +48,8 @@ module Runners
     end
 
     def destroy
-      @database_command.dump_all(outputs['database_uri']['value'])
+      @postgres_command.dump_all(outputs['database_uri']['value'])
+      @mongo_command.dump_all(outputs['mongo_uri']['value'])
       targets = ['destroy_ingress']
       targets << 'destroy_dns' if prod?
       targets += %w[destroy_datadog destroy_registry destroy_infra output]
@@ -96,11 +99,11 @@ module Runners
     end
 
     def dump
-      @database_command.dump(outputs['database_uri']['value'], @options[:database])
+      @postgres_command.dump(outputs['database_uri']['value'], @options[:database])
     end
 
     def restore
-      @database_command.restore(outputs['database_uri']['value'], @options[:database])
+      @postgres_command.restore(outputs['database_uri']['value'], @options[:database])
     end
 
     def ingress
@@ -138,7 +141,7 @@ module Runners
     end
 
     def target_pod
-      db = @database_command.validate!(@options[:database])
+      db = @postgres_command.validate!(@options[:database])
       pod = pod_name(db)
       abort("No running #{db} pod found -- is #{@options[:env]} deployed?") if pod.empty?
 
@@ -201,10 +204,10 @@ module Runners
         cache_url: cache_uri,
         mongo_url: outputs['mongo_uri']['value'],
         database_url: base_uri,
-        auth_database_url: @database_command.uri(base_uri, 'auth'),
-        football_database_url: @database_command.uri(base_uri, 'football'),
-        nba_database_url: @database_command.uri(base_uri, 'nba'),
-        mlb_database_url: @database_command.uri(base_uri, 'mlb'),
+        auth_database_url: @postgres_command.uri(base_uri, 'auth'),
+        football_database_url: @postgres_command.uri(base_uri, 'football'),
+        nba_database_url: @postgres_command.uri(base_uri, 'nba'),
+        mlb_database_url: @postgres_command.uri(base_uri, 'mlb'),
         nba_redis_url: redis_uri(cache_uri, NBA_REDIS_DB),
         mlb_redis_url: redis_uri(cache_uri, MLB_REDIS_DB),
         registry_name: outputs['registry_name']['value'],
