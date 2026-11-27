@@ -18,7 +18,7 @@ spec:
         - name: nba-sidekiq
           image: "{{ registry_name }}/nba:{{ env }}"
           imagePullPolicy: Always
-          command: ["bundle", "exec", "sidekiq"]
+          command: ["bundle", "exec", "sidekiq", "-q", "default", "-q", "backfill"]
           resources:
             requests:
               cpu: "150m"
